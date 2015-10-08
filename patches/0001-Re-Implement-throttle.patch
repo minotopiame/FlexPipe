@@ -1,0 +1,77 @@
+From 4fbbe99f804855a64747bab20aa2d4aa54591b74 Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Wed, 7 Oct 2015 21:53:26 +0200
+Subject: [PATCH] Re-Implement throttle
+
+This connection throttle takes care of pings by kicking in only if its clearly a join try.
+Additionally it waits to be able to send a kick message to the client.
+This implementation sends a nice german kick message containing a little highered number of the actual seconds he needs to wait. So this is not intended to be a real fix.
+
+Whether throttle is logged can be specified by a system property, defaults to false.
+---
+ .../java/net/md_5/bungee/connection/InitialHandler.java | 17 ++++++++++++++++-
+ .../main/java/net/md_5/bungee/netty/PipelineUtils.java  |  6 ------
+ 2 files changed, 16 insertions(+), 7 deletions(-)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+index c13d2e6..baf9569 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+@@ -62,6 +62,10 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
+ @RequiredArgsConstructor
+ public class InitialHandler extends PacketHandler implements PendingConnection
+ {
++    private static final BaseComponent[] THROTTLE_REASON = new net.md_5.bungee.api.chat.ComponentBuilder( "Du hast dich zu schnell wiederverbunden, warte bitte mindestens " + ( ( BungeeCord.getInstance().getConfig().getThrottle() / 1000 ) + 2 ) + " Sekunden." )
++            .color( ChatColor.RED )
++            .create();
++    private static final boolean logThrottled = Boolean.valueOf( System.getProperty( "me.minotopia.bungeecord.logThrottled", "false" ) );
+ 
+     private final ProxyServer bungee;
+     private ChannelWrapper ch;
+@@ -212,7 +216,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+                     @Override
+                     public void done(ProxyPingEvent pingResult, Throwable error)
+                     {
+-                        BungeeCord.getInstance().getConnectionThrottle().unthrottle( getAddress().getAddress() );
+                         Gson gson = handshake.getProtocolVersion() == ProtocolConstants.MINECRAFT_1_7_2 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
+                         unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
+                     }
+@@ -296,6 +299,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+     @Override
+     public void handle(LoginRequest loginRequest) throws Exception
+     {
++        // should only be used if its definitely NO ping / status request
++        // as otherwise pings after status requests are blocked
++        // throttle should not be used in handle(Handshake) as its impossible to give the user a proper message at that state
++        if (BungeeCord.getInstance().getConnectionThrottle().throttle( ( (InetSocketAddress) ch.getHandle().remoteAddress() ).getAddress() ) )
++        {
++            if ( logThrottled )
++            {
++                bungee.getLogger().log( Level.INFO, "{0} throttled", this );
++            }
++            disconnect(THROTTLE_REASON);
++            return;
++        }
+         Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
+         this.loginRequest = loginRequest;
+ 
+diff --git a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
+index 7b705fc..7376a45 100644
+--- a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
++++ b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
+@@ -49,12 +49,6 @@ public class PipelineUtils
+         @Override
+         protected void initChannel(Channel ch) throws Exception
+         {
+-            if ( BungeeCord.getInstance().getConnectionThrottle().throttle( ( (InetSocketAddress) ch.remoteAddress() ).getAddress() ) )
+-            {
+-                // TODO: Better throttle - we can't throttle this way if we want to maintain 1.7 compat!
+-                // ch.close();
+-                // return;
+-            }
+ 
+             BASE.initChannel( ch );
+             ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
+-- 
+1.9.5.msysgit.0
+
