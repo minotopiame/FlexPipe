@@ -1,0 +1,6 @@
+#Ignore patch backups
+patches_*
+
+BungeeCord
+.idea
+*.iml
