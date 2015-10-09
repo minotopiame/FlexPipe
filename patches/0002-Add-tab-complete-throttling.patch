@@ -1,0 +1,44 @@
+From bcda63afcd652ea2596b8711c16854c7bdda20ba Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Fri, 9 Oct 2015 16:59:23 +0200
+Subject: [PATCH] Add tab-complete throttling
+
+Adapted from pull request https://github.com/SpigotMC/BungeeCord/pull/1522
+
+To enable tab complete throttling you need to set the system property me.minotopia.bungeecord.tabCompletionThrottle to a positive number. As the normal throttle, this is measured in milliseconds.
+---
+ .../main/java/net/md_5/bungee/connection/UpstreamBridge.java  | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
+index 13637df..ecf58c4 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
+@@ -28,6 +28,8 @@ import net.md_5.bungee.protocol.packet.TabCompleteResponse;
+ public class UpstreamBridge extends PacketHandler
+ {
+ 
++    private static final long TAB_COMPLETION_THROTTLE = Long.getLong("me.minotopia.bungeecord.tabCompletionThrottle", -1);
++    private long lastTabComplete = -1;
+     private final ProxyServer bungee;
+     private final UserConnection con;
+ 
+@@ -124,6 +126,15 @@ public class UpstreamBridge extends PacketHandler
+     @Override
+     public void handle(TabCompleteRequest tabComplete) throws Exception
+     {
++        if ( TAB_COMPLETION_THROTTLE > 0 )
++        {
++            long now = System.currentTimeMillis();
++            if ( lastTabComplete != -1 && ( now - lastTabComplete ) <= TAB_COMPLETION_THROTTLE)
++            {
++                throw CancelSendSignal.INSTANCE;
++            }
++            lastTabComplete = now;
++        }
+         List<String> suggestions = new ArrayList<>();
+ 
+         if ( tabComplete.getCursor().startsWith( "/" ) )
+-- 
+1.9.5.msysgit.0
+
