@@ -5,7 +5,7 @@ Subject: [PATCH] Add tab-complete throttling
 
 Adapted from pull request https://github.com/SpigotMC/BungeeCord/pull/1522
 
-To enable tab complete throttling you need to set the 'minotopia.tab_complete_throttle' value in the configuration. As the normal throttle, this is measured in milliseconds and a negative value equals no tab throttling.
+To enable tab complete throttling you need to set the 'minotopia.tab_complete_throttle' value in the configuration. As the connection throttle, this is measured in milliseconds and a negative value equals no tab throttling.
 ---
  api/src/main/java/net/md_5/bungee/api/ProxyConfig.java         |  5 +++++
  proxy/src/main/java/net/md_5/bungee/conf/Configuration.java    |  2 ++
