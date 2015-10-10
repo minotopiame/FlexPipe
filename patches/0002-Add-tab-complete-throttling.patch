@@ -1,28 +1,27 @@
-From 59087d1d665019efb8353b7b57b14bd2d57fac11 Mon Sep 17 00:00:00 2001
+From 3c7fa14bae26e53b1a0dfcace57551dc86098002 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Fri, 9 Oct 2015 16:59:23 +0200
 Subject: [PATCH] Add tab-complete throttling
 
 Adapted from pull request https://github.com/SpigotMC/BungeeCord/pull/1522
 
-To enable tab complete throttling you need to set the 'minotopia.tab_complete_throttle' config.yml value in the configuration. As the connection throttle, this is measured in milliseconds and a negative value equals no tab throttling.
+To enable tab complete throttling you need to set the 'minotopia.tab_complete_throttle' value in the configuration. As the normal throttle, this is measured in milliseconds and a negative value equals no tab throttling.
 ---
- api/src/main/java/net/md_5/bungee/api/ProxyConfig.java         |  6 ++++++
+ api/src/main/java/net/md_5/bungee/api/ProxyConfig.java         |  5 +++++
  proxy/src/main/java/net/md_5/bungee/conf/Configuration.java    |  2 ++
  .../main/java/net/md_5/bungee/connection/UpstreamBridge.java   | 10 ++++++++++
- 3 files changed, 18 insertions(+)
+ 3 files changed, 17 insertions(+)
 
 diff --git a/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java b/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
-index b638a14..69f7377 100644
+index b638a14..914aa9d 100644
 --- a/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
 +++ b/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
-@@ -57,6 +57,12 @@ public interface ProxyConfig
+@@ -57,6 +57,11 @@ public interface ProxyConfig
      int getThrottle();
  
      /**
 +     * The tab complete throttle delay.
 +     */
-+    @Deprecated
 +    int getTabCompleteThrottle();
 +
 +    /**
@@ -30,7 +29,7 @@ index b638a14..69f7377 100644
       */
      @Deprecated
 diff --git a/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java b/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
-index 97e0003..52d76bf 100644
+index 97e0003..ba5dd3f 100644
 --- a/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
 +++ b/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
 @@ -53,6 +53,7 @@ public class Configuration implements ProxyConfig
@@ -45,7 +44,7 @@ index 97e0003..52d76bf 100644
          onlineMode = adapter.getBoolean( "online_mode", onlineMode );
          playerLimit = adapter.getInt( "player_limit", playerLimit );
          throttle = adapter.getInt( "connection_throttle", throttle );
-+        tabCompleteThrottle = adapter.getInt( "minotopia.tab_complete_throttle", tabCompleteThrottle );
++        tabCompleteThrottle = adapter.getInt( "tab_complete_throttle", tabCompleteThrottle );
          ipForward = adapter.getBoolean( "ip_forward", ipForward );
          compressionThreshold = adapter.getInt( "network_compression_threshold", compressionThreshold );
  
