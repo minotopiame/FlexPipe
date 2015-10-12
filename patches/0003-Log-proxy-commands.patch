@@ -1,0 +1,31 @@
+From db7d0478e3ee3ce8a0c81a5764af00338dd756f3 Mon Sep 17 00:00:00 2001
+From: xxyy <devnull@nowak-at.net>
+Date: Mon, 12 Oct 2015 20:23:23 +0200
+Subject: [PATCH 3/3] Log proxy commands
+
+This commit changes the PluginManager to print a message to
+console and the log when a proxy command is executed.
+This may assist with debugging and miscellaneous
+investigations.
+---
+ api/src/main/java/net/md_5/bungee/api/plugin/PluginManager.java | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/api/src/main/java/net/md_5/bungee/api/plugin/PluginManager.java b/api/src/main/java/net/md_5/bungee/api/plugin/PluginManager.java
+index cde8202..90cd71e 100644
+--- a/api/src/main/java/net/md_5/bungee/api/plugin/PluginManager.java
++++ b/api/src/main/java/net/md_5/bungee/api/plugin/PluginManager.java
+@@ -159,6 +159,10 @@ public class PluginManager
+         {
+             if ( tabResults == null )
+             {
++                proxy.getLogger().log( Level.INFO, "{0} executed proxy command: /{1}", new Object[]
++                        {
++                                sender.getName(), commandLine
++                        } );
+                 command.execute( sender, args );
+             } else if ( commandLine.contains( " " ) && command instanceof TabExecutor )
+             {
+-- 
+2.6.1
+
