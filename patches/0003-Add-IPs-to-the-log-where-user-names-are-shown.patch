@@ -1,0 +1,103 @@
+From 9c8a6101f1c6601e760b734495a5dbe9a6396f85 Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Sat, 12 Dec 2015 23:43:30 +0100
+Subject: [PATCH 3/3] Add IPs to the log where user names are shown.
+
+The log format is like this: [/***.***.***.***|Janmm14]
+If the user name is unknown, its just the ip in the brackets as before.
+---
+ proxy/src/main/java/net/md_5/bungee/ServerConnector.java  |  2 +-
+ .../java/net/md_5/bungee/connection/DownstreamBridge.java |  2 +-
+ .../java/net/md_5/bungee/connection/InitialHandler.java   | 15 +++++++++++++--
+ .../java/net/md_5/bungee/connection/UpstreamBridge.java   |  2 +-
+ 4 files changed, 16 insertions(+), 5 deletions(-)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
+index 5282033..e2ff05d 100644
+--- a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
++++ b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
+@@ -342,6 +342,6 @@ public class ServerConnector extends PacketHandler
+     @Override
+     public String toString()
+     {
+-        return "[" + user.getName() + "] <-> ServerConnector [" + target.getName() + "]";
++        return "[" + user.getAddress() + "|" + user.getName() + "] <-> ServerConnector [" + target.getName() + "]";
+     }
+ }
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
+index 96a866e..3ff2f9b 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
+@@ -499,6 +499,6 @@ public class DownstreamBridge extends PacketHandler
+     @Override
+     public String toString()
+     {
+-        return "[" + con.getName() + "] <-> DownstreamBridge <-> [" + server.getInfo().getName() + "]";
++        return "[" + con.getAddress() + "|" + con.getName() + "] <-> DownstreamBridge <-> [" + server.getInfo().getName() + "]";
+     }
+ }
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+index baf9569..3b5bac0 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+@@ -65,6 +65,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+     private static final BaseComponent[] THROTTLE_REASON = new net.md_5.bungee.api.chat.ComponentBuilder( "Du hast dich zu schnell wiederverbunden, warte bitte mindestens " + ( ( BungeeCord.getInstance().getConfig().getThrottle() / 1000 ) + 2 ) + " Sekunden." )
+             .color( ChatColor.RED )
+             .create();
++    private static final boolean logServerListPing = Boolean.valueOf( System.getProperty( "me.minotopia.bungeecord.logThrottled", "false" ) );
+     private static final boolean logThrottled = Boolean.valueOf( System.getProperty( "me.minotopia.bungeecord.logThrottled", "false" ) );
+ 
+     private final ProxyServer bungee;
+@@ -275,7 +276,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+         }
+ 
+         this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
+-        bungee.getLogger().log( Level.INFO, "{0} has connected", this );
+ 
+         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
+ 
+@@ -283,10 +283,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+         {
+             case 1:
+                 // Ping
++                if ( logServerListPing )
++                {
++                    bungee.getLogger().log( Level.INFO, "{0} has pinged", this );
++                }
+                 thisState = State.STATUS;
+                 ch.setProtocol( Protocol.STATUS );
+                 break;
+             case 2:
++                bungee.getLogger().log( Level.INFO, "{0} has connected", this );
+                 thisState = State.USERNAME;
+                 ch.setProtocol( Protocol.LOGIN );
+                 // Login
+@@ -619,6 +624,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+     @Override
+     public String toString()
+     {
+-        return "[" + ( ( getName() != null ) ? getName() : getAddress() ) + "] <-> InitialHandler";
++        if ( getName() != null )
++        {
++            return "[" + getAddress() + "|" + getName() + "] <-> InitialHandler";
++        } else
++        {
++            return "[" + getAddress() + "] <-> InitialHandler";
++        }
+     }
+ }
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
+index e82f2d2..7b7d729 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
+@@ -207,6 +207,6 @@ public class UpstreamBridge extends PacketHandler
+     @Override
+     public String toString()
+     {
+-        return "[" + con.getName() + "] -> UpstreamBridge";
++        return "[" + con.getAddress() + "|" + con.getName() + "] -> UpstreamBridge";
+     }
+ }
+-- 
+1.9.5.msysgit.0
+
