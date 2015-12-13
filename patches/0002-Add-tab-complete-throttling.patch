@@ -1,4 +1,4 @@
-From 31afa122595adfaef2256ab39a28748d4e0839a6 Mon Sep 17 00:00:00 2001
+From 6a36d5cb4570e9cb752a929d951e02888fbc8cfb Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Fri, 9 Oct 2015 16:59:23 +0200
 Subject: [PATCH 2/3] Add tab-complete throttling
@@ -13,10 +13,10 @@ To enable tab complete throttling you need to set the 'minotopia.tab_complete_th
  3 files changed, 17 insertions(+)
 
 diff --git a/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java b/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
-index b638a14..914aa9d 100644
+index 25590e3..61c0d14 100644
 --- a/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
 +++ b/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
-@@ -57,6 +57,11 @@ public interface ProxyConfig
+@@ -67,6 +67,11 @@ public interface ProxyConfig
      int getThrottle();
  
      /**
@@ -29,10 +29,10 @@ index b638a14..914aa9d 100644
       */
      @Deprecated
 diff --git a/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java b/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
-index 97e0003..ba5dd3f 100644
+index 9cd6ab9..3bf31de 100644
 --- a/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
 +++ b/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
-@@ -53,6 +53,7 @@ public class Configuration implements ProxyConfig
+@@ -61,6 +61,7 @@ public class Configuration implements ProxyConfig
      private boolean ipForward;
      private Favicon favicon;
      private int compressionThreshold = 256;
@@ -40,8 +40,8 @@ index 97e0003..ba5dd3f 100644
  
      public void load()
      {
-@@ -77,6 +78,7 @@ public class Configuration implements ProxyConfig
-         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
+@@ -87,6 +88,7 @@ public class Configuration implements ProxyConfig
+         logThrottled = adapter.getBoolean( "log_throttled", logThrottled );
          playerLimit = adapter.getInt( "player_limit", playerLimit );
          throttle = adapter.getInt( "connection_throttle", throttle );
 +        tabCompleteThrottle = adapter.getInt( "tab_complete_throttle", tabCompleteThrottle );
@@ -77,5 +77,5 @@ index 13637df..e82f2d2 100644
  
          if ( tabComplete.getCursor().startsWith( "/" ) )
 -- 
-2.6.1
+1.9.5.msysgit.0
 

@@ -1,4 +1,4 @@
-From 6345298de295f5eae13f5f53634be6a386609500 Mon Sep 17 00:00:00 2001
+From 971c13a181b2f2c9517b0fd1f79d64db5cb98b53 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 7 Oct 2015 21:53:26 +0200
 Subject: [PATCH 1/3] Re-Implement throttle
@@ -7,28 +7,68 @@ This connection throttle takes care of pings by kicking in only if its clearly a
 Additionally it waits to be able to send a kick message to the client.
 This implementation sends a nice german kick message containing a little highered number of the actual seconds he needs to wait. So this is not intended to be a real fix.
 
-Whether throttle is logged can be specified by a system property, defaults to false.
+Whether throttle is logged can be specified by the log_throttled config.yml option, defaults to false.
 ---
- .../java/net/md_5/bungee/connection/InitialHandler.java | 17 ++++++++++++++++-
- .../main/java/net/md_5/bungee/netty/PipelineUtils.java  |  6 ------
- 2 files changed, 16 insertions(+), 7 deletions(-)
+ api/src/main/java/net/md_5/bungee/api/ProxyConfig.java   |  5 +++++
+ .../main/java/net/md_5/bungee/conf/Configuration.java    |  5 +++++
+ .../java/net/md_5/bungee/connection/InitialHandler.java  | 16 +++++++++++++++-
+ .../main/java/net/md_5/bungee/netty/PipelineUtils.java   |  6 ------
+ 4 files changed, 25 insertions(+), 7 deletions(-)
 
+diff --git a/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java b/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
+index edd82c1..25590e3 100644
+--- a/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
++++ b/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
+@@ -46,6 +46,11 @@ public interface ProxyConfig
+     boolean isLogCommands();
+ 
+     /**
++     * Whether we log throttled join attempts
++     */
++    boolean isLogThrottled();
++
++    /**
+      * Returns the player max.
+      */
+     int getPlayerLimit();
+diff --git a/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java b/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
+index 7d52931..9cd6ab9 100644
+--- a/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
++++ b/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
+@@ -51,6 +51,10 @@ public class Configuration implements ProxyConfig
+      * Whether we log proxy commands to the proxy log
+      */
+     private boolean logCommands;
++    /**
++     * Whether we log throttled join attempts
++     */
++    private boolean logThrottled;
+     private int playerLimit = -1;
+     private Collection<String> disabledCommands;
+     private int throttle = 4000;
+@@ -80,6 +84,7 @@ public class Configuration implements ProxyConfig
+         uuid = adapter.getString( "stats", uuid );
+         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
+         logCommands = adapter.getBoolean( "log_commands", logCommands );
++        logThrottled = adapter.getBoolean( "log_throttled", logThrottled );
+         playerLimit = adapter.getInt( "player_limit", playerLimit );
+         throttle = adapter.getInt( "connection_throttle", throttle );
+         ipForward = adapter.getBoolean( "ip_forward", ipForward );
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index c13d2e6..baf9569 100644
+index c13d2e6..007907d 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -62,6 +62,10 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
+@@ -62,6 +62,9 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
  @RequiredArgsConstructor
  public class InitialHandler extends PacketHandler implements PendingConnection
  {
 +    private static final BaseComponent[] THROTTLE_REASON = new net.md_5.bungee.api.chat.ComponentBuilder( "Du hast dich zu schnell wiederverbunden, warte bitte mindestens " + ( ( BungeeCord.getInstance().getConfig().getThrottle() / 1000 ) + 2 ) + " Sekunden." )
 +            .color( ChatColor.RED )
 +            .create();
-+    private static final boolean logThrottled = Boolean.valueOf( System.getProperty( "me.minotopia.bungeecord.logThrottled", "false" ) );
  
      private final ProxyServer bungee;
      private ChannelWrapper ch;
-@@ -212,7 +216,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -212,7 +215,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                      @Override
                      public void done(ProxyPingEvent pingResult, Throwable error)
                      {
@@ -36,7 +76,7 @@ index c13d2e6..baf9569 100644
                          Gson gson = handshake.getProtocolVersion() == ProtocolConstants.MINECRAFT_1_7_2 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
                          unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
                      }
-@@ -296,6 +299,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -296,6 +298,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public void handle(LoginRequest loginRequest) throws Exception
      {
@@ -45,7 +85,7 @@ index c13d2e6..baf9569 100644
 +        // throttle should not be used in handle(Handshake) as its impossible to give the user a proper message at that state
 +        if (BungeeCord.getInstance().getConnectionThrottle().throttle( ( (InetSocketAddress) ch.getHandle().remoteAddress() ).getAddress() ) )
 +        {
-+            if ( logThrottled )
++            if ( BungeeCord.getInstance().getConfig().isLogThrottled() )
 +            {
 +                bungee.getLogger().log( Level.INFO, "{0} throttled", this );
 +            }
@@ -73,5 +113,5 @@ index 7b705fc..7376a45 100644
              BASE.initChannel( ch );
              ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
 -- 
-2.6.1
+1.9.5.msysgit.0
 

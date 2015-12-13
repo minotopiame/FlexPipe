@@ -1,17 +1,38 @@
-From 9c8a6101f1c6601e760b734495a5dbe9a6396f85 Mon Sep 17 00:00:00 2001
+From 8b97e207025e14257652ba56776e367f2c9a8be7 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sat, 12 Dec 2015 23:43:30 +0100
-Subject: [PATCH 3/3] Add IPs to the log where user names are shown.
+Subject: [PATCH 3/3] Optional server list ping logging; Add IPs to the log
+ where user names are shown.
+
+Server list pings are only logged if the log_server_list_pings config.yml option is true, defaults to false
 
 The log format is like this: [/***.***.***.***|Janmm14]
 If the user name is unknown, its just the ip in the brackets as before.
 ---
- proxy/src/main/java/net/md_5/bungee/ServerConnector.java  |  2 +-
- .../java/net/md_5/bungee/connection/DownstreamBridge.java |  2 +-
- .../java/net/md_5/bungee/connection/InitialHandler.java   | 15 +++++++++++++--
- .../java/net/md_5/bungee/connection/UpstreamBridge.java   |  2 +-
- 4 files changed, 16 insertions(+), 5 deletions(-)
+ api/src/main/java/net/md_5/bungee/api/ProxyConfig.java     |  5 +++++
+ proxy/src/main/java/net/md_5/bungee/ServerConnector.java   |  2 +-
+ .../src/main/java/net/md_5/bungee/conf/Configuration.java  |  5 +++++
+ .../java/net/md_5/bungee/connection/DownstreamBridge.java  |  2 +-
+ .../java/net/md_5/bungee/connection/InitialHandler.java    | 14 ++++++++++++--
+ .../java/net/md_5/bungee/connection/UpstreamBridge.java    |  2 +-
+ 6 files changed, 25 insertions(+), 5 deletions(-)
 
+diff --git a/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java b/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
+index 61c0d14..f71a4fc 100644
+--- a/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
++++ b/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
+@@ -51,6 +51,11 @@ public interface ProxyConfig
+     boolean isLogThrottled();
+ 
+     /**
++     * Whether we log throttled join attempts
++     */
++    boolean isLogServerListPing();
++
++    /**
+      * Returns the player max.
+      */
+     int getPlayerLimit();
 diff --git a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
 index 5282033..e2ff05d 100644
 --- a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
@@ -24,6 +45,29 @@ index 5282033..e2ff05d 100644
 +        return "[" + user.getAddress() + "|" + user.getName() + "] <-> ServerConnector [" + target.getName() + "]";
      }
  }
+diff --git a/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java b/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
+index 3bf31de..1e358b9 100644
+--- a/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
++++ b/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
+@@ -55,6 +55,10 @@ public class Configuration implements ProxyConfig
+      * Whether we log throttled join attempts
+      */
+     private boolean logThrottled;
++    /**
++     * Whether we log server list pings
++     */
++    private boolean logServerListPing;
+     private int playerLimit = -1;
+     private Collection<String> disabledCommands;
+     private int throttle = 4000;
+@@ -86,6 +90,7 @@ public class Configuration implements ProxyConfig
+         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
+         logCommands = adapter.getBoolean( "log_commands", logCommands );
+         logThrottled = adapter.getBoolean( "log_throttled", logThrottled );
++        logServerListPing = adapter.getBoolean( "log_server_list_ping", logServerListPing );
+         playerLimit = adapter.getInt( "player_limit", playerLimit );
+         throttle = adapter.getInt( "connection_throttle", throttle );
+         tabCompleteThrottle = adapter.getInt( "tab_complete_throttle", tabCompleteThrottle );
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
 index 96a866e..3ff2f9b 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
@@ -37,18 +81,10 @@ index 96a866e..3ff2f9b 100644
      }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index baf9569..3b5bac0 100644
+index 007907d..f8d3973 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -65,6 +65,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
-     private static final BaseComponent[] THROTTLE_REASON = new net.md_5.bungee.api.chat.ComponentBuilder( "Du hast dich zu schnell wiederverbunden, warte bitte mindestens " + ( ( BungeeCord.getInstance().getConfig().getThrottle() / 1000 ) + 2 ) + " Sekunden." )
-             .color( ChatColor.RED )
-             .create();
-+    private static final boolean logServerListPing = Boolean.valueOf( System.getProperty( "me.minotopia.bungeecord.logThrottled", "false" ) );
-     private static final boolean logThrottled = Boolean.valueOf( System.getProperty( "me.minotopia.bungeecord.logThrottled", "false" ) );
- 
-     private final ProxyServer bungee;
-@@ -275,7 +276,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -274,7 +274,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          }
  
          this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
@@ -56,11 +92,11 @@ index baf9569..3b5bac0 100644
  
          bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
  
-@@ -283,10 +283,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -282,10 +281,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          {
              case 1:
                  // Ping
-+                if ( logServerListPing )
++                if ( BungeeCord.getInstance().getConfig().isLogServerListPing() )
 +                {
 +                    bungee.getLogger().log( Level.INFO, "{0} has pinged", this );
 +                }
@@ -72,7 +108,7 @@ index baf9569..3b5bac0 100644
                  thisState = State.USERNAME;
                  ch.setProtocol( Protocol.LOGIN );
                  // Login
-@@ -619,6 +624,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -618,6 +622,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public String toString()
      {
