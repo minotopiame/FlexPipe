@@ -1,7 +1,7 @@
-From 971c13a181b2f2c9517b0fd1f79d64db5cb98b53 Mon Sep 17 00:00:00 2001
+From 9cfa809d7f27ba24c13564a611d0d65b6f792973 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 7 Oct 2015 21:53:26 +0200
-Subject: [PATCH 1/3] Re-Implement throttle
+Subject: [PATCH 1/4] Re-Implement throttle
 
 This connection throttle takes care of pings by kicking in only if its clearly a join try.
 Additionally it waits to be able to send a kick message to the client.
@@ -55,10 +55,10 @@ index 7d52931..9cd6ab9 100644
          throttle = adapter.getInt( "connection_throttle", throttle );
          ipForward = adapter.getBoolean( "ip_forward", ipForward );
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index c13d2e6..007907d 100644
+index 8dffca3..d747d9a 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -62,6 +62,9 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
+@@ -63,6 +63,9 @@ import net.md_5.bungee.util.BoundedArrayList;
  @RequiredArgsConstructor
  public class InitialHandler extends PacketHandler implements PendingConnection
  {
@@ -96,7 +96,7 @@ index c13d2e6..007907d 100644
          this.loginRequest = loginRequest;
  
 diff --git a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
-index 7b705fc..7376a45 100644
+index a5feb1e..8f09e9d 100644
 --- a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
 +++ b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
 @@ -49,12 +49,6 @@ public class PipelineUtils

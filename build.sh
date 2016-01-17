@@ -3,7 +3,9 @@ echo "============ Build BungeeCord"
 
 cd BungeeCord
 
-mvn clean install
+origin_commit=`git rev-parse --short origin/master`
+
+mvn clean install -Dorigin_commit=$origin_commit -Dbuild.number=$BUILD_NUMBER
 
 cd ../
 
