@@ -1,0 +1,107 @@
+From 18839084fe1284f687408f256813345062305b50 Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Sun, 17 Jan 2016 18:25:52 +0100
+Subject: [PATCH 5/5] Allow configuring module source uri scheme, set
+ ci.janmm14.de as default
+
+---
+ .../src/main/java/net/md_5/bungee/BungeeCord.java  |  2 +-
+ .../bungee/module/ConfigurableModuleSource.java    | 52 ++++++++++++++++++++++
+ .../java/net/md_5/bungee/module/ModuleManager.java |  2 +-
+ 3 files changed, 54 insertions(+), 2 deletions(-)
+ create mode 100644 proxy/src/main/java/net/md_5/bungee/module/ConfigurableModuleSource.java
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+index 795a015..68fc70d 100644
+--- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
++++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+@@ -238,6 +238,7 @@ public class BungeeCord extends ProxyServer
+         eventLoops = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
+ 
+         File moduleDirectory = new File( "modules" );
++        config.load();
+         moduleManager.load( this, moduleDirectory );
+         pluginManager.detectPlugins( moduleDirectory );
+ 
+@@ -245,7 +246,6 @@ public class BungeeCord extends ProxyServer
+         pluginManager.detectPlugins( pluginsFolder );
+ 
+         pluginManager.loadPlugins();
+-        config.load();
+ 
+         registerChannel( ForgeConstants.FML_TAG );
+         registerChannel( ForgeConstants.FML_HANDSHAKE_TAG );
+diff --git a/proxy/src/main/java/net/md_5/bungee/module/ConfigurableModuleSource.java b/proxy/src/main/java/net/md_5/bungee/module/ConfigurableModuleSource.java
+new file mode 100644
+index 0000000..cbc9ad5
+--- /dev/null
++++ b/proxy/src/main/java/net/md_5/bungee/module/ConfigurableModuleSource.java
+@@ -0,0 +1,52 @@
++package net.md_5.bungee.module;
++
++import com.google.common.io.ByteStreams;
++import com.google.common.io.Files;
++import java.io.IOException;
++import java.net.URL;
++import java.net.URLConnection;
++import lombok.Data;
++import net.md_5.bungee.Util;
++import net.md_5.bungee.api.ProxyServer;
++
++@Data
++public class ConfigurableModuleSource implements ModuleSource
++{
++
++    private String moduleSourceScheme;
++
++    private String getModuleSource(ModuleSpec module, ModuleVersion version)
++    {
++        if ( moduleSourceScheme == null )
++        {
++            moduleSourceScheme = ProxyServer.getInstance().getConfigurationAdapter()
++                .getString( "module_source_scheme", "http://ci.janmm14.de/job/public~server~BungeeCordPatcher/$build_number$/artifact/BungeeCord/module/$maven_module_name$/target/$jar_name$.jar" );
++        }
++        return moduleSourceScheme
++            .replace( "$build_number$", version.getBuild() )
++            .replace( "$maven_module_name$", module.getName().replace( '_', '-' ) )
++            .replace( "$jar_name$", module.getName() );
++    }
++
++    @Override
++    public void retrieve(ModuleSpec module, ModuleVersion version)
++    {
++        String moduleSource = getModuleSource( module, version );
++        System.out.println( "Attempting to get module " + module.getName() + " b" + version.getBuild() + " from " + moduleSource );
++        try
++        {
++            URL website = new URL( moduleSource );
++            URLConnection con = website.openConnection();
++            // 15 second timeout at various stages
++            con.setConnectTimeout( 15000 );
++            con.setReadTimeout( 15000 );
++
++
++            Files.write( ByteStreams.toByteArray( con.getInputStream() ), module.getFile() );
++            System.out.println( "Download complete" );
++        } catch ( IOException ex )
++        {
++            System.out.println( "Failed to download: " + Util.exception( ex ) );
++        }
++    }
++}
+diff --git a/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java b/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java
+index 901fc5a..c61d67c 100644
+--- a/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java
++++ b/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java
+@@ -28,7 +28,7 @@ public class ModuleManager
+ 
+     public ModuleManager()
+     {
+-        knownSources.put( "jenkins", new JenkinsModuleSource() );
++        knownSources.put( "jenkins", new ConfigurableModuleSource() );
+     }
+ 
+     @SuppressFBWarnings(
+-- 
+1.9.5.msysgit.0
+
