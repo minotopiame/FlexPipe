@@ -1,7 +1,7 @@
 From 469297d7e7ca7ba00f25194cb2c5c0c334e2c38c Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 17:22:05 +0100
-Subject: [PATCH 4/6] Add origin git hash to version by using origin_commit env
+Subject: [PATCH 4/7] Add origin git hash to version by using origin_commit env
  variable which is set in build.sh
 
 ---
