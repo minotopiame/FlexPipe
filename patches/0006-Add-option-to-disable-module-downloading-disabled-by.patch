@@ -1,0 +1,54 @@
+From c127c0c17aac235d21dbce15ad6737373e82ad37 Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Sun, 17 Jan 2016 20:04:26 +0100
+Subject: [PATCH 6/6] Add option to disable module downloading (disabled by
+ default) , warn if no modules are present and module downloading is disabled.
+
+---
+ .../java/net/md_5/bungee/module/ModuleManager.java   | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java b/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java
+index c61d67c..7f673ee 100644
+--- a/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java
++++ b/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java
+@@ -5,6 +5,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+ import java.io.File;
+ import java.io.FileInputStream;
+ import java.io.FileWriter;
++import java.io.FilenameFilter;
+ import java.io.InputStream;
+ import java.net.URI;
+ import java.util.ArrayList;
+@@ -35,10 +36,27 @@ public class ModuleManager
+             {
+                 "SF_SWITCH_FALLTHROUGH", "SF_SWITCH_NO_DEFAULT"
+             })
+-    public void load(ProxyServer proxy, File moduleDirectory) throws Exception
++    public void load(ProxyServer proxy, final File moduleDirectory) throws Exception
+     {
+         moduleDirectory.mkdir();
+ 
++        if ( !proxy.getConfigurationAdapter().getBoolean( "module_download", false ) )
++        {
++            System.out.println( "Module download is disabled. Skipping." );
++            if ( !Boolean.parseBoolean( System.getProperty( "me.minotopia.bungeecordpatched.ignoreNoModues", "false" ) ) && moduleDirectory.list( new FilenameFilter()
++            {
++                @Override
++                public boolean accept(File dir, String name)
++                {
++                    return dir.equals( moduleDirectory ) && name.toLowerCase().endsWith( ".jar" );
++                }
++            } ).length == 0 )
++            {
++                proxy.getLogger().warning( "As you have no modules, download some manually or enable automatic download in config.yml" );
++            }
++            return;
++        }
++
+         ModuleVersion bungeeVersion = ModuleVersion.parse( proxy.getVersion() );
+         if ( bungeeVersion == null )
+         {
+-- 
+1.9.5.msysgit.0
+

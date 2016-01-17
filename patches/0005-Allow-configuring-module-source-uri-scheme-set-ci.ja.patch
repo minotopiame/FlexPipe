@@ -1,7 +1,7 @@
 From 18839084fe1284f687408f256813345062305b50 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 18:25:52 +0100
-Subject: [PATCH 5/5] Allow configuring module source uri scheme, set
+Subject: [PATCH 5/6] Allow configuring module source uri scheme, set
  ci.janmm14.de as default
 
 ---
