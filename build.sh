@@ -12,8 +12,12 @@ mvn clean install -Dorigin_commit=$origin_commit -Dpatcher_commit=$patcher_commi
 
 cd ../
 
-echo "============ Copy final jar"
+echo "============ Copy final jars"
 
-cp BungeeCord/bootstrap/target/BungeeCord.jar ./
+mkdir -p target/modules/ || true
 
-echo "============ Final BungeeCord jar copied to ./BungeeCord.jar"
+cp BungeeCord/bootstrap/target/BungeeCord.jar ./target/
+
+cp BungeeCord/module/*/target/*.jar ./target/modules/
+
+echo "============ BungeeCord and module jars copied to ./target/"
