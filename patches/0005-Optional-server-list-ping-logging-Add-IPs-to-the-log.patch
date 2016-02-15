@@ -1,7 +1,7 @@
-From 76e23d6b4ee69c4e09e2853959c16c7dd3467ff5 Mon Sep 17 00:00:00 2001
+From d0befa4e9cbad889ccfc66d92053ad16d4fb09ab Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sat, 12 Dec 2015 23:43:30 +0100
-Subject: [PATCH 3/7] Optional server list ping logging; Add IPs to the log
+Subject: [PATCH 5/9] Optional server list ping logging; Add IPs to the log
  where user names are shown.
 
 Server list pings are only logged if the log_server_list_pings config.yml option is true, defaults to false

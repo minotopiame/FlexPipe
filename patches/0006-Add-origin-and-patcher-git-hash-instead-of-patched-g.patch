@@ -1,7 +1,7 @@
-From 70c8239ee976b2c4325a77326f76bffd41502dbb Mon Sep 17 00:00:00 2001
+From b3cbeb1c3c50a19a37eb2b8a570cff5311621cb1 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 17:22:05 +0100
-Subject: [PATCH 4/7] Add origin and patcher git hash instead of patched git
+Subject: [PATCH 6/9] Add origin and patcher git hash instead of patched git
  hash to version by using env variables which are set in build.sh
 
 Remove scriptus maven plugin, as its no longer needed.
@@ -10,10 +10,10 @@ Remove scriptus maven plugin, as its no longer needed.
  1 file changed, 1 insertion(+), 16 deletions(-)
 
 diff --git a/pom.xml b/pom.xml
-index 7ebde38..4bcf8fe 100644
+index ec0ace3..4687cc1 100644
 --- a/pom.xml
 +++ b/pom.xml
-@@ -69,6 +69,7 @@
+@@ -75,6 +75,7 @@
          <maven.compiler.source>1.7</maven.compiler.source>
          <maven.compiler.target>1.7</maven.compiler.target>
          <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -21,7 +21,7 @@ index 7ebde38..4bcf8fe 100644
      </properties>
  
      <dependencies>
-@@ -101,22 +102,6 @@
+@@ -107,22 +108,6 @@
      <build>
          <plugins>
              <plugin>
