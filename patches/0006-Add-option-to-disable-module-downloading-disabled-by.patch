@@ -1,4 +1,4 @@
-From 0109ca965cc28e030bbf47dd8e0d799cf45443a7 Mon Sep 17 00:00:00 2001
+From 3661f1d9fc44b9a4e24565895f51ef13e85d85b5 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 20:04:26 +0100
 Subject: [PATCH 6/7] Add option to disable module downloading (disabled by
@@ -9,7 +9,7 @@ Subject: [PATCH 6/7] Add option to disable module downloading (disabled by
  1 file changed, 19 insertions(+), 1 deletion(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java b/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java
-index c61d67c..7f673ee 100644
+index c61d67c..97d6b5e 100644
 --- a/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java
 +++ b/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java
 @@ -5,6 +5,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -32,7 +32,7 @@ index c61d67c..7f673ee 100644
 +        if ( !proxy.getConfigurationAdapter().getBoolean( "module_download", false ) )
 +        {
 +            System.out.println( "Module download is disabled. Skipping." );
-+            if ( !Boolean.parseBoolean( System.getProperty( "me.minotopia.bungeecordpatched.ignoreNoModues", "false" ) ) && moduleDirectory.list( new FilenameFilter()
++            if ( !Boolean.parseBoolean( System.getProperty( "me.minotopia.flexpipe.ignoreNoModues", "false" ) ) && moduleDirectory.list( new FilenameFilter()
 +            {
 +                @Override
 +                public boolean accept(File dir, String name)

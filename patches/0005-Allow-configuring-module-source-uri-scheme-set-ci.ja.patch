@@ -1,4 +1,4 @@
-From e1e5ac7ae3eefa7024102a3c801e5acf043d56f1 Mon Sep 17 00:00:00 2001
+From 12aeca4e0fc0bbb5d6a1ff37dd068322e80fd409 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 18:25:52 +0100
 Subject: [PATCH 5/7] Allow configuring module source uri scheme, set
@@ -33,7 +33,7 @@ index 795a015..68fc70d 100644
          registerChannel( ForgeConstants.FML_HANDSHAKE_TAG );
 diff --git a/proxy/src/main/java/net/md_5/bungee/module/ConfigurableModuleSource.java b/proxy/src/main/java/net/md_5/bungee/module/ConfigurableModuleSource.java
 new file mode 100644
-index 0000000..cbc9ad5
+index 0000000..dab44c7
 --- /dev/null
 +++ b/proxy/src/main/java/net/md_5/bungee/module/ConfigurableModuleSource.java
 @@ -0,0 +1,52 @@
@@ -59,7 +59,7 @@ index 0000000..cbc9ad5
 +        if ( moduleSourceScheme == null )
 +        {
 +            moduleSourceScheme = ProxyServer.getInstance().getConfigurationAdapter()
-+                .getString( "module_source_scheme", "http://ci.janmm14.de/job/public~server~BungeeCordPatcher/$build_number$/artifact/BungeeCord/module/$maven_module_name$/target/$jar_name$.jar" );
++                .getString( "module_source_scheme", "http://ci.janmm14.de/job/public~server~FlexPipe/$build_number$/artifact/BungeeCord/module/$maven_module_name$/target/$jar_name$.jar" );
 +        }
 +        return moduleSourceScheme
 +            .replace( "$build_number$", version.getBuild() )

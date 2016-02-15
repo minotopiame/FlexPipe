@@ -1,4 +1,4 @@
-From 1d9c94376499634f1aacab82729739d99dd67f6a Mon Sep 17 00:00:00 2001
+From 152045f2d141f5536f183701fa867c85a4f6c113 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 20:06:14 +0100
 Subject: [PATCH 7/7] Old build warning: Update download source, add "likely",
@@ -9,7 +9,7 @@ Subject: [PATCH 7/7] Old build warning: Update download source, add "likely",
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/bootstrap/src/main/java/net/md_5/bungee/BungeeCordLauncher.java b/bootstrap/src/main/java/net/md_5/bungee/BungeeCordLauncher.java
-index 3c1bbe9..ced4b01 100644
+index 3c1bbe9..f130ac4 100644
 --- a/bootstrap/src/main/java/net/md_5/bungee/BungeeCordLauncher.java
 +++ b/bootstrap/src/main/java/net/md_5/bungee/BungeeCordLauncher.java
 @@ -41,8 +41,8 @@ public class BungeeCordLauncher
@@ -19,7 +19,7 @@ index 3c1bbe9..ced4b01 100644
 -                System.err.println( "*** Warning, this build is outdated ***" );
 -                System.err.println( "*** Please download a new build from http://ci.md-5.net/job/BungeeCord ***" );
 +                System.err.println( "*** Warning, this build is likely outdated ***" );
-+                System.err.println( "*** Please download a new build from http://ci.janmm14.de/job/public~server~BungeeCordPatcher/ ***" );
++                System.err.println( "*** Please download a new build from http://ci.janmm14.de/job/public~server~FlexPipe/ ***" );
                  System.err.println( "*** You will get NO support regarding this build ***" );
                  System.err.println( "*** Server will start in 10 seconds ***" );
                  Thread.sleep( TimeUnit.SECONDS.toMillis( 10 ) );

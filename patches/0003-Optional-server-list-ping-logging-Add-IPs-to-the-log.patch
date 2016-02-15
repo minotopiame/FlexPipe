@@ -1,4 +1,4 @@
-From 92260919d7f1d0fe023251876d4dd7627334348a Mon Sep 17 00:00:00 2001
+From 76e23d6b4ee69c4e09e2853959c16c7dd3467ff5 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sat, 12 Dec 2015 23:43:30 +0100
 Subject: [PATCH 3/7] Optional server list ping logging; Add IPs to the log
@@ -81,7 +81,7 @@ index 96a866e..3ff2f9b 100644
      }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index d747d9a..601a05f 100644
+index 70bb55a..f1f2f2d 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -274,7 +274,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
@@ -108,7 +108,7 @@ index d747d9a..601a05f 100644
                  thisState = State.USERNAME;
                  ch.setProtocol( Protocol.LOGIN );
                  // Login
-@@ -618,6 +622,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -618,7 +622,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public String toString()
      {
@@ -121,9 +121,10 @@ index d747d9a..601a05f 100644
 +            return "[" + getAddress() + "] <-> InitialHandler";
 +        }
      }
- }
+ 
+     @Override
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
-index e82f2d2..7b7d729 100644
+index 9ac77dd..336d3f9 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 @@ -207,6 +207,6 @@ public class UpstreamBridge extends PacketHandler

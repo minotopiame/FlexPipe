@@ -1,4 +1,4 @@
-From 31e6bc73cfdaf9b53b9cde3f9fc51544e9b3ce0a Mon Sep 17 00:00:00 2001
+From 9d31d4681037b1ee15f56c49e7949e9c32558de0 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 7 Oct 2015 21:53:26 +0200
 Subject: [PATCH 1/7] Re-Implement throttle
@@ -55,7 +55,7 @@ index 7d52931..9cd6ab9 100644
          throttle = adapter.getInt( "connection_throttle", throttle );
          ipForward = adapter.getBoolean( "ip_forward", ipForward );
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 8dffca3..d747d9a 100644
+index ce78e19..70bb55a 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -63,6 +63,9 @@ import net.md_5.bungee.util.BoundedArrayList;
