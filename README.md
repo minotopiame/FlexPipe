@@ -37,4 +37,4 @@ We would really appreciate it if you take part in developing FlexPipe. Here is h
 4. Start an interactive rebase up to the commit you want to edit.
 5. Edit the commits you want and end the rebase.
 6. Run ```./format-patches.sh```
-7. Commit your changes to your fork and create a pull request.
+7. Commit the changes to your fork and create a pull request.
