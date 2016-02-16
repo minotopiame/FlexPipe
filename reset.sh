@@ -9,7 +9,9 @@ if [ -d "BungeeCord" ] && [[ $(ls BungeeCord) ]]; then
   cd ../
   echo "======= BungeeCord updated to latest version"
 else
-  rm -rf BungeeCord
+  if [ -d "BungeeCord" ]; then
+    rm -rfd BungeeCord
+  fi
   git clone https://github.com/SpigotMC/BungeeCord.git BungeeCord
   echo "======= BungeeCord newly cloned"
 fi
