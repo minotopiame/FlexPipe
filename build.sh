@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 patcher_commit=`git rev-parse --short HEAD`
 
