@@ -1,5 +1,7 @@
 #!/bin/bash
-echo "============ Setting up base BungeeCord"
+echo ""
+echo "======= Setting up base BungeeCord"
+echo ""
 if [ -d "BungeeCord" ]; then
   cd BungeeCord
   git fetch origin

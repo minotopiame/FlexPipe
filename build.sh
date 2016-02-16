@@ -6,13 +6,18 @@ cd BungeeCord
 
 origin_commit=`git rev-parse --short origin/master`
 
-echo "============ Build BungeeCord from commit $origin_commit"
+echo ""
+echo "======= Building FlexPipe from origin commit $origin_commit with patcher commit $patcher_commit"
+echo ""
 
 mvn clean install -Dorigin_commit=$origin_commit -Dpatcher_commit=$patcher_commit -Dbuild.number=$BUILD_NUMBER
 
 cd ../
 
-echo "============ Copy final jars"
+echo ""
+echo "======= FlexPipe build finished"
+echo "======= Copy final jars"
+echo ""
 
 mkdir -p target/modules/ || true
 
@@ -20,4 +25,5 @@ cp BungeeCord/bootstrap/target/BungeeCord.jar ./target/
 
 cp BungeeCord/module/*/target/*.jar ./target/modules/
 
-echo "============ BungeeCord and module jars copied to ./target/"
+echo ""
+echo "======= FlexPipe and module jars copied to ./target/"

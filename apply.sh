@@ -1,5 +1,7 @@
 #!/bin/bash
+echo ""
 echo "============ Apply patches to BungeeCord"
+echo ""
 
 cd BungeeCord
 
