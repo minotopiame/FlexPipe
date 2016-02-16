@@ -1,7 +1,7 @@
-From c4b7fd5d38b6e3e23f14274b17e3c34f10abd327 Mon Sep 17 00:00:00 2001
+From 25dee6b28d281c0b56fed3884c323e5ff5628451 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 17:22:05 +0100
-Subject: [PATCH 6/9] Add origin and patcher git hash instead of patched git
+Subject: [PATCH 06/10] Add origin and patcher git hash instead of patched git
  hash to version by using env variables which are set in build.sh
 
 Remove scriptus maven plugin, as its no longer needed.

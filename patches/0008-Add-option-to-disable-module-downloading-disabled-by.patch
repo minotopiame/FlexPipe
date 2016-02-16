@@ -1,7 +1,7 @@
-From a3cf90d37e9032ca707908a405e82c58df14876d Mon Sep 17 00:00:00 2001
+From 76a38272f1570c455f7f005b50ebcdec96f04e9a Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 20:04:26 +0100
-Subject: [PATCH 8/9] Add option to disable module downloading (disabled by
+Subject: [PATCH 08/10] Add option to disable module downloading (disabled by
  default), warn if no modules are present and module downloading is disabled.
 
 ---

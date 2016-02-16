@@ -1,7 +1,7 @@
-From 32359fc66793d8aeeb4d07842864bd244f60e000 Mon Sep 17 00:00:00 2001
+From 605c3b112c190b0099f2bc1b5dd3f916cf528bab Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 15 Feb 2016 21:19:03 +0100
-Subject: [PATCH 2/9] Maven pom rebranding to me.minotopia.flexpipe
+Subject: [PATCH 02/10] Maven pom rebranding to me.minotopia.flexpipe
 
 ---
  api/pom.xml                   | 26 +++++++++++-------------

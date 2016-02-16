@@ -1,7 +1,7 @@
-From 2310bdeeb8ac82da70852ba963547fff46c8964c Mon Sep 17 00:00:00 2001
+From 796b666674a24ef37870929f2c46fbfe796ee94d Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 15 Feb 2016 21:28:29 +0100
-Subject: [PATCH 1/9] Ignore *.orig files which are left by some tools after
+Subject: [PATCH 01/10] Ignore *.orig files which are left by some tools after
  merging.
 
 ---
