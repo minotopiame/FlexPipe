@@ -1,4 +1,5 @@
 sudo: false
+language: java
 script: ./reset-apply-build.sh
 jdk:
   - openjdk7
@@ -6,3 +7,9 @@ jdk:
   - oraclejdk8
 notifications:
   email: false
+cache:
+  directories:
+  - $HOME/.m2
+  - BungeeCord
+before-cache:
+  - rm -rf $HOME/.m2/repository/me/minotopia/flexpipe
