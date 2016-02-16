@@ -21,7 +21,7 @@ echo ""
 
 mkdir -p target/modules/ || true
 
-cp BungeeCord/bootstrap/target/BungeeCord.jar ./target/
+cp BungeeCord/bootstrap/target/FlexPipe.jar ./target/
 
 cp BungeeCord/module/*/target/*.jar ./target/modules/
 
