@@ -1,4 +1,4 @@
-From 30e2f5d3402180a615067c69c241ef03c368c6ae Mon Sep 17 00:00:00 2001
+From d79dc09cc526d82ab7d16b4aa4565481556b1faa Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 18:25:52 +0100
 Subject: [PATCH 7/9] Allow configuring module source uri scheme, set
