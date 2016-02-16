@@ -1,4 +1,4 @@
-From 1c8f1ec99fa55ff3bb5fb38dfe00b1298f75f606 Mon Sep 17 00:00:00 2001
+From e7172bf91eefb18244e340c875993d6912ab2d02 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sat, 12 Dec 2015 23:43:30 +0100
 Subject: [PATCH 05/10] Optional server list ping logging; Add IPs to the log

@@ -1,4 +1,4 @@
-From 76a38272f1570c455f7f005b50ebcdec96f04e9a Mon Sep 17 00:00:00 2001
+From 187a321fb96592a4da26f82c6036e1f49aea3ba8 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 20:04:26 +0100
 Subject: [PATCH 08/10] Add option to disable module downloading (disabled by
