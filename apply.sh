@@ -5,8 +5,11 @@ echo ""
 
 cd BungeeCord
 
-if [[ -z $(git config --local user.name) ]]; then
+if [[ -z $(git config user.name) ]]; then
 	git config --local user.name "flexpipe build script"
+fi
+
+if [[ -z $(git config user.email) ]]; then
 	git config --local user.email "flexpipe_build_script@null.flexpipe.minotopia.me"
 fi
 
