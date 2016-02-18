@@ -1,0 +1,35 @@
+From 3dd7efa367e9a48051377d5ac45873fcc89a3c85 Mon Sep 17 00:00:00 2001
+From: Tux <write@imaginarycode.com>
+Date: Wed, 17 Feb 2016 00:20:59 +0100
+Subject: Don't create a data input stream for every plugin message we get from
+ servers.
+
+Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
+---
+ proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
+index b28dbf2..7809329 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
+@@ -216,7 +216,6 @@ public class DownstreamBridge extends PacketHandler
+     @Override
+     public void handle(PluginMessage pluginMessage) throws Exception
+     {
+-        DataInput in = pluginMessage.getStream();
+         PluginMessageEvent event = new PluginMessageEvent( con.getServer(), con, pluginMessage.getTag(), pluginMessage.getData().clone() );
+ 
+         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
+@@ -255,6 +254,8 @@ public class DownstreamBridge extends PacketHandler
+ 
+         if ( pluginMessage.getTag().equals( "BungeeCord" ) )
+         {
++            DataInput in = pluginMessage.getStream();
++
+             ByteArrayDataOutput out = ByteStreams.newDataOutput();
+             String subChannel = in.readUTF();
+ 
+-- 
+1.9.5.msysgit.0
+
