@@ -1,27 +1,35 @@
-From b8dcce78e140192906bb2c95ec25a9c4d0d9a5dc Mon Sep 17 00:00:00 2001
+From 74a0d3de4b6d187661be95c215b3cc0e63e5aa36 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 15 Feb 2016 21:19:03 +0100
-Subject: [PATCH 02/10] Maven pom rebranding to me.minotopia.flexpipe
+Subject: [PATCH 02/10] Rebrand to me.minotopia.flexpipe in pom, console and
+ commands; add /flexpipe command
 
 ---
- api/pom.xml                   | 26 +++++++++++-------------
- bootstrap/pom.xml             | 20 +++++++++----------
- chat/pom.xml                  | 12 +++++------
- config/pom.xml                | 12 +++++------
- event/pom.xml                 | 12 +++++------
- module/cmd-alert/pom.xml      |  8 +++-----
- module/cmd-find/pom.xml       |  8 +++-----
- module/cmd-list/pom.xml       |  8 +++-----
- module/cmd-send/pom.xml       |  8 +++-----
- module/cmd-server/pom.xml     |  8 +++-----
- module/pom.xml                | 16 +++++++--------
- module/reconnect-yaml/pom.xml |  8 +++-----
- native/pom.xml                | 12 +++++------
- pom.xml                       | 46 ++++++++++++++++++++++++-------------------
- protocol/pom.xml              | 16 +++++++--------
- proxy/pom.xml                 | 26 +++++++++++-------------
- query/pom.xml                 | 16 +++++++--------
- 17 files changed, 118 insertions(+), 144 deletions(-)
+ api/pom.xml                                        | 26 ++++++------
+ bootstrap/pom.xml                                  | 20 +++++-----
+ .../src/main/java/net/md_5/bungee/Bootstrap.java   |  2 +-
+ .../java/net/md_5/bungee/BungeeCordLauncher.java   |  2 +-
+ chat/pom.xml                                       | 12 +++---
+ config/pom.xml                                     | 12 +++---
+ event/pom.xml                                      | 12 +++---
+ module/cmd-alert/pom.xml                           |  8 ++--
+ module/cmd-find/pom.xml                            |  8 ++--
+ module/cmd-list/pom.xml                            |  8 ++--
+ module/cmd-send/pom.xml                            |  8 ++--
+ module/cmd-server/pom.xml                          |  8 ++--
+ module/pom.xml                                     | 16 ++++----
+ module/reconnect-yaml/pom.xml                      |  8 ++--
+ native/pom.xml                                     | 12 +++---
+ pom.xml                                            | 46 ++++++++++++----------
+ protocol/pom.xml                                   | 16 ++++----
+ proxy/pom.xml                                      | 26 ++++++------
+ proxy/src/main/java/Test.java                      |  2 +-
+ .../src/main/java/net/md_5/bungee/BungeeCord.java  |  4 +-
+ .../net/md_5/bungee/command/CommandBungee.java     |  4 +-
+ .../java/net/md_5/bungee/log/BungeeLogger.java     |  2 +-
+ .../java/net/md_5/bungee/log/LogDispatcher.java    |  2 +-
+ query/pom.xml                                      | 16 ++++----
+ 24 files changed, 127 insertions(+), 153 deletions(-)
 
 diff --git a/api/pom.xml b/api/pom.xml
 index 0daf39d..a6add44 100644
@@ -140,6 +148,32 @@ index 48f56b3..e0e282e 100644
                              <Implementation-Version>${describe}</Implementation-Version>
                              <Specification-Version>${maven.build.timestamp}</Specification-Version>
                          </manifestEntries>
+diff --git a/bootstrap/src/main/java/net/md_5/bungee/Bootstrap.java b/bootstrap/src/main/java/net/md_5/bungee/Bootstrap.java
+index b7cb81e..4b9d2dd 100644
+--- a/bootstrap/src/main/java/net/md_5/bungee/Bootstrap.java
++++ b/bootstrap/src/main/java/net/md_5/bungee/Bootstrap.java
+@@ -7,7 +7,7 @@ public class Bootstrap
+     {
+         if ( Float.parseFloat( System.getProperty( "java.class.version" ) ) < 51.0 )
+         {
+-            System.err.println( "*** ERROR *** BungeeCord requires Java 7 or above to function! Please download and install it!" );
++            System.err.println( "*** ERROR *** FlexPipe requires Java 7 or above to function! Please download and install it!" );
+             System.out.println( "You can check your Java version with the command: java -version" );
+             return;
+         }
+diff --git a/bootstrap/src/main/java/net/md_5/bungee/BungeeCordLauncher.java b/bootstrap/src/main/java/net/md_5/bungee/BungeeCordLauncher.java
+index 3c1bbe9..c0bf70e 100644
+--- a/bootstrap/src/main/java/net/md_5/bungee/BungeeCordLauncher.java
++++ b/bootstrap/src/main/java/net/md_5/bungee/BungeeCordLauncher.java
+@@ -51,7 +51,7 @@ public class BungeeCordLauncher
+ 
+         BungeeCord bungee = new BungeeCord();
+         ProxyServer.setInstance( bungee );
+-        bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() );
++        bungee.getLogger().info( "Enabled FlexPipe version " + bungee.getVersion() );
+         bungee.start();
+ 
+         if ( !options.has( "noconsole" ) )
 diff --git a/chat/pom.xml b/chat/pom.xml
 index 3f2dd5b..101be5a 100644
 --- a/chat/pom.xml
@@ -618,6 +652,86 @@ index f60ba37..c5f7688 100644
              <version>${project.version}</version>
              <scope>compile</scope>
          </dependency>
+diff --git a/proxy/src/main/java/Test.java b/proxy/src/main/java/Test.java
+index 9d51608..da98f0a 100644
+--- a/proxy/src/main/java/Test.java
++++ b/proxy/src/main/java/Test.java
+@@ -19,7 +19,7 @@ public class Test
+     {
+         BungeeCord bungee = new BungeeCord();
+         ProxyServer.setInstance( bungee );
+-        bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() );
++        bungee.getLogger().info( "Enabled FlexPipe version " + bungee.getVersion() );
+         bungee.start();
+ 
+         while ( bungee.isRunning )
+diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+index 795a015..5be7d73 100644
+--- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
++++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+@@ -189,7 +189,7 @@ public class BungeeCord extends ProxyServer
+         // For example test-test works fine, but test-test-test does not! In order to avoid this all together but
+         // still keep our versions the same as they were, we set the override property to the essentially garbage version
+         // BungeeCord. This version is only used when extracting the libraries to their temp folder.
+-        System.setProperty( "library.jansi.version", "BungeeCord" );
++        System.setProperty( "library.jansi.version", "FlexPipe" );
+ 
+         AnsiConsole.systemInstall();
+         consoleReader = new ConsoleReader();
+@@ -443,7 +443,7 @@ public class BungeeCord extends ProxyServer
+     @Override
+     public String getName()
+     {
+-        return "BungeeCord";
++        return "FlexPipe";
+     }
+ 
+     @Override
+diff --git a/proxy/src/main/java/net/md_5/bungee/command/CommandBungee.java b/proxy/src/main/java/net/md_5/bungee/command/CommandBungee.java
+index b079879..566b6d3 100644
+--- a/proxy/src/main/java/net/md_5/bungee/command/CommandBungee.java
++++ b/proxy/src/main/java/net/md_5/bungee/command/CommandBungee.java
+@@ -10,12 +10,12 @@ public class CommandBungee extends Command
+ 
+     public CommandBungee()
+     {
+-        super( "bungee" );
++        super( "flexpipe", null, "bungee" );
+     }
+ 
+     @Override
+     public void execute(CommandSender sender, String[] args)
+     {
+-        sender.sendMessage( ChatColor.BLUE + "This server is running BungeeCord version " + ProxyServer.getInstance().getVersion() + " by md_5" );
++        sender.sendMessage( ChatColor.BLUE + "This server is running version " + ProxyServer.getInstance().getVersion() + " based on md_5's work" );
+     }
+ }
+diff --git a/proxy/src/main/java/net/md_5/bungee/log/BungeeLogger.java b/proxy/src/main/java/net/md_5/bungee/log/BungeeLogger.java
+index 94e924b..6cc6625 100644
+--- a/proxy/src/main/java/net/md_5/bungee/log/BungeeLogger.java
++++ b/proxy/src/main/java/net/md_5/bungee/log/BungeeLogger.java
+@@ -22,7 +22,7 @@ public class BungeeLogger extends Logger
+     @SuppressFBWarnings("SC_START_IN_CTOR")
+     public BungeeLogger(BungeeCord bungee)
+     {
+-        super( "BungeeCord", null );
++        super( "FlexPipe", null );
+         setLevel( Level.ALL );
+ 
+         try
+diff --git a/proxy/src/main/java/net/md_5/bungee/log/LogDispatcher.java b/proxy/src/main/java/net/md_5/bungee/log/LogDispatcher.java
+index f1ccd4f..385a352 100644
+--- a/proxy/src/main/java/net/md_5/bungee/log/LogDispatcher.java
++++ b/proxy/src/main/java/net/md_5/bungee/log/LogDispatcher.java
+@@ -12,7 +12,7 @@ public class LogDispatcher extends Thread
+ 
+     public LogDispatcher(BungeeLogger logger)
+     {
+-        super( "BungeeCord Logger Thread" );
++        super( "FlexPipe Logger Thread" );
+         this.logger = logger;
+     }
+ 
 diff --git a/query/pom.xml b/query/pom.xml
 index 3dab7c5..3105ebf 100644
 --- a/query/pom.xml

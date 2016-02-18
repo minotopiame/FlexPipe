@@ -1,19 +1,19 @@
-From 2a2def301174963f20498d22763e027e94ecfc04 Mon Sep 17 00:00:00 2001
+From 946a663aaba571f281ca6e73754aa7689db02baf Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 7 Oct 2015 21:53:26 +0200
-Subject: [PATCH 03/10] Re-Implement throttle
+Subject: [PATCH 03/10] Re-Implement join throttle
 
-This connection throttle takes care of pings by kicking in only if its clearly a join try.
-Additionally it waits to be able to send a kick message to the client.
-This implementation sends a nice german kick message containing a little highered number of the actual seconds he needs to wait. So this is not intended to be a real fix.
+This join throttle takes care of pings by kicking in only if its clearly a join try.
+This implementation sends a kick message containing the seconds players needs to wait between join attempts.
 
-Whether throttle is logged can be specified by the log_throttled config.yml option, defaults to false.
+Whether throttled join tries are logged can be specified by the log_throttled config.yml option, defaults to false.
 ---
- api/src/main/java/net/md_5/bungee/api/ProxyConfig.java   |  5 +++++
- .../main/java/net/md_5/bungee/conf/Configuration.java    |  5 +++++
- .../java/net/md_5/bungee/connection/InitialHandler.java  | 16 +++++++++++++++-
- .../main/java/net/md_5/bungee/netty/PipelineUtils.java   |  6 ------
- 4 files changed, 25 insertions(+), 7 deletions(-)
+ api/src/main/java/net/md_5/bungee/api/ProxyConfig.java     |  5 +++++
+ .../src/main/java/net/md_5/bungee/conf/Configuration.java  |  5 +++++
+ .../java/net/md_5/bungee/connection/InitialHandler.java    | 14 ++++++++++++--
+ .../src/main/java/net/md_5/bungee/netty/PipelineUtils.java |  6 ------
+ proxy/src/main/resources/messages.properties               |  2 ++
+ 5 files changed, 24 insertions(+), 8 deletions(-)
 
 diff --git a/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java b/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
 index edd82c1..25590e3 100644
@@ -55,20 +55,10 @@ index 7d52931..9cd6ab9 100644
          throttle = adapter.getInt( "connection_throttle", throttle );
          ipForward = adapter.getBoolean( "ip_forward", ipForward );
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index ce78e19..70bb55a 100644
+index bcc6f9a..be5325c 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -63,6 +63,9 @@ import net.md_5.bungee.util.BoundedArrayList;
- @RequiredArgsConstructor
- public class InitialHandler extends PacketHandler implements PendingConnection
- {
-+    private static final BaseComponent[] THROTTLE_REASON = new net.md_5.bungee.api.chat.ComponentBuilder( "Du hast dich zu schnell wiederverbunden, warte bitte mindestens " + ( ( BungeeCord.getInstance().getConfig().getThrottle() / 1000 ) + 2 ) + " Sekunden." )
-+            .color( ChatColor.RED )
-+            .create();
- 
-     private final ProxyServer bungee;
-     private ChannelWrapper ch;
-@@ -212,7 +215,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -212,7 +212,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                      @Override
                      public void done(ProxyPingEvent pingResult, Throwable error)
                      {
@@ -76,25 +66,28 @@ index ce78e19..70bb55a 100644
                          Gson gson = handshake.getProtocolVersion() == ProtocolConstants.MINECRAFT_1_7_2 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
                          unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
                      }
-@@ -296,6 +298,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
-     @Override
-     public void handle(LoginRequest loginRequest) throws Exception
-     {
-+        // should only be used if its definitely NO ping / status request
-+        // as otherwise pings after status requests are blocked
-+        // throttle should not be used in handle(Handshake) as its impossible to give the user a proper message at that state
-+        if (BungeeCord.getInstance().getConnectionThrottle().throttle( ( (InetSocketAddress) ch.getHandle().remoteAddress() ).getAddress() ) )
-+        {
-+            if ( BungeeCord.getInstance().getConfig().isLogThrottled() )
-+            {
-+                bungee.getLogger().log( Level.INFO, "{0} throttled", this );
-+            }
-+            disconnect(THROTTLE_REASON);
-+            return;
-+        }
-         Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
-         this.loginRequest = loginRequest;
- 
+@@ -284,9 +283,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+                 ch.setProtocol( Protocol.STATUS );
+                 break;
+             case 2:
++                // Login
++                if (BungeeCord.getInstance().getConnectionThrottle().throttle( ( (InetSocketAddress) ch.getHandle().remoteAddress() ).getAddress() ) )
++                {
++                    if ( BungeeCord.getInstance().getConfig().isLogThrottled() )
++                    {
++                        bungee.getLogger().log( Level.INFO, "{0} throttled", this );
++                    }
++                    // setting protocol to login so we can send the kick message which is actually supported by the minecraft client after it sent the handshake
++                    ch.setProtocol( Protocol.LOGIN );
++                    disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds(BungeeCord.getInstance().getConfig().getThrottle() ) ) );
++                    return;
++                }
+                 thisState = State.USERNAME;
+                 ch.setProtocol( Protocol.LOGIN );
+-                // Login
+                 break;
+             default:
+                 throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
 diff --git a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
 index a5feb1e..8f09e9d 100644
 --- a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
@@ -112,6 +105,16 @@ index a5feb1e..8f09e9d 100644
  
              BASE.initChannel( ch );
              ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
+diff --git a/proxy/src/main/resources/messages.properties b/proxy/src/main/resources/messages.properties
+index 7875037..aad4e95 100644
+--- a/proxy/src/main/resources/messages.properties
++++ b/proxy/src/main/resources/messages.properties
+@@ -24,3 +24,5 @@ total_players=Total players online: {0}
+ name_too_long=Cannot have username longer than 16 characters
+ name_invalid=Username contains invalid characters.
+ ping_cannot_connect=\u00a7c[Bungee] Can't connect to server.
++
++join_throttle_kick=You have connected too fast. You must wait at least {0} seconds between connections.
 -- 
 1.9.5.msysgit.0
 

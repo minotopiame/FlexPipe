@@ -1,4 +1,4 @@
-From 117f6ee20892fe6af2bf41c95f9f08fcda58123b Mon Sep 17 00:00:00 2001
+From cc69eeabdc9b6809de0e8d2ddeb531f62360423c Mon Sep 17 00:00:00 2001
 From: Aikar <aikar@aikar.co>
 Date: Mon, 5 Oct 2015 23:20:54 -0400
 Subject: [PATCH 10/10] Set a more reasonable netty recycler capacity
@@ -16,7 +16,7 @@ Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
  1 file changed, 6 insertions(+)
 
 diff --git a/bootstrap/src/main/java/net/md_5/bungee/BungeeCordLauncher.java b/bootstrap/src/main/java/net/md_5/bungee/BungeeCordLauncher.java
-index f130ac4..6626ec5 100644
+index 32496dd..5c26d35 100644
 --- a/bootstrap/src/main/java/net/md_5/bungee/BungeeCordLauncher.java
 +++ b/bootstrap/src/main/java/net/md_5/bungee/BungeeCordLauncher.java
 @@ -20,6 +20,12 @@ public class BungeeCordLauncher

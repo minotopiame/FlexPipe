@@ -1,4 +1,4 @@
-From 0b440007e17c6cbaf4f1b82cdef27e04f594537e Mon Sep 17 00:00:00 2001
+From 9fc9e18b9eb3de78edaf0cc8de910ffc5afbd804 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 18:25:52 +0100
 Subject: [PATCH 07/10] Allow configuring module source uri scheme, set
@@ -12,7 +12,7 @@ Subject: [PATCH 07/10] Allow configuring module source uri scheme, set
  create mode 100644 proxy/src/main/java/net/md_5/bungee/module/ConfigurableModuleSource.java
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index 795a015..68fc70d 100644
+index 5be7d73..ddee4ab 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 @@ -238,6 +238,7 @@ public class BungeeCord extends ProxyServer

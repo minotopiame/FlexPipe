@@ -1,4 +1,4 @@
-From 4d259c0123284801cc20c4ddf602047403fd868f Mon Sep 17 00:00:00 2001
+From 346e6ecaee64cd3675fac91f231573fc156cb6a0 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 17:22:05 +0100
 Subject: [PATCH 06/10] Add origin and patcher git hash instead of patched git
@@ -10,7 +10,7 @@ Remove scriptus maven plugin, as its no longer needed.
  1 file changed, 3 insertions(+), 16 deletions(-)
 
 diff --git a/pom.xml b/pom.xml
-index ec0ace3..64a8e41 100644
+index ec0ace3..e7c00d6 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -75,6 +75,9 @@
@@ -19,7 +19,7 @@ index ec0ace3..64a8e41 100644
          <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 +        <origin_commit>unknown</origin_commit>
 +        <patcher_commit>unknown</patcher_commit>
-+        <describe>git:${project.name}:${project.version}:origin-${origin_commit}-patcher-${patcher_commit}:${build.number}</describe>
++        <describe>git:FlexPipe:${project.version}:origin-${origin_commit}-patcher-${patcher_commit}:${build.number}</describe>
      </properties>
  
      <dependencies>
