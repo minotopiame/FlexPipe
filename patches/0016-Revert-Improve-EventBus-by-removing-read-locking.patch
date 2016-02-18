@@ -1,0 +1,118 @@
+From 96875dec8e923663daa2fa3f02858bfb3d15c3e7 Mon Sep 17 00:00:00 2001
+From: Tux <write@imaginarycode.com>
+Date: Wed, 17 Feb 2016 00:16:48 +0100
+Subject: Revert "Improve EventBus by removing read locking."
+
+This reverts commit 59208aad8678291f011da1435b1b390488ec303c.
+
+Improving my microbenchmark reveals that removal of read locking does not substantially improve performance, and may have decreased it.
+
+Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
+---
+ .../main/java/net/md_5/bungee/event/EventBus.java  | 37 +++++++++++++---------
+ 1 file changed, 22 insertions(+), 15 deletions(-)
+
+diff --git a/event/src/main/java/net/md_5/bungee/event/EventBus.java b/event/src/main/java/net/md_5/bungee/event/EventBus.java
+index 5b5d420..48abae2 100644
+--- a/event/src/main/java/net/md_5/bungee/event/EventBus.java
++++ b/event/src/main/java/net/md_5/bungee/event/EventBus.java
+@@ -9,9 +9,8 @@ import java.util.HashSet;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.Set;
+-import java.util.concurrent.ConcurrentHashMap;
+-import java.util.concurrent.locks.Lock;
+-import java.util.concurrent.locks.ReentrantLock;
++import java.util.concurrent.locks.ReadWriteLock;
++import java.util.concurrent.locks.ReentrantReadWriteLock;
+ import java.util.logging.Level;
+ import java.util.logging.Logger;
+ 
+@@ -19,8 +18,8 @@ public class EventBus
+ {
+ 
+     private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority = new HashMap<>();
+-    private final Map<Class<?>, EventHandlerMethod[]> byEventBaked = new ConcurrentHashMap<>();
+-    private final Lock lock = new ReentrantLock();
++    private final Map<Class<?>, EventHandlerMethod[]> byEventBaked = new HashMap<>();
++    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+     private final Logger logger;
+ 
+     public EventBus()
+@@ -35,7 +34,15 @@ public class EventBus
+ 
+     public void post(Object event)
+     {
+-        EventHandlerMethod[] handlers = byEventBaked.get( event.getClass() );
++        EventHandlerMethod[] handlers;
++        lock.readLock().lock();
++        try
++        {
++            handlers = byEventBaked.get( event.getClass() );
++        } finally
++        {
++            lock.readLock().unlock();
++        }
+ 
+         if ( handlers != null )
+         {
+@@ -70,16 +77,16 @@ public class EventBus
+                 if ( params.length != 1 )
+                 {
+                     logger.log( Level.INFO, "Method {0} in class {1} annotated with {2} does not have single argument", new Object[]
+-                    {
+-                        m, listener.getClass(), annotation
+-                    } );
++                        {
++                            m, listener.getClass(), annotation
++                        } );
+                     continue;
+                 }
+-                Map<Byte, Set<Method>> prioritiesMap = handler.get( params[0] );
++                Map<Byte, Set<Method>> prioritiesMap = handler.get( params[ 0 ] );
+                 if ( prioritiesMap == null )
+                 {
+                     prioritiesMap = new HashMap<>();
+-                    handler.put( params[0], prioritiesMap );
++                    handler.put( params[ 0 ], prioritiesMap );
+                 }
+                 Set<Method> priority = prioritiesMap.get( annotation.priority() );
+                 if ( priority == null )
+@@ -96,7 +103,7 @@ public class EventBus
+     public void register(Object listener)
+     {
+         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
+-        lock.lock();
++        lock.writeLock().lock();
+         try
+         {
+             for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
+@@ -122,14 +129,14 @@ public class EventBus
+             }
+         } finally
+         {
+-            lock.unlock();
++            lock.writeLock().unlock();
+         }
+     }
+ 
+     public void unregister(Object listener)
+     {
+         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
+-        lock.lock();
++        lock.writeLock().lock();
+         try
+         {
+             for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
+@@ -158,7 +165,7 @@ public class EventBus
+             }
+         } finally
+         {
+-            lock.unlock();
++            lock.writeLock().unlock();
+         }
+     }
+ 
+-- 
+1.9.5.msysgit.0
+
