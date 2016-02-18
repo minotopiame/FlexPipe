@@ -1,0 +1,188 @@
+From 115f230a49875d7abff66b2cbe28d44f8373908b Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Thu, 18 Feb 2016 15:59:37 +0100
+Subject: Micro-optimize mojang uuid to uuid object conversion (and other way
+ round).
+
+Code should take half to one forth the time.
+
+Based on work by @Minecrell, see here https://github.com/WaterfallMC/Waterfall/commit/a5c670f548ef55367b20df2d343652ceb0247efb#commitcomment-16083290 and https://github.com/WaterfallMC/Waterfall/commit/c29574d262032657ae6e7c9dad49a99caeb415f4
+---
+ api/src/main/java/net/md_5/bungee/Util.java        | 127 ++++++++++++++++++++-
+ .../main/java/net/md_5/bungee/api/ServerPing.java  |   2 +-
+ .../net/md_5/bungee/connection/InitialHandler.java |   2 +-
+ 3 files changed, 128 insertions(+), 3 deletions(-)
+
+diff --git a/api/src/main/java/net/md_5/bungee/Util.java b/api/src/main/java/net/md_5/bungee/Util.java
+index 86a0055..7b4532b 100644
+--- a/api/src/main/java/net/md_5/bungee/Util.java
++++ b/api/src/main/java/net/md_5/bungee/Util.java
+@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
+ import java.net.InetSocketAddress;
+ import java.net.URI;
+ import java.net.URISyntaxException;
++import java.util.Arrays;
+ import java.util.UUID;
+ 
+ /**
+@@ -78,6 +79,130 @@ public class Util
+      */
+     public static UUID getUUID(String uuid)
+     {
+-        return UUID.fromString( uuid.substring( 0, 8 ) + "-" + uuid.substring( 8, 12 ) + "-" + uuid.substring( 12, 16 ) + "-" + uuid.substring( 16, 20 ) + "-" + uuid.substring( 20, 32 ) );
++        return new UUID( Long.parseUnsignedLong( uuid.substring( 0, 16 ), 16 ), Long.parseUnsignedLong( uuid.substring( 16 ), 16 ) );
++    }
++
++    /**
++     * Converts a UUID to a Mojang UUID
++     *
++     * @param uuid The string to be converted
++     * @return The result
++     */
++    @SuppressWarnings( "Duplicates" )
++    public static String getMojangUUID(UUID uuid)
++    {
++        // return toHexBits( uuid.getMostSignificantBits() ) + toHexBits( uuid.getLeastSignificantBits() );
++        // inlined method and Strings.padStart() for optimization with StringBuilder - saves 1/3 up to 1/2 time
++
++        StringBuilder stringBuilder = new StringBuilder( 32 );
++
++        UUIDUtil.padStartMax16Chars( stringBuilder, UUIDUtil.toUnsignedStringRadix16_chararray( uuid.getMostSignificantBits() ) );
++
++        // Add missing leading zeros (if necessary)
++        UUIDUtil.padStartMax16Chars( stringBuilder, UUIDUtil.toUnsignedStringRadix16_chararray( uuid.getLeastSignificantBits()) );
++
++        return stringBuilder.toString();
++    }
++
++    /**
++     * provides optimized methods of library methods for creating a mojang uuid only due to removed checks and fixed values
++     *
++     * yeah this is micro-optimization to the largest extend
++     */
++    private static final class UUIDUtil
++    {
++        /**
++         * pads a string infront with a '0' to achieve its 16 chars long, make sure the string is not longer than 16 chars or it won't work
++         *
++         * @param sb       the string builder to append the result to
++         * @param toPrefix the string to optionally pad and
++         * @see com.google.common.base.Strings#padStart(String, int, char) Strings.padStart(toPrefix, 16, '0')
++         */
++        private static void padStartMax16Chars(StringBuilder sb, char[] toPrefix)
++        {
++            // Add missing leading zeros (if necessary)
++            if ( toPrefix.length != 16 )
++            {
++                for ( int i = toPrefix.length; i < 16; i++ )
++                {
++                    sb.append( '0' );
++                }
++            }
++            sb.append( toPrefix );
++        }
++
++        //internal java methods simplified
++
++        private static char[] toUnsignedStringRadix16_chararray(long i)
++        {
++            if ( i >= 0 )
++            {
++                return longToStringRadix16NotNegative( i );
++            } else
++            {
++                return longToHexString( i );
++            }
++        }
++
++        private static final char[] integer_digits = {
++            '0', '1', '2', '3', '4', '5',
++            '6', '7', '8', '9', 'a', 'b',
++            'c', 'd', 'e', 'f', 'g', 'h',
++            'i', 'j', 'k', 'l', 'm', 'n',
++            'o', 'p', 'q', 'r', 's', 't',
++            'u', 'v', 'w', 'x', 'y', 'z'
++        };
++
++        private static char[] longToHexString(long i)
++        {
++            // Long.toUnsignedString0(i, 4)
++            int mag = Long.SIZE - Long.numberOfLeadingZeros( i );
++            int chars = Math.max( ( ( mag + ( 4 - 1 ) ) / 4 ), 1 );
++            char[] buf = new char[ chars ];
++
++            formatUnsignedLong( i, 4, buf, chars );
++            return buf;
++        }
++
++        /**
++         * Format a long (treated as unsigned) into a character buffer.
++         *
++         * @param val   the unsigned long to format
++         * @param shift the log2 of the base to format in (4 for hex, 3 for octal, 1 for binary)
++         * @param buf   the character buffer to write to
++         * @param len   the number of characters to write
++         * @return the lowest character location used
++         */
++        private static int formatUnsignedLong(long val, int shift, char[] buf, int len)
++        {
++            int charPos = len;
++            int radix = 1 << shift;
++            int mask = radix - 1;
++            do
++            {
++                buf[ --charPos ] = integer_digits[ ( ( int ) val ) & mask ];
++                val >>>= shift;
++            } while ( val != 0 && charPos > 0 );
++
++            return charPos;
++        }
++
++        private static char[] longToStringRadix16NotNegative(long i)
++        {
++            int radix = 16;
++            char[] buf = new char[ 65 ];
++            int charPos = 64;
++
++            i = -i;
++
++            while ( i <= -radix )
++            {
++                buf[ charPos-- ] = integer_digits[ ( int ) ( -( i % radix ) ) ];
++                i = i / radix;
++            }
++            buf[ charPos ] = integer_digits[ ( int ) ( -i ) ];
++
++            return Arrays.copyOfRange( buf, charPos, 65 );
++        }
+     }
+ }
+diff --git a/api/src/main/java/net/md_5/bungee/api/ServerPing.java b/api/src/main/java/net/md_5/bungee/api/ServerPing.java
+index 19337a5..28fd217 100644
+--- a/api/src/main/java/net/md_5/bungee/api/ServerPing.java
++++ b/api/src/main/java/net/md_5/bungee/api/ServerPing.java
+@@ -70,7 +70,7 @@ public class ServerPing
+ 
+         public String getId()
+         {
+-            return uniqueId.toString().replaceAll( "-", "" );
++            return Util.getMojangUUID( uniqueId );
+         }
+     }
+     private String description;
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+index e79af12..56ebae7 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+@@ -612,7 +612,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+     @Override
+     public String getUUID()
+     {
+-        return uniqueId.toString().replaceAll( "-", "" );
++        return Util.getMojangUUID( uniqueId );
+     }
+ 
+     @Override
+-- 
+1.9.5.msysgit.0
+
