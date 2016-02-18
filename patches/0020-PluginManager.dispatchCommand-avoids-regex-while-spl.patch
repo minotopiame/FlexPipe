@@ -1,0 +1,37 @@
+From a721a1ace0f2e34c07364ddd8456c133adeef9d5 Mon Sep 17 00:00:00 2001
+From: Tux <write@imaginarycode.com>
+Date: Wed, 17 Feb 2016 00:37:40 +0100
+Subject: PluginManager.dispatchCommand() avoids regex while splitting
+ commands.
+
+Java 7 introduced an optimized String.split() that should be used instead (affects command dispatch).
+
+Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
+---
+ api/src/main/java/net/md_5/bungee/api/plugin/PluginManager.java | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/api/src/main/java/net/md_5/bungee/api/plugin/PluginManager.java b/api/src/main/java/net/md_5/bungee/api/plugin/PluginManager.java
+index c7bfddc..63ba27f 100644
+--- a/api/src/main/java/net/md_5/bungee/api/plugin/PluginManager.java
++++ b/api/src/main/java/net/md_5/bungee/api/plugin/PluginManager.java
+@@ -42,7 +42,6 @@ import org.yaml.snakeyaml.introspector.PropertyUtils;
+ public class PluginManager
+ {
+ 
+-    private static final Pattern argsSplit = Pattern.compile( " " );
+     /*========================================================================*/
+     private final ProxyServer proxy;
+     /*========================================================================*/
+@@ -126,7 +125,7 @@ public class PluginManager
+      */
+     public boolean dispatchCommand(CommandSender sender, String commandLine, List<String> tabResults)
+     {
+-        String[] split = argsSplit.split( commandLine, -1 );
++        String[] split = commandLine.split( " ", -1 );
+         // Check for chat that only contains " "
+         if ( split.length == 0 )
+         {
+-- 
+1.9.5.msysgit.0
+
