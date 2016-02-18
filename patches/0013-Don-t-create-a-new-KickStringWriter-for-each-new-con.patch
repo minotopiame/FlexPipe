@@ -1,0 +1,52 @@
+From d05e719039f1b1a3be40ad70458a4e4e39c6c090 Mon Sep 17 00:00:00 2001
+From: Harry <me@harry5573.uk>
+Date: Tue, 16 Feb 2016 23:42:49 +0100
+Subject: Don't create a new KickStringWriter for each new connection.
+
+Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
+---
+ protocol/src/main/java/net/md_5/bungee/protocol/KickStringWriter.java | 2 ++
+ proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java          | 4 +++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/KickStringWriter.java b/protocol/src/main/java/net/md_5/bungee/protocol/KickStringWriter.java
+index eda9571..e2e34a3 100644
+--- a/protocol/src/main/java/net/md_5/bungee/protocol/KickStringWriter.java
++++ b/protocol/src/main/java/net/md_5/bungee/protocol/KickStringWriter.java
+@@ -1,9 +1,11 @@
+ package net.md_5.bungee.protocol;
+ 
+ import io.netty.buffer.ByteBuf;
++import io.netty.channel.ChannelHandler;
+ import io.netty.channel.ChannelHandlerContext;
+ import io.netty.handler.codec.MessageToByteEncoder;
+ 
++@ChannelHandler.Sharable
+ public class KickStringWriter extends MessageToByteEncoder<String>
+ {
+ 
+diff --git a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
+index 8f09e9d..273d7db 100644
+--- a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
++++ b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
+@@ -54,7 +54,7 @@ public class PipelineUtils
+             ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
+             ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
+             ch.pipeline().addAfter( FRAME_PREPENDER, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
+-            ch.pipeline().addBefore( FRAME_PREPENDER, LEGACY_KICKER, new KickStringWriter() );
++            ch.pipeline().addBefore( FRAME_PREPENDER, LEGACY_KICKER, KICK_STRING_WRITER );
+             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( ProxyServer.getInstance(), ch.attr( LISTENER ).get() ) );
+         }
+     };
+@@ -71,6 +71,8 @@ public class PipelineUtils
+     public static final String LEGACY_DECODER = "legacy-decoder";
+     public static final String LEGACY_KICKER = "legacy-kick";
+ 
++    private static final KickStringWriter KICK_STRING_WRITER = new KickStringWriter();
++
+     private static boolean epoll;
+ 
+     static
+-- 
+1.9.5.msysgit.0
+
