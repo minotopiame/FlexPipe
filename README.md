@@ -28,13 +28,17 @@ The compilation of FlexPipe is fairly easy. At first you need to clone this repo
 execute ```./reset-apply-build.sh``` in a bash environment. You can get it on windows mostly by right-clicking in the
 file explorer and selecting "Git Bash". The final files are copied into the ```target``` folder.
 
+**Be careful** if you have done changes in the BungeeCord folder which are not saved as a patch yet. In that case, **never** run ```./reset-apply-build.sh``` or ```./reset.sh```, these will **reset** your changes to BungeeCord. You should then only run ```./build.sh``` instead to compile flexpipe.
+
 ## Contribution
 We would really appreciate it if you take part in developing FlexPipe. Here is how to do it:
 
 1. Fork FlexPipe.
 2. Compile the project once (see above).
 3. Go into the bungeecord folder.
-4. Start an interactive rebase up to the commit you want to edit.
-5. Edit the commits you want and end the rebase.
-6. Run ```./format-patches.sh```
-7. Commit the changes to your fork and create a pull request.
+4. Edit what you want, but
+   - before you edit, start an interactive rebase to edit the commit/patch you want to edit, *or*
+   - change anything that's not related directly to a previous commit and commit your changes.
+5. Run ```./format-patches.sh```
+6. Commit the changes of the patch files to your FlexPipe fork and create a pull request to FlexPipe.
+7. Thanks!
