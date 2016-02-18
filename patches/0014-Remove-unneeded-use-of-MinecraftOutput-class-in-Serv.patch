@@ -1,0 +1,47 @@
+From 9bebae0872e9a29b3ecd3ec65a2e596af1885c58 Mon Sep 17 00:00:00 2001
+From: Tux <write@imaginarycode.com>
+Date: Tue, 16 Feb 2016 23:58:58 +0100
+Subject: Remove unneeded use of MinecraftOutput class in ServerConnector
+
+Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
+---
+ proxy/src/main/java/net/md_5/bungee/ServerConnector.java | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
+index 1c58168..cdb723a 100644
+--- a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
++++ b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
+@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
+ import com.google.common.base.Preconditions;
+ import io.netty.buffer.ByteBuf;
+ import io.netty.buffer.ByteBufAllocator;
++import java.nio.charset.StandardCharsets;
+ import java.util.Queue;
+ import java.util.Set;
+ import lombok.Getter;
+@@ -28,7 +29,6 @@ import net.md_5.bungee.netty.ChannelWrapper;
+ import net.md_5.bungee.netty.HandlerBoss;
+ import net.md_5.bungee.netty.PacketHandler;
+ import net.md_5.bungee.protocol.DefinedPacket;
+-import net.md_5.bungee.protocol.MinecraftOutput;
+ import net.md_5.bungee.protocol.Protocol;
+ import net.md_5.bungee.protocol.ProtocolConstants;
+ import net.md_5.bungee.protocol.packet.EncryptionRequest;
+@@ -195,9 +195,10 @@ public class ServerConnector extends PacketHandler
+ 
+             if ( user.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_8 )
+             {
+-                MinecraftOutput out = new MinecraftOutput();
+-                out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
+-                user.unsafe().sendPacket( new PluginMessage( "MC|Brand", out.toArray(), handshakeHandler.isServerForge() ) );
++                user.unsafe().sendPacket( new PluginMessage( "MC|Brand",
++                    ( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ')' ).getBytes( StandardCharsets.UTF_8 ),
++                    handshakeHandler.isServerForge() )
++                );
+             } else
+             {
+                 ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
+-- 
+1.9.5.msysgit.0
+
