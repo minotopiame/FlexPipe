@@ -2,8 +2,6 @@ sudo: false
 language: java
 script: ./reset-apply-build.sh
 jdk:
-  - openjdk7
-  - oraclejdk7
   - oraclejdk8
 notifications:
   email: false

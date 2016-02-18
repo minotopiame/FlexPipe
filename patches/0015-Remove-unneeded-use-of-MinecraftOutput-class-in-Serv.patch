@@ -1,4 +1,4 @@
-From 9bebae0872e9a29b3ecd3ec65a2e596af1885c58 Mon Sep 17 00:00:00 2001
+From 5b739a398e7bee1ad3d7109bfb21dfcf325fb593 Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Tue, 16 Feb 2016 23:58:58 +0100
 Subject: Remove unneeded use of MinecraftOutput class in ServerConnector
