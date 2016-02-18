@@ -1,8 +1,8 @@
 From 7920a01f8677b1af241b34aeb7df343d0d9238ec Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 20:04:26 +0100
-Subject: [PATCH 08/10] Add option to disable module downloading (disabled by
- default), warn if no modules are present and module downloading is disabled.
+Subject: Add option to disable module downloading (disabled by default), warn
+ if no modules are present and module downloading is disabled.
 
 ---
  .../java/net/md_5/bungee/module/ModuleManager.java   | 20 +++++++++++++++++++-

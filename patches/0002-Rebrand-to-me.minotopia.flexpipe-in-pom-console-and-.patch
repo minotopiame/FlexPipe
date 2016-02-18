@@ -1,8 +1,8 @@
 From 74a0d3de4b6d187661be95c215b3cc0e63e5aa36 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 15 Feb 2016 21:19:03 +0100
-Subject: [PATCH 02/10] Rebrand to me.minotopia.flexpipe in pom, console and
- commands; add /flexpipe command
+Subject: Rebrand to me.minotopia.flexpipe in pom, console and commands; add
+ /flexpipe command
 
 ---
  api/pom.xml                                        | 26 ++++++------

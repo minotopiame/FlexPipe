@@ -1,7 +1,7 @@
 From 2bb2d32b56c2a77f4df2e41c87a6783f4d6786bc Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Fri, 9 Oct 2015 16:59:23 +0200
-Subject: [PATCH 04/10] Add tab-complete throttling
+Subject: Add tab-complete throttling
 
 Adapted from pull request https://github.com/SpigotMC/BungeeCord/pull/1522
 

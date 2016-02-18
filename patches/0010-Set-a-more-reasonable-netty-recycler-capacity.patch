@@ -1,7 +1,7 @@
 From cc69eeabdc9b6809de0e8d2ddeb531f62360423c Mon Sep 17 00:00:00 2001
 From: Aikar <aikar@aikar.co>
 Date: Mon, 5 Oct 2015 23:20:54 -0400
-Subject: [PATCH 10/10] Set a more reasonable netty recycler capacity
+Subject: Set a more reasonable netty recycler capacity
 
 Default Netty Recycler capacity is 262k~, resulting in major memory
 consumption over long runtimes that will never free.

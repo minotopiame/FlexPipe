@@ -1,7 +1,7 @@
 From 946a663aaba571f281ca6e73754aa7689db02baf Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 7 Oct 2015 21:53:26 +0200
-Subject: [PATCH 03/10] Re-Implement join throttle
+Subject: Re-Implement join throttle
 
 This join throttle takes care of pings by kicking in only if its clearly a join try.
 This implementation sends a kick message containing the seconds players needs to wait between join attempts.

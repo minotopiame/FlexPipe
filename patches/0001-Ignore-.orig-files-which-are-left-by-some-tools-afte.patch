@@ -1,8 +1,7 @@
 From 502bb079b925e90cbac347a492e4e03a4ccc5076 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 15 Feb 2016 21:28:29 +0100
-Subject: [PATCH 01/10] Ignore *.orig files which are left by some tools after
- merging.
+Subject: Ignore *.orig files which are left by some tools after merging.
 
 ---
  .gitignore | 2 ++
