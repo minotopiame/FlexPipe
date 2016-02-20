@@ -1,4 +1,4 @@
-From c65c61d36df52f325885efd45c362d880d258203 Mon Sep 17 00:00:00 2001
+From 95683cb0031c6d88cdf5a43e97a74620ee1e5dc3 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sat, 12 Dec 2015 23:43:30 +0100
 Subject: Optional server list ping logging; Add IPs to the log where user
@@ -9,13 +9,13 @@ Server list pings are only logged if the log_server_list_pings config.yml option
 The log format is like this: [/***.***.***.***|Username]
 If the user's name is unknown, its just the ip in the brackets as before.
 ---
- api/src/main/java/net/md_5/bungee/api/ProxyConfig.java     |  5 +++++
- proxy/src/main/java/net/md_5/bungee/ServerConnector.java   |  2 +-
- .../src/main/java/net/md_5/bungee/conf/Configuration.java  |  5 +++++
- .../java/net/md_5/bungee/connection/DownstreamBridge.java  |  2 +-
- .../java/net/md_5/bungee/connection/InitialHandler.java    | 14 ++++++++++++--
- .../java/net/md_5/bungee/connection/UpstreamBridge.java    |  2 +-
- 6 files changed, 25 insertions(+), 5 deletions(-)
+ api/src/main/java/net/md_5/bungee/api/ProxyConfig.java   |  5 +++++
+ proxy/src/main/java/net/md_5/bungee/ServerConnector.java |  2 +-
+ .../main/java/net/md_5/bungee/conf/Configuration.java    |  5 +++++
+ .../net/md_5/bungee/connection/DownstreamBridge.java     |  2 +-
+ .../java/net/md_5/bungee/connection/InitialHandler.java  | 16 +++++++++++++---
+ .../java/net/md_5/bungee/connection/UpstreamBridge.java  |  2 +-
+ 6 files changed, 26 insertions(+), 6 deletions(-)
 
 diff --git a/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java b/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
 index 61c0d14..41022e6 100644
@@ -81,10 +81,16 @@ index 96a866e..b28dbf2 100644
      }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index be5325c..e79af12 100644
+index d63962b..4213316 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -271,7 +271,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -1,4 +1,4 @@
+-package net.md_5.bungee.connection;
++﻿package net.md_5.bungee.connection;
+ 
+ import com.google.common.base.Charsets;
+ import com.google.common.base.Preconditions;
+@@ -283,7 +283,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          }
  
          this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
@@ -92,7 +98,7 @@ index be5325c..e79af12 100644
  
          bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
  
-@@ -279,6 +278,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -291,11 +290,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          {
              case 1:
                  // Ping
@@ -103,15 +109,13 @@ index be5325c..e79af12 100644
                  thisState = State.STATUS;
                  ch.setProtocol( Protocol.STATUS );
                  break;
-@@ -295,6 +298,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
-                     disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds(BungeeCord.getInstance().getConfig().getThrottle() ) ) );
-                     return;
-                 }
+             case 2:
+                 // Login
 +                bungee.getLogger().log( Level.INFO, "{0} has connected", this );
                  thisState = State.USERNAME;
                  ch.setProtocol( Protocol.LOGIN );
                  break;
-@@ -614,7 +618,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -615,7 +619,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public String toString()
      {

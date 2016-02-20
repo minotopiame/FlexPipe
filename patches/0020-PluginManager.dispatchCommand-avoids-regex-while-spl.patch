@@ -1,4 +1,4 @@
-From a721a1ace0f2e34c07364ddd8456c133adeef9d5 Mon Sep 17 00:00:00 2001
+From 56cb4e3d8ef9f9239b762339ed932726066acbf0 Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Wed, 17 Feb 2016 00:37:40 +0100
 Subject: PluginManager.dispatchCommand() avoids regex while splitting

@@ -1,4 +1,4 @@
-From 96875dec8e923663daa2fa3f02858bfb3d15c3e7 Mon Sep 17 00:00:00 2001
+From 89159995949e49276b8040699be296f8f2582b05 Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Wed, 17 Feb 2016 00:16:48 +0100
 Subject: Revert "Improve EventBus by removing read locking."
