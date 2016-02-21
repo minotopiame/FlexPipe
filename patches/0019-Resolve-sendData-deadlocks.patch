@@ -1,4 +1,4 @@
-From 48ab86d609d6cfa101f27ea4220a64db1cf56a89 Mon Sep 17 00:00:00 2001
+From 5486f1b20777b5dc4f2665f6226efb4afe5823d5 Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Wed, 17 Feb 2016 00:34:15 +0100
 Subject: Resolve sendData() deadlocks
@@ -47,5 +47,5 @@ index 1dd0aeb..b1de1d3 100644
  
      @Override
 -- 
-1.9.5.msysgit.0
+2.1.4
 

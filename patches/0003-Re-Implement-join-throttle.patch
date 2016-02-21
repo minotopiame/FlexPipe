@@ -1,4 +1,4 @@
-From bbf82fc70ed592f523e07c3262aedaa47e718dea Mon Sep 17 00:00:00 2001
+From 19cd6399819dd62dffa24d3925fef4ab239bb8c8 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 7 Oct 2015 21:53:26 +0200
 Subject: Re-Implement join throttle
@@ -124,5 +124,5 @@ index 7875037..aad4e95 100644
 +
 +join_throttle_kick=You have connected too fast. You must wait at least {0} seconds between connections.
 -- 
-1.9.5.msysgit.0
+2.1.4
 

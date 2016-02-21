@@ -1,4 +1,4 @@
-From 37054573a375ae5da216d74c603d41b7140f3c6b Mon Sep 17 00:00:00 2001
+From 6f580aa00b91f2f72a79425e84d05be2230c8abb Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 20:18:57 +0100
 Subject: Add optional direct kick, without waiting a half second.
@@ -8,8 +8,9 @@ Use it for join throttle kicks.
  .../bungee/api/connection/PendingConnection.java   | 37 ++++++++++++
  .../md_5/bungee/api/connection/ProxiedPlayer.java  | 33 +++++++++++
  .../main/java/net/md_5/bungee/UserConnection.java  | 64 +++++++++++++++------
+ .../md_5/bungee/connection/DownstreamBridge.java   |  2 +-
  .../net/md_5/bungee/connection/InitialHandler.java | 67 ++++++++++++++++------
- 4 files changed, 166 insertions(+), 35 deletions(-)
+ 5 files changed, 167 insertions(+), 36 deletions(-)
 
 diff --git a/api/src/main/java/net/md_5/bungee/api/connection/PendingConnection.java b/api/src/main/java/net/md_5/bungee/api/connection/PendingConnection.java
 index cc511ef..4f38e5f 100644
@@ -209,6 +210,19 @@ index 1215449..a69fe1f 100644
      @Override
      public void chat(String message)
      {
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
+index bc531d4..d52b415 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
+@@ -474,7 +474,7 @@ public class DownstreamBridge extends PacketHandler
+             con.connectNow( event.getCancelServer() );
+         } else
+         {
+-            con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
++            con.disconnect0( true, event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
+         }
+         server.setObsolete( true );
+         throw CancelSendSignal.INSTANCE;
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 index cdf6ef8..4547aff 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
@@ -313,5 +327,5 @@ index cdf6ef8..4547aff 100644
  
      @Override
 -- 
-1.9.5.msysgit.0
+2.1.4
 

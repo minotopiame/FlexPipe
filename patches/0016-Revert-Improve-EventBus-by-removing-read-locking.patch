@@ -1,4 +1,4 @@
-From 389cfc8755440c6ac7ecd32dc688ae2c17651ebc Mon Sep 17 00:00:00 2001
+From 20282f0c02c5ababbf306fb5585bc71d2588be1f Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Wed, 17 Feb 2016 00:16:48 +0100
 Subject: Revert "Improve EventBus by removing read locking."
@@ -114,5 +114,5 @@ index 5b5d420..48abae2 100644
      }
  
 -- 
-1.9.5.msysgit.0
+2.1.4
 
