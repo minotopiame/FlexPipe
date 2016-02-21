@@ -1,4 +1,4 @@
-From 502bb079b925e90cbac347a492e4e03a4ccc5076 Mon Sep 17 00:00:00 2001
+From fe14b955bd200bd5bb1d79bd11d457c8f316ce4c Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 15 Feb 2016 21:28:29 +0100
 Subject: Ignore *.orig files which are left by some tools after merging.

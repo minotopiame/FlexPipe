@@ -1,4 +1,4 @@
-From 48ee022cbd2e8112199b3097cb7f62667fba663f Mon Sep 17 00:00:00 2001
+From 9d24ca0b9fdf2b1dec4d446b7a418d15668255f0 Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Wed, 17 Feb 2016 00:29:46 +0100
 Subject: Avoid regex in getLocale()

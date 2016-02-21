@@ -1,4 +1,4 @@
-From c03980ad871d63468146315da62bc21854c4f101 Mon Sep 17 00:00:00 2001
+From 6daeec98ba60a08bb086f5eb3e4f9efe176f9bc5 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Thu, 18 Feb 2016 15:59:37 +0100
 Subject: Micro-optimize mojang uuid to uuid object conversion (and other way
@@ -171,7 +171,7 @@ index 19337a5..28fd217 100644
      }
      private String description;
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 4213316..557ee6c 100644
+index 79f53a5..cdf6ef8 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -613,7 +613,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection

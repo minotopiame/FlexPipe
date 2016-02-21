@@ -1,4 +1,4 @@
-From 556a26d6d8fd4ddb1d7bb4f1474b838db2de9da2 Mon Sep 17 00:00:00 2001
+From 735e96ce4a88092b2240f96f7fa5c2aa9df599f6 Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Tue, 16 Feb 2016 23:58:58 +0100
 Subject: Remove unneeded use of MinecraftOutput class in ServerConnector
@@ -9,7 +9,7 @@ Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
  1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
-index 1c58168..cdb723a 100644
+index 7cfc1f5..0ff35ca 100644
 --- a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
 +++ b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
 @@ -4,6 +4,7 @@ import com.google.common.base.Objects;
