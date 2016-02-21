@@ -1,0 +1,317 @@
+From 37054573a375ae5da216d74c603d41b7140f3c6b Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Sun, 21 Feb 2016 20:18:57 +0100
+Subject: Add optional direct kick, without waiting a half second.
+
+Use it for join throttle kicks.
+---
+ .../bungee/api/connection/PendingConnection.java   | 37 ++++++++++++
+ .../md_5/bungee/api/connection/ProxiedPlayer.java  | 33 +++++++++++
+ .../main/java/net/md_5/bungee/UserConnection.java  | 64 +++++++++++++++------
+ .../net/md_5/bungee/connection/InitialHandler.java | 67 ++++++++++++++++------
+ 4 files changed, 166 insertions(+), 35 deletions(-)
+
+diff --git a/api/src/main/java/net/md_5/bungee/api/connection/PendingConnection.java b/api/src/main/java/net/md_5/bungee/api/connection/PendingConnection.java
+index cc511ef..4f38e5f 100644
+--- a/api/src/main/java/net/md_5/bungee/api/connection/PendingConnection.java
++++ b/api/src/main/java/net/md_5/bungee/api/connection/PendingConnection.java
+@@ -2,6 +2,7 @@ package net.md_5.bungee.api.connection;
+ 
+ import java.net.InetSocketAddress;
+ import java.util.UUID;
++import net.md_5.bungee.api.chat.BaseComponent;
+ import net.md_5.bungee.api.config.ListenerInfo;
+ 
+ /**
+@@ -78,4 +79,40 @@ public interface PendingConnection extends Connection
+      * @return Whether the client is using a legacy client.
+      */
+     boolean isLegacy();
++
++    /**
++     * Disconnects this end of the connection for the specified reason. If this
++     * is an {@link ProxiedPlayer} the respective server connection will be
++     * closed too.
++     *
++     * @param reason the reason shown to the player / sent to the server on
++     * disconnect
++     * @param wait whether to wait a half second before kicking to ensure
++     * the kick message is displayed
++     */
++    void disconnect(String reason, boolean wait);
++
++    /**
++     * Disconnects this end of the connection for the specified reason. If this
++     * is an {@link ProxiedPlayer} the respective server connection will be
++     * closed too.
++     *
++     * @param reason the reason shown to the player / sent to the server on
++     * disconnect
++     * @param wait whether to wait a half second before kicking to ensure
++     * the kick message is displayed
++     */
++    void disconnect(BaseComponent[] reason, boolean wait);
++
++    /**
++     * Disconnects this end of the connection for the specified reason. If this
++     * is an {@link ProxiedPlayer} the respective server connection will be
++     * closed too.
++     *
++     * @param reason the reason shown to the player / sent to the server on
++     * disconnect
++     * @param wait whether to wait a half second before kicking to ensure
++     * the kick message is displayed
++     */
++    void disconnect(BaseComponent reason, boolean wait);
+ }
+diff --git a/api/src/main/java/net/md_5/bungee/api/connection/ProxiedPlayer.java b/api/src/main/java/net/md_5/bungee/api/connection/ProxiedPlayer.java
+index 375815c..787e1fb 100644
+--- a/api/src/main/java/net/md_5/bungee/api/connection/ProxiedPlayer.java
++++ b/api/src/main/java/net/md_5/bungee/api/connection/ProxiedPlayer.java
+@@ -211,4 +211,37 @@ public interface ProxiedPlayer extends Connection, CommandSender
+      * not occurred for this {@link ProxiedPlayer} yet.
+      */
+     Map<String, String> getModList();
++
++    /**
++     * Disconnects this end of the connection for the specified reason. The respective server connection will be
++     * closed too.
++     *
++     * @param reason the reason shown to the player / sent to the server on
++     * disconnect
++     * @param wait whether to wait a half second before kicking to ensure
++     * the kick message is displayed
++     */
++    void disconnect(String reason, boolean wait);
++
++    /**
++     * Disconnects this end of the connection for the specified reason. The respective server connection will be
++     * closed too.
++     *
++     * @param reason the reason shown to the player / sent to the server on
++     * disconnect
++     * @param wait whether to wait a half second before kicking to ensure
++     * the kick message is displayed
++     */
++    void disconnect(BaseComponent[] reason, boolean wait);
++
++    /**
++     * Disconnects this end of the connection for the specified reason. The respective server connection will be
++     * closed too.
++     *
++     * @param reason the reason shown to the player / sent to the server on
++     * disconnect
++     * @param wait whether to wait a half second before kicking to ensure
++     * the kick message is displayed
++     */
++    void disconnect(BaseComponent reason, boolean wait);
+ }
+diff --git a/proxy/src/main/java/net/md_5/bungee/UserConnection.java b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
+index 1215449..a69fe1f 100644
+--- a/proxy/src/main/java/net/md_5/bungee/UserConnection.java
++++ b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
+@@ -301,22 +301,40 @@ public final class UserConnection implements ProxiedPlayer
+     @Override
+     public void disconnect(String reason)
+     {
+-        disconnect0( TextComponent.fromLegacyText( reason ) );
++        disconnect0( true, TextComponent.fromLegacyText( reason ) );
+     }
+ 
+     @Override
+     public void disconnect(BaseComponent... reason)
+     {
+-        disconnect0( reason );
++        disconnect0( true, reason );
+     }
+ 
+     @Override
+     public void disconnect(BaseComponent reason)
+     {
+-        disconnect0( reason );
++        disconnect0( true, reason );
+     }
+ 
+-    public void disconnect0(final BaseComponent... reason)
++    @Override
++    public void disconnect(String reason, boolean wait)
++    {
++        disconnect0( wait, TextComponent.fromLegacyText( reason ) );
++    }
++
++    @Override
++    public void disconnect(BaseComponent[] reason, boolean wait)
++    {
++        disconnect0( wait, reason );
++    }
++
++    @Override
++    public void disconnect(BaseComponent reason, boolean wait)
++    {
++        disconnect0( wait, reason );
++    }
++
++    public void disconnect0(boolean wait, final BaseComponent... reason)
+     {
+         if ( !ch.isClosed() )
+         {
+@@ -325,29 +343,39 @@ public final class UserConnection implements ProxiedPlayer
+                 getName(), BaseComponent.toLegacyText( reason )
+             } );
+ 
+-            // Why do we have to delay this you might ask? Well the simple reason is MOJANG.
+-            // Despite many a bug report posted, ever since the 1.7 protocol rewrite, the client STILL has a race condition upon switching protocols.
+-            // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
+-            // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
+-            // end has a somewhat better chance of receiving the proper packet.
+-            ch.getHandle().eventLoop().schedule( new Runnable()
++            if (wait)
+             {
+-
+-                @Override
+-                public void run()
++                // Why do we have to delay this you might ask? Well the simple reason is MOJANG.
++                // Despite many a bug report posted, ever since the 1.7 protocol rewrite, the client STILL has a race condition upon switching protocols.
++                // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
++                // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
++                // end has a somewhat better chance of receiving the proper packet.
++                ch.getHandle().eventLoop().schedule( new Runnable()
+                 {
+-                    unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
+-                    ch.close();
+-                }
+-            }, 500, TimeUnit.MILLISECONDS );
++
++                    @Override
++                    public void run()
++                    {
++                        disconnectInternal( reason );
++                    }
++                }, 500, TimeUnit.MILLISECONDS );
++            } else
++            {
++                disconnectInternal( reason );
++            }
+ 
+             if ( server != null )
+             {
+-                server.disconnect( "Quitting" );
++                server.disconnect(); //reason is ignored anyway
+             }
+         }
+     }
+ 
++    private void disconnectInternal(BaseComponent... reason) {
++        unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
++        ch.close();
++    }
++
+     @Override
+     public void chat(String message)
+     {
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+index cdf6ef8..4547aff 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+@@ -260,7 +260,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+             }
+             // setting protocol to login so we can send the kick message which is actually supported by the minecraft client after it sent the handshake
+             ch.setProtocol( Protocol.LOGIN );
+-            disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( BungeeCord.getInstance().getConfig().getThrottle() ) ) );
++            // do not wait for kick because its better to free up resources on bot attacks earlier than being sure the kick message is shown correctly.
++            disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( BungeeCord.getInstance().getConfig().getThrottle() ) ), false );
+             return;
+         }
+ 
+@@ -533,32 +534,45 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+     @Override
+     public void disconnect(String reason)
+     {
+-        disconnect( TextComponent.fromLegacyText( reason ) );
++        disconnect( TextComponent.fromLegacyText( reason ), true );
++    }
++
++    @Override
++    public void disconnect(String reason, boolean wait)
++    {
++        disconnect( TextComponent.fromLegacyText( reason ), wait );
+     }
+ 
+     @Override
+     public void disconnect(final BaseComponent... reason)
+     {
++        disconnect( reason, true );
++    }
++
++    @Override
++    public void disconnect(final BaseComponent[] reason, boolean wait)
++    {
+         if ( !ch.isClosed() )
+         {
+-            // Why do we have to delay this you might ask? Well the simple reason is MOJANG.
+-            // Despite many a bug report posted, ever since the 1.7 protocol rewrite, the client STILL has a race condition upon switching protocols.
+-            // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
+-            // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
+-            // end has a somewhat better chance of receiving the proper packet.
+-            ch.getHandle().eventLoop().schedule( new Runnable()
++            if ( wait )
+             {
+-
+-                @Override
+-                public void run()
++                // Why do we have to delay this you might ask? Well the simple reason is MOJANG.
++                // Despite many a bug report posted, ever since the 1.7 protocol rewrite, the client STILL has a race condition upon switching protocols.
++                // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
++                // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
++                // end has a somewhat better chance of receiving the proper packet.
++                ch.getHandle().eventLoop().schedule( ( Runnable ) new Runnable()
+                 {
+-                    if ( thisState != State.STATUS && thisState != State.PING )
++                    @Override
++                    public void run()
+                     {
+-                        unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
++                        InitialHandler.this.disconnect0( reason );
+                     }
+-                    ch.close();
+-                }
+-            }, 500, TimeUnit.MILLISECONDS );
++                }, 500, TimeUnit.MILLISECONDS );
++            } else
++            {
++                disconnect0( reason );
++            }
+         }
+     }
+ 
+@@ -568,7 +582,26 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+         disconnect( new BaseComponent[]
+         {
+             reason
+-        } );
++        },
++        true );
++    }
++
++    @Override
++    public void disconnect(BaseComponent reason, boolean wait)
++    {
++        disconnect( new BaseComponent[]
++            {
++                reason
++            },
++            wait );
++    }
++
++    private void disconnect0(BaseComponent... reason) {
++        if ( thisState != State.STATUS && thisState != State.PING )
++        {
++            unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
++        }
++        ch.close();
+     }
+ 
+     @Override
+-- 
+1.9.5.msysgit.0
+
