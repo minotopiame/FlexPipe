@@ -1,0 +1,30 @@
+From 0c753c9aee2b3f09f123924c3aa8d83b05df31e9 Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Mon, 15 Feb 2016 21:28:29 +0100
+Subject: Update .gitignore: Add *.orig from merge tools and bungeecord files
+
+Add bungeecord files to .gitignore
+---
+ .gitignore | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/.gitignore b/.gitignore
+index a34de59..fdfdbd8 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -37,3 +37,11 @@ manifest.mf
+ 
+ # delombok
+ */src/main/lombok
++
++*.orig
++
++#bungeecord files
++/config.yml
++/messages.properties
++/plugins/
++/modules/
+\ No newline at end of file
+-- 
+1.9.5.msysgit.0
+

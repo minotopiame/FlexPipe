@@ -1,4 +1,4 @@
-From 1b26fe8adae1abb24e4ac7a74988bdd993b04a5a Mon Sep 17 00:00:00 2001
+From c2666a64600c968e9fb43d9a17a9fbaed55a2460 Mon Sep 17 00:00:00 2001
 From: Aikar <aikar@aikar.co>
 Date: Mon, 5 Oct 2015 23:20:54 -0400
 Subject: Set a more reasonable netty recycler capacity
