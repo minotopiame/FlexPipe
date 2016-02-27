@@ -1,4 +1,4 @@
-From c5bf5574d25f62f350428aeb493b1a25a413d38a Mon Sep 17 00:00:00 2001
+From f7ef6d8e24c2747a18f1f0e7da37a738dc35fd85 Mon Sep 17 00:00:00 2001
 From: Harry <me@harry5573.uk>
 Date: Tue, 16 Feb 2016 23:42:49 +0100
 Subject: Don't create a new KickStringWriter for each new connection.
@@ -48,5 +48,5 @@ index 8f09e9d..273d7db 100644
  
      static
 -- 
-2.1.4
+1.9.5.msysgit.0
 

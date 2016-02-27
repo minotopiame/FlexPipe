@@ -1,4 +1,4 @@
-From 01c941499e7eec43e98a50fd8fe16dfbe534a1c5 Mon Sep 17 00:00:00 2001
+From 9a4bf587820a1cdc4e378fb49c8fd1edd1233961 Mon Sep 17 00:00:00 2001
 From: Minecrell <dev@minecrell.net>
 Date: Tue, 16 Feb 2016 23:38:36 +0100
 Subject: Edit messages without modifying the JAR file.
@@ -126,5 +126,5 @@ index cbbe03c..771ef5d 100644
          BungeeCord.getInstance().startListeners();
          BungeeCord.getInstance().getPluginManager().callEvent( new ProxyReloadEvent( sender ) );
 -- 
-2.1.4
+1.9.5.msysgit.0
 

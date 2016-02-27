@@ -1,4 +1,4 @@
-From 6f580aa00b91f2f72a79425e84d05be2230c8abb Mon Sep 17 00:00:00 2001
+From df907a13b4d68c50088956a0e56fb033d582a0da Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 20:18:57 +0100
 Subject: Add optional direct kick, without waiting a half second.
@@ -327,5 +327,5 @@ index cdf6ef8..4547aff 100644
  
      @Override
 -- 
-2.1.4
+1.9.5.msysgit.0
 

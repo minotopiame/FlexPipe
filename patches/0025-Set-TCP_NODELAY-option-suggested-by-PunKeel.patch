@@ -1,0 +1,29 @@
+From 27331ac81e6480d9f00ca4598444f264d1caf130 Mon Sep 17 00:00:00 2001
+From: Harry <me@harry5573.uk>
+Date: Sat, 27 Feb 2016 12:04:53 +0100
+Subject: Set TCP_NODELAY option, suggested by @PunKeel
+
+Code adapted from pr https://github.com/WaterfallMC/Waterfall/pull/36 by @Harry5573, thanks @minecrafter for research
+
+Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
+---
+ proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
+index 273d7db..77a8ae1 100644
+--- a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
++++ b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
+@@ -124,6 +124,9 @@ public class PipelineUtils
+             {
+                 // IP_TOS is not supported (Windows XP / Windows Server 2003)
+             }
++            // Minecraft packets are too big to benefit from Nagle's algorithm, which we disable here, says @minecrafter
++            // CraftBukkit / Spigot use this option also according to
++            ch.config().setOption( ChannelOption.TCP_NODELAY, true );
+             ch.config().setAllocator( PooledByteBufAllocator.DEFAULT );
+ 
+             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
+-- 
+1.9.5.msysgit.0
+

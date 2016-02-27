@@ -1,4 +1,4 @@
-From 4e444a0547b075725bca0e4a3af05865255599ec Mon Sep 17 00:00:00 2001
+From 8936ec9a1ca9632f95444a735193523f3ebe6026 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Thu, 18 Feb 2016 15:59:37 +0100
 Subject: Micro-optimize mojang uuid to uuid object conversion (and other way
@@ -184,5 +184,5 @@ index 79f53a5..cdf6ef8 100644
  
      @Override
 -- 
-2.1.4
+1.9.5.msysgit.0
 

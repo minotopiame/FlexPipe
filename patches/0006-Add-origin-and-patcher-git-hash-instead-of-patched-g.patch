@@ -1,4 +1,4 @@
-From 6c58874fdbd1fd3b94f239cc2b7ecb5b3c6c9154 Mon Sep 17 00:00:00 2001
+From d421c36991ab39b198db06f58f23e71e45c8ea34 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 17:22:05 +0100
 Subject: Add origin and patcher git hash instead of patched git hash to
@@ -47,5 +47,5 @@ index ec0ace3..e7c00d6 100644
                  <artifactId>animal-sniffer-maven-plugin</artifactId>
                  <version>1.13</version>
 -- 
-2.1.4
+1.9.5.msysgit.0
 

@@ -1,4 +1,4 @@
-From fbfff1decb62bf86c66a332085e5957962f981fb Mon Sep 17 00:00:00 2001
+From 7fda8d38f3d89e585045948c8e8047648117d65e Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Wed, 17 Feb 2016 00:20:59 +0100
 Subject: Don't create a data input stream for every plugin message we get from
@@ -31,5 +31,5 @@ index a90d36e..bc531d4 100644
              String subChannel = in.readUTF();
  
 -- 
-2.1.4
+1.9.5.msysgit.0
 

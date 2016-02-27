@@ -1,4 +1,4 @@
-From 2079fc861b5842a9964e3966a589b78097656a4a Mon Sep 17 00:00:00 2001
+From 1b26fe8adae1abb24e4ac7a74988bdd993b04a5a Mon Sep 17 00:00:00 2001
 From: Aikar <aikar@aikar.co>
 Date: Mon, 5 Oct 2015 23:20:54 -0400
 Subject: Set a more reasonable netty recycler capacity
@@ -33,5 +33,5 @@ index 32496dd..5c26d35 100644
          parser.allowsUnrecognizedOptions();
          parser.acceptsAll( Arrays.asList( "v", "version" ) );
 -- 
-2.1.4
+1.9.5.msysgit.0
 

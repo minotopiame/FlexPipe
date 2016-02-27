@@ -1,4 +1,4 @@
-From 1a8fe6d0554f97f59b749a33e2c082be5fd6c87d Mon Sep 17 00:00:00 2001
+From f98a549295abe0893dbf4e1f895537bf0821bbaf Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 20:04:26 +0100
 Subject: Add option to disable module downloading (disabled by default), warn
@@ -50,5 +50,5 @@ index c61d67c..97d6b5e 100644
          if ( bungeeVersion == null )
          {
 -- 
-2.1.4
+1.9.5.msysgit.0
 

@@ -1,4 +1,4 @@
-From 39d52df9016e8da16a603e2944e51a309ff67c89 Mon Sep 17 00:00:00 2001
+From 1358d875567c14037be37ba79dcb698a61f3f5f2 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 15 Feb 2016 21:19:03 +0100
 Subject: Rebrand to me.minotopia.flexpipe in pom, console and commands; add
@@ -773,5 +773,5 @@ index 3dab7c5..3105ebf 100644
              <scope>compile</scope>
          </dependency>
 -- 
-2.1.4
+1.9.5.msysgit.0
 

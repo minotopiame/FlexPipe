@@ -1,4 +1,4 @@
-From 01f3ef517568418c7c1d55cf2cd811dfe7c03b09 Mon Sep 17 00:00:00 2001
+From 97e24b042eb0c7e03a143a625901f09cd166f99d Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Fri, 9 Oct 2015 16:59:23 +0200
 Subject: Add tab-complete throttling
@@ -77,5 +77,5 @@ index c075cd5..9ac77dd 100644
  
          if ( tabComplete.getCursor().startsWith( "/" ) )
 -- 
-2.1.4
+1.9.5.msysgit.0
 

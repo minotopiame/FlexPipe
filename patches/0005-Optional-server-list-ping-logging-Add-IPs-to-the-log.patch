@@ -1,4 +1,4 @@
-From 6bf77935e4cce232dc305e0cf62f166c4d6d4b50 Mon Sep 17 00:00:00 2001
+From 2d34b99cdc6006c29a7c88b8f8eeb82c2e420635 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sat, 12 Dec 2015 23:43:30 +0100
 Subject: Optional server list ping logging; Add IPs to the log where user
@@ -137,5 +137,5 @@ index 9ac77dd..13964c7 100644
      }
  }
 -- 
-2.1.4
+1.9.5.msysgit.0
 

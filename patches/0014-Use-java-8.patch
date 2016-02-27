@@ -1,4 +1,4 @@
-From 491732c459b3cba80288555daf255189588c2365 Mon Sep 17 00:00:00 2001
+From b6fe2930ee56850ad905866ca6869b3c096e8f6e Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 17 Feb 2016 22:29:54 +0100
 Subject: Use java 8.
@@ -87,5 +87,5 @@ index e7c00d6..c4743d0 100644
                  <artifactId>maven-javadoc-plugin</artifactId>
                  <!-- 2.10+ claimed to be broken says FlexPipe -->
 -- 
-2.1.4
+1.9.5.msysgit.0
 

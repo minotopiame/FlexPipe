@@ -1,4 +1,4 @@
-From 9c06f8978a882f19f0483ba6e77c2adaa00efca0 Mon Sep 17 00:00:00 2001
+From 768eea47a3a57cf61cebc9017c5f38ae03acdee3 Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Tue, 16 Feb 2016 23:58:58 +0100
 Subject: Remove unneeded use of MinecraftOutput class in ServerConnector
@@ -43,5 +43,5 @@ index 7cfc1f5..0ff35ca 100644
              {
                  ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
 -- 
-2.1.4
+1.9.5.msysgit.0
 

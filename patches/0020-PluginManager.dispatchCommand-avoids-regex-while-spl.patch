@@ -1,4 +1,4 @@
-From 31bc830c0a96789dbee7cadabe69843aaeaae408 Mon Sep 17 00:00:00 2001
+From 38f46e2c68d2f514d2aa842a79666647ebebd57d Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Wed, 17 Feb 2016 00:37:40 +0100
 Subject: PluginManager.dispatchCommand() avoids regex while splitting
@@ -33,5 +33,5 @@ index c7bfddc..63ba27f 100644
          if ( split.length == 0 )
          {
 -- 
-2.1.4
+1.9.5.msysgit.0
 
