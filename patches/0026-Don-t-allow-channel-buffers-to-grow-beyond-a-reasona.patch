@@ -1,0 +1,30 @@
+From fd9bd40b051ba3dea577e098b1e4b5bb653b0e9e Mon Sep 17 00:00:00 2001
+From: Iceee <andrew@optic.tv>
+Date: Sat, 27 Feb 2016 12:07:18 +0100
+Subject: Don't allow channel buffers to grow beyond a reasonable limit, thanks
+ to @Iceee for this improvement
+
+Adapted from https://github.com/SpigotMC/BungeeCord/commit/1a997bf95c3832b65aa0a08160a83890594e650d
+
+Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
+---
+ proxy/src/main/java/net/md_5/bungee/BungeeCord.java | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+index 1902113..4afce76 100644
+--- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
++++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+@@ -347,6 +347,9 @@ public class BungeeCord extends ProxyServer
+             new ServerBootstrap()
+                     .channel( PipelineUtils.getServerChannel() )
+                     .option( ChannelOption.SO_REUSEADDR, true ) // TODO: Move this elsewhere!
++                    // the next two options help against jvm gc spikes, says @Iceee
++                    .childOption( ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 1024 * 1024 * 10 )
++                    .childOption( ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 1024 * 1024 )
+                     .childAttr( PipelineUtils.LISTENER, info )
+                     .childHandler( PipelineUtils.SERVER_CHILD )
+                     .group( eventLoops )
+-- 
+1.9.5.msysgit.0
+
