@@ -1,4 +1,4 @@
-From 443b44eabeeab473763b7b602caf3ee1ed0a351f Mon Sep 17 00:00:00 2001
+From 5c0e14a2abcfb86c7ac4cb16fdd0c27a13c06a9d Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 20:18:57 +0100
 Subject: Add optional direct kick, without waiting a half second.
@@ -224,7 +224,7 @@ index bc531d4..d52b415 100644
          server.setObsolete( true );
          throw CancelSendSignal.INSTANCE;
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index e784a31..b0d53dc 100644
+index b70f0e1..aa178ea 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -264,7 +264,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection

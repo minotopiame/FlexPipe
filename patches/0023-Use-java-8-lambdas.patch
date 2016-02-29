@@ -1,4 +1,4 @@
-From ed6e60474807492be2c0645b1b528c10124f541c Mon Sep 17 00:00:00 2001
+From 73c9afc1e1da0a94d7d9d13246f92b0d0ee0fd46 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 21:37:46 +0100
 Subject: Use java 8 lambdas.
@@ -264,7 +264,7 @@ index a69fe1f..e4a9e9b 100644
              {
                  disconnectInternal( reason );
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index b0d53dc..84523e8 100644
+index aa178ea..1f0d207 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -146,38 +146,33 @@ public class InitialHandler extends PacketHandler implements PendingConnection
