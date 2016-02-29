@@ -1,4 +1,4 @@
-From 3faa0539e69953e3548544ce8f5bdcaf3d2d23d6 Mon Sep 17 00:00:00 2001
+From ff9716345cbf1e66a473af65a595eb23c5b78d6a Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 21:37:46 +0100
 Subject: Use java 8 lambdas.
@@ -65,7 +65,7 @@ index 36da83e..d6f161e 100644
      }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index 05cc2b2..9956237 100644
+index 61272a6..aa52bbf 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 @@ -334,19 +334,14 @@ public class BungeeCord extends ProxyServer
