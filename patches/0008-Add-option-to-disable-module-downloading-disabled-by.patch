@@ -1,4 +1,4 @@
-From 7fe30cb5be28adff29603141efc39141486a0d29 Mon Sep 17 00:00:00 2001
+From 0fd2bd1ee17fce15bf1423e979f446356faa9f43 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 20:04:26 +0100
 Subject: Add option to disable module downloading (disabled by default), warn

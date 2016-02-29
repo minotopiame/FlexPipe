@@ -1,4 +1,4 @@
-From 10c021d4916462c8da32d03079fbf79462c48cd1 Mon Sep 17 00:00:00 2001
+From 443b44eabeeab473763b7b602caf3ee1ed0a351f Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 20:18:57 +0100
 Subject: Add optional direct kick, without waiting a half second.
@@ -224,20 +224,20 @@ index bc531d4..d52b415 100644
          server.setObsolete( true );
          throw CancelSendSignal.INSTANCE;
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index cdf6ef8..4547aff 100644
+index e784a31..b0d53dc 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -260,7 +260,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
-             }
+@@ -264,7 +264,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+             thisState = State.USERNAME;
              // setting protocol to login so we can send the kick message which is actually supported by the minecraft client after it sent the handshake
              ch.setProtocol( Protocol.LOGIN );
 -            disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( BungeeCord.getInstance().getConfig().getThrottle() ) ) );
 +            // do not wait for kick because its better to free up resources on bot attacks earlier than being sure the kick message is shown correctly.
 +            disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( BungeeCord.getInstance().getConfig().getThrottle() ) ), false );
+             // this stops the also sent login request packet to be handled
+             thisJoinThrottled = true;
              return;
-         }
- 
-@@ -533,32 +534,45 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -551,32 +552,45 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public void disconnect(String reason)
      {
@@ -298,7 +298,7 @@ index cdf6ef8..4547aff 100644
          }
      }
  
-@@ -568,7 +582,26 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -586,7 +600,26 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          disconnect( new BaseComponent[]
          {
              reason

@@ -1,15 +1,15 @@
-From cda7c4fa74ff7bba3c6eece64af2128440867f7b Mon Sep 17 00:00:00 2001
+From 38951ab0a642f1f66a0c45d7eda4c4363451c2b6 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 22:01:12 +0100
 Subject: Performance, log sanity: No exception on invalid packet order, just
  disconnect and one line notice.
 
 ---
- .../net/md_5/bungee/connection/InitialHandler.java | 39 ++++++++++++++++++----
- 1 file changed, 33 insertions(+), 6 deletions(-)
+ .../net/md_5/bungee/connection/InitialHandler.java | 44 +++++++++++++++++++---
+ 1 file changed, 38 insertions(+), 6 deletions(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 41c15da..0db52b3 100644
+index 84523e8..03fca01 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -6,7 +6,6 @@ import java.math.BigInteger;
@@ -20,7 +20,7 @@ index 41c15da..0db52b3 100644
  import java.util.List;
  import java.util.UUID;
  import java.util.logging.Level;
-@@ -182,10 +181,30 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -184,10 +183,31 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          return pos == -1 ? str : str.substring( 0, pos );
      }
  
@@ -46,51 +46,56 @@ index 41c15da..0db52b3 100644
      public void handle(StatusRequest statusRequest) throws Exception
      {
 -        Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
-+        if (!checkState( State.STATUS )) {
++        if ( !checkState( State.STATUS ) )
++        {
 +            return;
 +        }
  
          ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
          final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
-@@ -225,7 +244,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -227,7 +247,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public void handle(PingPacket ping) throws Exception
      {
 -        Preconditions.checkState( thisState == State.PING, "Not expecting PING" );
-+        if (!checkState( State.PING )) {
++        if ( !checkState( State.PING ) )
++        {
 +            return;
 +        }
          unsafe.sendPacket( ping );
          disconnect( "" );
      }
-@@ -233,7 +254,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -235,7 +258,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public void handle(Handshake handshake) throws Exception
      {
 -        Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
-+        if (!checkState( State.HANDSHAKE )) {
++        if ( !checkState( State.HANDSHAKE ) )
++        {
 +            return;
 +        }
          this.handshake = handshake;
          ch.setVersion( handshake.getProtocolVersion() );
  
-@@ -297,7 +320,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
-     @Override
-     public void handle(LoginRequest loginRequest) throws Exception
-     {
+@@ -315,7 +341,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+             ch.close();
+             return;
+         }
 -        Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
-+        if (!checkState( State.USERNAME )) {
++        if ( !checkState( State.USERNAME ) )
++        {
 +            return;
 +        }
          this.loginRequest = loginRequest;
  
          if ( !Protocol.supportedVersions.contains( handshake.getProtocolVersion() ) )
-@@ -360,7 +385,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -378,7 +407,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public void handle(final EncryptionResponse encryptResponse) throws Exception
      {
 -        Preconditions.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
-+        if (!checkState( State.ENCRYPT )) {
++        if ( !checkState( State.ENCRYPT ) )
++        {
 +            return;
 +        }
  

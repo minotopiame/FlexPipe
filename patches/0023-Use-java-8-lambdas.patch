@@ -1,4 +1,4 @@
-From ff9716345cbf1e66a473af65a595eb23c5b78d6a Mon Sep 17 00:00:00 2001
+From ed6e60474807492be2c0645b1b528c10124f541c Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 21:37:46 +0100
 Subject: Use java 8 lambdas.
@@ -264,10 +264,10 @@ index a69fe1f..e4a9e9b 100644
              {
                  disconnectInternal( reason );
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 4547aff..41c15da 100644
+index b0d53dc..84523e8 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -144,38 +144,33 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -146,38 +146,33 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), bungee.getProtocolVersion() ),
                  new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ), listener.getMotd(), (Favicon) null );
  
@@ -329,7 +329,7 @@ index 4547aff..41c15da 100644
          };
  
          bungee.getPluginManager().callEvent( new ProxyPingEvent( this, legacy, callback ) );
-@@ -195,30 +190,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -197,30 +192,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
          final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
  
@@ -371,7 +371,7 @@ index 4547aff..41c15da 100644
          };
  
          if ( forced != null && listener.isPingPassthrough() )
-@@ -348,30 +333,24 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -366,30 +351,24 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              return;
          }
  
@@ -402,11 +402,11 @@ index 4547aff..41c15da 100644
 -                thisState = State.ENCRYPT;
 +                disconnect( result.getCancelReason() );
 +                return;
-             }
++            }
 +            if ( ch.isClosed() )
 +            {
 +                return;
-+            }
+             }
 +            if ( onlineMode )
 +            {
 +                unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
@@ -418,7 +418,7 @@ index 4547aff..41c15da 100644
          };
  
          // fire pre login event
-@@ -403,27 +382,22 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -421,27 +400,22 @@ public class InitialHandler extends PacketHandler implements PendingConnection
  
          String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash;
  
@@ -430,7 +430,9 @@ index 4547aff..41c15da 100644
 +            if ( error == null )
              {
 -                if ( error == null )
--                {
++                LoginResult obj = BungeeCord.getInstance().gson.fromJson( result, LoginResult.class );
++                if ( obj != null )
+                 {
 -                    LoginResult obj = BungeeCord.getInstance().gson.fromJson( result, LoginResult.class );
 -                    if ( obj != null )
 -                    {
@@ -441,9 +443,7 @@ index 4547aff..41c15da 100644
 -                    }
 -                    disconnect( "Not authenticated with Minecraft.net" );
 -                } else
-+                LoginResult obj = BungeeCord.getInstance().gson.fromJson( result, LoginResult.class );
-+                if ( obj != null )
-                 {
+-                {
 -                    disconnect( bungee.getTranslation( "mojang_fail" ) );
 -                    bungee.getLogger().log( Level.SEVERE, "Error authenticating " + getName() + " with minecraft.net", error );
 +                    loginProfile = obj;
@@ -459,7 +459,7 @@ index 4547aff..41c15da 100644
              }
          };
  
-@@ -468,63 +442,53 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -486,63 +460,53 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              uniqueId = offlineId;
          }
  
@@ -565,7 +565,7 @@ index 4547aff..41c15da 100644
          };
  
          // fire login event
-@@ -561,14 +525,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -579,14 +543,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                  // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
                  // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
                  // end has a somewhat better chance of receiving the proper packet.
