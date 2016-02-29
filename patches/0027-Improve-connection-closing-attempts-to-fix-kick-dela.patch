@@ -1,0 +1,158 @@
+From 38ca04a4b18619344c75fdc0d9d46284d365a60d Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Mon, 29 Feb 2016 20:14:29 +0100
+Subject: Improve connection closing, attempts to fix kick delay.
+
+Adapted from https://github.com/SpigotMC/BungeeCord/pull/1706 by @kamcio96, he claimed that these channel closing changes are removing the need of delayed kick packets. I can confirm this (at login state) on a no-latency and low-latency connection (<1ms; ~16ms), high-latency connection was not tested, but it should work on these too.
+---
+ .../java/net/md_5/bungee/ServerConnection.java     |  2 +-
+ .../main/java/net/md_5/bungee/ServerConnector.java |  5 ++--
+ .../main/java/net/md_5/bungee/UserConnection.java  |  3 +--
+ .../net/md_5/bungee/connection/InitialHandler.java |  6 +++--
+ .../net/md_5/bungee/connection/UpstreamBridge.java |  2 +-
+ .../java/net/md_5/bungee/netty/ChannelWrapper.java | 27 ++++++++++++++++------
+ 6 files changed, 30 insertions(+), 15 deletions(-)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/ServerConnection.java b/proxy/src/main/java/net/md_5/bungee/ServerConnection.java
+index 555a193..2304bd8 100644
+--- a/proxy/src/main/java/net/md_5/bungee/ServerConnection.java
++++ b/proxy/src/main/java/net/md_5/bungee/ServerConnection.java
+@@ -54,7 +54,7 @@ public class ServerConnection implements Server
+ 
+         if ( !ch.isClosed() )
+         {
+-            ch.getHandle().eventLoop().schedule( ( Runnable ) () -> ch.getHandle().close(), 100, TimeUnit.MILLISECONDS );
++            ch.getHandle().eventLoop().schedule( ( Runnable ) ch::close, 100, TimeUnit.MILLISECONDS );
+         }
+     }
+ 
+diff --git a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
+index 0ff35ca..f53193c 100644
+--- a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
++++ b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
+@@ -228,13 +228,14 @@ public class ServerConnector extends PacketHandler
+             user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
+ 
+             // Remove from old servers
+-            user.getServer().disconnect( "Quitting" );
++            user.getServer().setObsolete( true );
++            user.getServer().disconnect();
+         }
+ 
+         // TODO: Fix this?
+         if ( !user.isActive() )
+         {
+-            server.disconnect( "Quitting" );
++            server.disconnect();
+             // Silly server admins see stack trace and die
+             bungee.getLogger().warning( "No client connected for pending server!" );
+             return;
+diff --git a/proxy/src/main/java/net/md_5/bungee/UserConnection.java b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
+index e4a9e9b..bae5706 100644
+--- a/proxy/src/main/java/net/md_5/bungee/UserConnection.java
++++ b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
+@@ -358,8 +358,7 @@ public final class UserConnection implements ProxiedPlayer
+     }
+ 
+     private void disconnectInternal(BaseComponent... reason) {
+-        unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
+-        ch.close();
++        ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
+     }
+ 
+     @Override
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+index 03fca01..ce7f3d3 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+@@ -606,9 +606,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+     private void disconnect0(BaseComponent... reason) {
+         if ( thisState != State.STATUS && thisState != State.PING )
+         {
+-            unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
++            ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
++        } else
++        {
++            ch.close();
+         }
+-        ch.close();
+     }
+ 
+     @Override
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
+index 13964c7..c9fbf88 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
+@@ -80,7 +80,7 @@ public class UpstreamBridge extends PacketHandler
+                     player.unsafe().sendPacket( packet );
+                 }
+             }
+-            con.getServer().disconnect( "Quitting" );
++            con.getServer().disconnect();
+         }
+     }
+ 
+diff --git a/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java b/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java
+index 06d19c3..82dbad2 100644
+--- a/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java
++++ b/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java
+@@ -1,5 +1,6 @@
+ package net.md_5.bungee.netty;
+ 
++import io.netty.channel.ChannelFutureListener;
+ import net.md_5.bungee.compress.PacketCompressor;
+ import net.md_5.bungee.compress.PacketDecompressor;
+ import net.md_5.bungee.protocol.PacketWrapper;
+@@ -38,30 +39,42 @@ public class ChannelWrapper
+ 
+     public void write(Object packet)
+     {
+-        if ( !closed )
++        if ( !isClosed() )
+         {
+             if ( packet instanceof PacketWrapper )
+             {
+                 ( (PacketWrapper) packet ).setReleased( true );
+-                ch.write( ( (PacketWrapper) packet ).buf, ch.voidPromise() );
++                ch.writeAndFlush( ( (PacketWrapper) packet ).buf).addListener( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE );
+             } else
+             {
+-                ch.write( packet, ch.voidPromise() );
++                ch.writeAndFlush( packet ).addListener( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE );
+             }
+-            ch.flush();
+         }
+     }
+ 
+     public void close()
+     {
+-        if ( !closed )
++        if ( !isClosed() )
+         {
+             closed = true;
+-            ch.flush();
+-            ch.close();
++            ch.flush().close();
+         }
+     }
+ 
++    public void close(Object packet)
++    {
++        if (!isClosed())
++        {
++            closed = true;
++            ch.writeAndFlush( packet ).addListeners( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE );
++        }
++    }
++
++    public boolean isClosed()
++    {
++        return closed || !ch.isActive();
++    }
++
+     public void addBefore(String baseName, String name, ChannelHandler handler)
+     {
+         Preconditions.checkState( ch.eventLoop().inEventLoop(), "cannot add handler outside of event loop" );
+-- 
+1.9.5.msysgit.0
+
