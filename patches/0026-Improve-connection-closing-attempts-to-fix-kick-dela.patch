@@ -1,4 +1,4 @@
-From 241bae04ed55a1b374152b46dd03dd66786ade07 Mon Sep 17 00:00:00 2001
+From 498a7e5decc1f0e85a67163967ebc691cee86c7e Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 29 Feb 2016 22:14:58 +0100
 Subject: Improve connection closing, attempts to fix kick delay.
@@ -27,19 +27,19 @@ index 555a193..2304bd8 100644
      }
  
 diff --git a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
-index 0ff35ca..05d1f26 100644
+index 363a2a5..ca9f37f 100644
 --- a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
 +++ b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
-@@ -94,7 +94,7 @@ public class ServerConnector extends PacketHandler
-         }
-         else if ( !user.getExtraDataInHandshake().isEmpty() )
+@@ -100,7 +100,7 @@ public class ServerConnector extends PacketHandler
+             copiedHandshake.setHost( newHost );
+         } else if ( !user.getExtraDataInHandshake().isEmpty() )
          {
 -            // Only restore the extra data if IP forwarding is off. 
 +            // Only restore the extra data if IP forwarding is off.
              // TODO: Add support for this data with IP forwarding.
              copiedHandshake.setHost( copiedHandshake.getHost() + user.getExtraDataInHandshake() );
          }
-@@ -228,13 +228,14 @@ public class ServerConnector extends PacketHandler
+@@ -224,13 +224,14 @@ public class ServerConnector extends PacketHandler
              user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
  
              // Remove from old servers
@@ -57,10 +57,10 @@ index 0ff35ca..05d1f26 100644
              bungee.getLogger().warning( "No client connected for pending server!" );
              return;
 diff --git a/proxy/src/main/java/net/md_5/bungee/UserConnection.java b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-index e4a9e9b..bae5706 100644
+index e6cc40e..c6f4657 100644
 --- a/proxy/src/main/java/net/md_5/bungee/UserConnection.java
 +++ b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-@@ -358,8 +358,7 @@ public final class UserConnection implements ProxiedPlayer
+@@ -384,8 +384,7 @@ public final class UserConnection implements ProxiedPlayer
      }
  
      private void disconnectInternal(BaseComponent... reason) {
@@ -71,7 +71,7 @@ index e4a9e9b..bae5706 100644
  
      @Override
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 1075997..a1c582c 100644
+index 87f1e4c..3ec1680 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -6,6 +6,7 @@ import java.math.BigInteger;
@@ -82,7 +82,7 @@ index 1075997..a1c582c 100644
  import java.util.List;
  import java.util.UUID;
  import java.util.logging.Level;
-@@ -606,9 +607,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -601,9 +602,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      private void disconnect0(BaseComponent... reason) {
          if ( thisState != State.STATUS && thisState != State.PING )
          {
@@ -97,12 +97,12 @@ index 1075997..a1c582c 100644
  
      @Override
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
-index 13964c7..c9fbf88 100644
+index 5c66ab8..747b52c 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
-@@ -80,7 +80,7 @@ public class UpstreamBridge extends PacketHandler
-                     player.unsafe().sendPacket( packet );
-                 }
+@@ -77,7 +77,7 @@ public class UpstreamBridge extends PacketHandler
+             {
+                 player.unsafe().sendPacket( packet );
              }
 -            con.getServer().disconnect( "Quitting" );
 +            con.getServer().disconnect();

@@ -1,11 +1,11 @@
-From aa3c09b25a9082fdcda3a84f9eb713b4080bf2a3 Mon Sep 17 00:00:00 2001
+From c845913a9e2d596e9b320c5e23bd0c1870d73bde Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 15 Feb 2016 21:19:03 +0100
 Subject: Rebrand to me.minotopia.flexpipe while keeping plugins' functioning;
  add /flexpipe command
 
 ---
- api/pom.xml                                        | 26 ++++++------
+ api/pom.xml                                        | 26 ++++++-------
  bootstrap/pom.xml                                  | 20 +++++-----
  .../src/main/java/net/md_5/bungee/Bootstrap.java   |  2 +-
  .../java/net/md_5/bungee/BungeeCordLauncher.java   |  2 +-
@@ -20,19 +20,19 @@ Subject: Rebrand to me.minotopia.flexpipe while keeping plugins' functioning;
  module/pom.xml                                     | 16 ++++----
  module/reconnect-yaml/pom.xml                      |  8 ++--
  native/pom.xml                                     | 12 +++---
- pom.xml                                            | 46 ++++++++++++----------
+ pom.xml                                            | 44 ++++++++++++----------
  protocol/pom.xml                                   | 16 ++++----
- proxy/pom.xml                                      | 26 ++++++------
+ proxy/pom.xml                                      | 26 ++++++-------
  proxy/src/main/java/Test.java                      |  2 +-
  .../src/main/java/net/md_5/bungee/BungeeCord.java  |  8 ++--
  .../net/md_5/bungee/command/CommandBungee.java     |  4 +-
  .../java/net/md_5/bungee/log/BungeeLogger.java     |  2 +-
  .../java/net/md_5/bungee/log/LogDispatcher.java    |  2 +-
  query/pom.xml                                      | 16 ++++----
- 24 files changed, 129 insertions(+), 155 deletions(-)
+ 24 files changed, 128 insertions(+), 154 deletions(-)
 
 diff --git a/api/pom.xml b/api/pom.xml
-index 0daf39d..a6add44 100644
+index d9363b6..052db41 100644
 --- a/api/pom.xml
 +++ b/api/pom.xml
 @@ -4,42 +4,40 @@
@@ -43,13 +43,13 @@ index 0daf39d..a6add44 100644
 -        <artifactId>bungeecord-parent</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-parent</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-api</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-api</artifactId>
      <packaging>jar</packaging>
  
@@ -91,7 +91,7 @@ index 0daf39d..a6add44 100644
              <scope>compile</scope>
          </dependency>
 diff --git a/bootstrap/pom.xml b/bootstrap/pom.xml
-index 48f56b3..e0e282e 100644
+index 0c02349..0d7411d 100644
 --- a/bootstrap/pom.xml
 +++ b/bootstrap/pom.xml
 @@ -4,19 +4,17 @@
@@ -102,13 +102,13 @@ index 48f56b3..e0e282e 100644
 -        <artifactId>bungeecord-parent</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-parent</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-bootstrap</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-bootstrap</artifactId>
      <packaging>jar</packaging>
  
@@ -175,7 +175,7 @@ index 3c1bbe9..c0bf70e 100644
  
          if ( !options.has( "noconsole" ) )
 diff --git a/chat/pom.xml b/chat/pom.xml
-index 3f2dd5b..101be5a 100644
+index 0b447c1..9954578 100644
 --- a/chat/pom.xml
 +++ b/chat/pom.xml
 @@ -4,19 +4,17 @@
@@ -186,13 +186,13 @@ index 3f2dd5b..101be5a 100644
 -        <artifactId>bungeecord-parent</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-parent</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-chat</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-chat</artifactId>
      <packaging>jar</packaging>
  
@@ -204,7 +204,7 @@ index 3f2dd5b..101be5a 100644
      <properties>
          <maven.compiler.source>1.6</maven.compiler.source>
 diff --git a/config/pom.xml b/config/pom.xml
-index c28a598..219e981 100644
+index 5c99e14..7503cb4 100644
 --- a/config/pom.xml
 +++ b/config/pom.xml
 @@ -4,19 +4,17 @@
@@ -215,13 +215,13 @@ index c28a598..219e981 100644
 -        <artifactId>bungeecord-parent</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-parent</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-config</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-config</artifactId>
      <packaging>jar</packaging>
  
@@ -233,7 +233,7 @@ index c28a598..219e981 100644
      <dependencies>
          <dependency>
 diff --git a/event/pom.xml b/event/pom.xml
-index 4315c49..e53abba 100644
+index a5fee80..8f76679 100644
 --- a/event/pom.xml
 +++ b/event/pom.xml
 @@ -4,17 +4,15 @@
@@ -244,13 +244,13 @@ index 4315c49..e53abba 100644
 -        <artifactId>bungeecord-parent</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-parent</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-event</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-event</artifactId>
      <packaging>jar</packaging>
  
@@ -260,7 +260,7 @@ index 4315c49..e53abba 100644
 +    <description>Generic java event dispatching API intended for use with FlexPipe</description>
  </project>
 diff --git a/module/cmd-alert/pom.xml b/module/cmd-alert/pom.xml
-index 1118a73..a040dd1 100644
+index 1cc7fef..66fc3e3 100644
 --- a/module/cmd-alert/pom.xml
 +++ b/module/cmd-alert/pom.xml
 @@ -4,15 +4,13 @@
@@ -271,19 +271,19 @@ index 1118a73..a040dd1 100644
 -        <artifactId>bungeecord-module</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-module</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-module-cmd-alert</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-module-cmd-alert</artifactId>
      <packaging>jar</packaging>
  
      <name>cmd_alert</name>
 diff --git a/module/cmd-find/pom.xml b/module/cmd-find/pom.xml
-index 703a2cb..3a48fd5 100644
+index 10b6a4f..7a4495c 100644
 --- a/module/cmd-find/pom.xml
 +++ b/module/cmd-find/pom.xml
 @@ -4,15 +4,13 @@
@@ -294,19 +294,19 @@ index 703a2cb..3a48fd5 100644
 -        <artifactId>bungeecord-module</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-module</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-module-cmd-find</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-module-cmd-find</artifactId>
      <packaging>jar</packaging>
  
      <name>cmd_find</name>
 diff --git a/module/cmd-list/pom.xml b/module/cmd-list/pom.xml
-index d9ec0b6..4ded1b9 100644
+index 774b694..7936ee7 100644
 --- a/module/cmd-list/pom.xml
 +++ b/module/cmd-list/pom.xml
 @@ -4,15 +4,13 @@
@@ -317,19 +317,19 @@ index d9ec0b6..4ded1b9 100644
 -        <artifactId>bungeecord-module</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-module</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-module-cmd-list</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-module-cmd-list</artifactId>
      <packaging>jar</packaging>
  
      <name>cmd_list</name>
 diff --git a/module/cmd-send/pom.xml b/module/cmd-send/pom.xml
-index 1afa53b..a93fc45 100644
+index 15d03fc..91e03b1 100644
 --- a/module/cmd-send/pom.xml
 +++ b/module/cmd-send/pom.xml
 @@ -4,15 +4,13 @@
@@ -340,19 +340,19 @@ index 1afa53b..a93fc45 100644
 -        <artifactId>bungeecord-module</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-module</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-module-cmd-send</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-module-cmd-send</artifactId>
      <packaging>jar</packaging>
  
      <name>cmd_send</name>
 diff --git a/module/cmd-server/pom.xml b/module/cmd-server/pom.xml
-index 1e5221b..503b346 100644
+index a72db68..6867274 100644
 --- a/module/cmd-server/pom.xml
 +++ b/module/cmd-server/pom.xml
 @@ -4,15 +4,13 @@
@@ -363,19 +363,19 @@ index 1e5221b..503b346 100644
 -        <artifactId>bungeecord-module</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-module</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-module-cmd-server</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-module-cmd-server</artifactId>
      <packaging>jar</packaging>
  
      <name>cmd_server</name>
 diff --git a/module/pom.xml b/module/pom.xml
-index 072c383..1c9cf67 100644
+index 3482d0d..41d5c3a 100644
 --- a/module/pom.xml
 +++ b/module/pom.xml
 @@ -4,19 +4,17 @@
@@ -386,13 +386,13 @@ index 072c383..1c9cf67 100644
 -        <artifactId>bungeecord-parent</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-parent</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-module</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-module</artifactId>
      <packaging>pom</packaging>
  
@@ -415,7 +415,7 @@ index 072c383..1c9cf67 100644
              <scope>compile</scope>
          </dependency>
 diff --git a/module/reconnect-yaml/pom.xml b/module/reconnect-yaml/pom.xml
-index 513ce4f..3ffc870 100644
+index bf5ae48..97d9f06 100644
 --- a/module/reconnect-yaml/pom.xml
 +++ b/module/reconnect-yaml/pom.xml
 @@ -4,15 +4,13 @@
@@ -426,19 +426,19 @@ index 513ce4f..3ffc870 100644
 -        <artifactId>bungeecord-module</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-module</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-module-reconnect-yaml</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-module-reconnect-yaml</artifactId>
      <packaging>jar</packaging>
  
      <name>reconnect_yaml</name>
 diff --git a/native/pom.xml b/native/pom.xml
-index 1c3b650..e510bdb 100644
+index fb12cc4..29f020e 100644
 --- a/native/pom.xml
 +++ b/native/pom.xml
 @@ -4,19 +4,17 @@
@@ -449,13 +449,13 @@ index 1c3b650..e510bdb 100644
 -        <artifactId>bungeecord-parent</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-parent</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-native</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-native</artifactId>
      <packaging>jar</packaging>
  
@@ -467,13 +467,10 @@ index 1c3b650..e510bdb 100644
      <dependencies>
          <dependency>
 diff --git a/pom.xml b/pom.xml
-index 7ebde38..ec0ace3 100644
+index af523e1..a5fa94c 100644
 --- a/pom.xml
 +++ b/pom.xml
-@@ -1,26 +1,20 @@
--
-+﻿
- <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+@@ -3,24 +3,18 @@
           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
      <modelVersion>4.0.0</modelVersion>
  
@@ -487,7 +484,7 @@ index 7ebde38..ec0ace3 100644
 -    <artifactId>bungeecord-parent</artifactId>
 +    <groupId>me.minotopia.flexpipe</groupId>
 +    <artifactId>flexpipe-parent</artifactId>
-     <version>1.8-SNAPSHOT</version>
+     <version>1.9-SNAPSHOT</version>
      <packaging>pom</packaging>
  
 -    <name>BungeeCord-Parent</name>
@@ -555,7 +552,7 @@ index 7ebde38..ec0ace3 100644
              </plugin>
          </plugins>
 diff --git a/protocol/pom.xml b/protocol/pom.xml
-index 32d4bf7..f793418 100644
+index 9e816ab..0945195 100644
 --- a/protocol/pom.xml
 +++ b/protocol/pom.xml
 @@ -4,24 +4,22 @@
@@ -566,13 +563,13 @@ index 32d4bf7..f793418 100644
 -        <artifactId>bungeecord-parent</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-parent</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-protocol</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-protocol</artifactId>
      <packaging>jar</packaging>
  
@@ -591,7 +588,7 @@ index 32d4bf7..f793418 100644
              <scope>compile</scope>
          </dependency>
 diff --git a/proxy/pom.xml b/proxy/pom.xml
-index f60ba37..c5f7688 100644
+index 44ff3ff..400531d 100644
 --- a/proxy/pom.xml
 +++ b/proxy/pom.xml
 @@ -4,18 +4,16 @@
@@ -602,13 +599,13 @@ index f60ba37..c5f7688 100644
 -        <artifactId>bungeecord-parent</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-parent</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-proxy</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-proxy</artifactId>
      <packaging>jar</packaging>
  
@@ -666,10 +663,10 @@ index 9d51608..da98f0a 100644
  
          while ( bungee.isRunning )
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index 795a015..31eb90d 100644
+index e5afb89..03677e6 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-@@ -169,7 +169,7 @@ public class BungeeCord extends ProxyServer
+@@ -173,7 +173,7 @@ public class BungeeCord extends ProxyServer
      public BungeeCord() throws IOException
      {
          // Java uses ! to indicate a resource inside of a jar/zip/other container. Running Bungee from within a directory that has a ! will cause this to muck up.
@@ -678,7 +675,7 @@ index 795a015..31eb90d 100644
  
          System.setSecurityManager( new BungeeSecurityManager() );
  
-@@ -188,8 +188,8 @@ public class BungeeCord extends ProxyServer
+@@ -192,8 +192,8 @@ public class BungeeCord extends ProxyServer
          // Furthermore this behaviour only occurs in specific combinations due to the parsing done by jansi.
          // For example test-test works fine, but test-test-test does not! In order to avoid this all together but
          // still keep our versions the same as they were, we set the override property to the essentially garbage version
@@ -689,7 +686,7 @@ index 795a015..31eb90d 100644
  
          AnsiConsole.systemInstall();
          consoleReader = new ConsoleReader();
-@@ -443,7 +443,7 @@ public class BungeeCord extends ProxyServer
+@@ -447,7 +447,7 @@ public class BungeeCord extends ProxyServer
      @Override
      public String getName()
      {
@@ -744,7 +741,7 @@ index f1ccd4f..385a352 100644
      }
  
 diff --git a/query/pom.xml b/query/pom.xml
-index 3dab7c5..3105ebf 100644
+index 81bd2c7..54326cb 100644
 --- a/query/pom.xml
 +++ b/query/pom.xml
 @@ -4,19 +4,17 @@
@@ -755,13 +752,13 @@ index 3dab7c5..3105ebf 100644
 -        <artifactId>bungeecord-parent</artifactId>
 +        <groupId>me.minotopia.flexpipe</groupId>
 +        <artifactId>flexpipe-parent</artifactId>
-         <version>1.8-SNAPSHOT</version>
+         <version>1.9-SNAPSHOT</version>
          <relativePath>../pom.xml</relativePath>
      </parent>
  
 -    <groupId>net.md-5</groupId>
 -    <artifactId>bungeecord-query</artifactId>
--    <version>1.8-SNAPSHOT</version>
+-    <version>1.9-SNAPSHOT</version>
 +    <artifactId>flexpipe-query</artifactId>
      <packaging>jar</packaging>
  

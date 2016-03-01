@@ -1,4 +1,4 @@
-From 32a475859940611023ca2ff72e2e211798f84150 Mon Sep 17 00:00:00 2001
+From fd31b3d2e5791e07d243c0b7330ff7ba1c7f8046 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Fri, 9 Oct 2015 16:59:23 +0200
 Subject: Add tab-complete throttling
@@ -49,7 +49,7 @@ index 9cd6ab9..3bf31de 100644
          compressionThreshold = adapter.getInt( "network_compression_threshold", compressionThreshold );
  
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
-index c075cd5..9ac77dd 100644
+index 23d4f25..9780a0c 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 @@ -28,6 +28,7 @@ import net.md_5.bungee.protocol.packet.TabCompleteResponse;
@@ -60,7 +60,7 @@ index c075cd5..9ac77dd 100644
      private final ProxyServer bungee;
      private final UserConnection con;
  
-@@ -124,6 +125,15 @@ public class UpstreamBridge extends PacketHandler
+@@ -121,6 +122,15 @@ public class UpstreamBridge extends PacketHandler
      @Override
      public void handle(TabCompleteRequest tabComplete) throws Exception
      {

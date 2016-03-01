@@ -1,4 +1,4 @@
-From 4fb26e19eb053f731ae0908bf82ba6ecfc151fda Mon Sep 17 00:00:00 2001
+From 4d4865f5a3fd4046ef1209b2a6a0650dcf137ba6 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 21:37:46 +0100
 Subject: Use java 8 lambdas.
@@ -10,12 +10,12 @@ Subject: Use java 8 lambdas.
  .../java/net/md_5/bungee/BungeeServerInfo.java     |  17 +-
  .../java/net/md_5/bungee/ServerConnection.java     |   9 +-
  .../main/java/net/md_5/bungee/UserConnection.java  |  54 ++---
- .../net/md_5/bungee/connection/InitialHandler.java | 255 +++++++++------------
- .../main/java/net/md_5/bungee/http/HttpClient.java |  25 +-
+ .../net/md_5/bungee/connection/InitialHandler.java | 241 +++++++++------------
+ .../main/java/net/md_5/bungee/http/HttpClient.java |  25 +--
  .../java/net/md_5/bungee/module/ModuleManager.java |   9 +-
  .../net/md_5/bungee/scheduler/BungeeScheduler.java |  10 +-
  .../net/md_5/bungee/scheduler/SchedulerTest.java   |  20 +-
- 11 files changed, 166 insertions(+), 308 deletions(-)
+ 11 files changed, 159 insertions(+), 301 deletions(-)
 
 diff --git a/api/src/main/java/net/md_5/bungee/command/PlayerCommand.java b/api/src/main/java/net/md_5/bungee/command/PlayerCommand.java
 index c9f9576..8a1d21f 100644
@@ -65,10 +65,10 @@ index 36da83e..d6f161e 100644
      }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index 61272a6..aa52bbf 100644
+index 84e548b..45d0354 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-@@ -334,19 +334,14 @@ public class BungeeCord extends ProxyServer
+@@ -338,19 +338,14 @@ public class BungeeCord extends ProxyServer
      {
          for ( final ListenerInfo info : config.getListeners() )
          {
@@ -95,7 +95,7 @@ index 61272a6..aa52bbf 100644
                  }
              };
              new ServerBootstrap()
-@@ -360,19 +355,14 @@ public class BungeeCord extends ProxyServer
+@@ -364,19 +359,14 @@ public class BungeeCord extends ProxyServer
  
              if ( info.isQueryEnabled() )
              {
@@ -122,7 +122,7 @@ index 61272a6..aa52bbf 100644
                      }
                  };
                  new RemoteQuery( this, info ).start( PipelineUtils.getDatagramChannel(), new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), eventLoops, bindListener );
-@@ -718,15 +708,7 @@ public class BungeeCord extends ProxyServer
+@@ -722,15 +712,7 @@ public class BungeeCord extends ProxyServer
              return Collections.singleton( exactMatch );
          }
  
@@ -189,10 +189,10 @@ index 8c1260a..555a193 100644
      }
  
 diff --git a/proxy/src/main/java/net/md_5/bungee/UserConnection.java b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-index a69fe1f..e4a9e9b 100644
+index 614e1f0..e6cc40e 100644
 --- a/proxy/src/main/java/net/md_5/bungee/UserConnection.java
 +++ b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-@@ -253,34 +253,28 @@ public final class UserConnection implements ProxiedPlayer
+@@ -279,34 +279,28 @@ public final class UserConnection implements ProxiedPlayer
                  ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target ) );
              }
          };
@@ -217,8 +217,8 @@ index a69fe1f..e4a9e9b 100644
 +                future.channel().close();
 +                pendingConnects.remove( target );
 +
-+                ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
-+                if ( retry && target != def && ( getServer() == null || def != getServer().getInfo() ) )
++                ServerInfo def = updateAndGetNextServer( target );
++                if ( retry && def != null && ( getServer() == null || def != getServer().getInfo() ) )
 +                {
 +                    sendMessage( bungee.getTranslation( "fallback_lobby" ) );
 +                    connect( def, null, false );
@@ -230,8 +230,8 @@ index a69fe1f..e4a9e9b 100644
 -                    future.channel().close();
 -                    pendingConnects.remove( target );
 -
--                    ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
--                    if ( retry && target != def && ( getServer() == null || def != getServer().getInfo() ) )
+-                    ServerInfo def = updateAndGetNextServer( target );
+-                    if ( retry && def != null && ( getServer() == null || def != getServer().getInfo() ) )
 -                    {
 -                        sendMessage( bungee.getTranslation( "fallback_lobby" ) );
 -                        connect( def, null, false );
@@ -246,7 +246,7 @@ index a69fe1f..e4a9e9b 100644
                  }
              }
          };
-@@ -350,15 +344,7 @@ public final class UserConnection implements ProxiedPlayer
+@@ -376,15 +370,7 @@ public final class UserConnection implements ProxiedPlayer
                  // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
                  // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
                  // end has a somewhat better chance of receiving the proper packet.
@@ -264,12 +264,12 @@ index a69fe1f..e4a9e9b 100644
              {
                  disconnectInternal( reason );
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index aa178ea..1f0d207 100644
+index 2c1e6ab..223aa9a 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -146,38 +146,33 @@ public class InitialHandler extends PacketHandler implements PendingConnection
-         ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), bungee.getProtocolVersion() ),
-                 new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ), listener.getMotd(), (Favicon) null );
+@@ -147,38 +147,33 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+                 new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
+                 new TextComponent( TextComponent.fromLegacyText( listener.getMotd() ) ), (Favicon) null );
  
 -        Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
 -        {
@@ -329,7 +329,7 @@ index aa178ea..1f0d207 100644
          };
  
          bungee.getPluginManager().callEvent( new ProxyPingEvent( this, legacy, callback ) );
-@@ -197,30 +192,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -198,30 +193,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
          final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
  
@@ -356,12 +356,11 @@ index aa178ea..1f0d207 100644
 -                    @Override
 -                    public void done(ProxyPingEvent pingResult, Throwable error)
 -                    {
--                        Gson gson = handshake.getProtocolVersion() == ProtocolConstants.MINECRAFT_1_7_2 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
++            Callback<ProxyPingEvent> callback = (pingResult, error1) -> {
+                         Gson gson = BungeeCord.getInstance().gson;
 -                        unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
 -                    }
 -                };
-+            Callback<ProxyPingEvent> callback = (pingResult, error1) -> {
-+                Gson gson = handshake.getProtocolVersion() == ProtocolConstants.MINECRAFT_1_7_2 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
 +                unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
 +            };
  
@@ -371,7 +370,7 @@ index aa178ea..1f0d207 100644
          };
  
          if ( forced != null && listener.isPingPassthrough() )
-@@ -366,30 +351,24 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -367,30 +352,24 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              return;
          }
  
@@ -402,11 +401,11 @@ index aa178ea..1f0d207 100644
 -                thisState = State.ENCRYPT;
 +                disconnect( result.getCancelReason() );
 +                return;
-+            }
+             }
 +            if ( ch.isClosed() )
 +            {
 +                return;
-             }
++            }
 +            if ( onlineMode )
 +            {
 +                unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
@@ -418,7 +417,7 @@ index aa178ea..1f0d207 100644
          };
  
          // fire pre login event
-@@ -421,27 +400,22 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -422,27 +401,22 @@ public class InitialHandler extends PacketHandler implements PendingConnection
  
          String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash;
  
@@ -459,7 +458,7 @@ index aa178ea..1f0d207 100644
              }
          };
  
-@@ -486,63 +460,53 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -487,57 +461,47 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              uniqueId = offlineId;
          }
  
@@ -497,7 +496,16 @@ index aa178ea..1f0d207 100644
 +                    userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
 +                    userCon.init();
 +
-+                    if ( getVersion() >= ProtocolConstants.MINECRAFT_1_7_6 )
++                    unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
++                    ch.setProtocol( Protocol.GAME );
++
++                    ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
++                    bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
++                    ServerInfo server;
++                    if ( bungee.getReconnectHandler() != null )
++                    {
++                        server = bungee.getReconnectHandler().getServer( userCon );
++                    } else
                      {
 -                        if ( ch.getHandle().isActive() )
 -                        {
@@ -505,13 +513,7 @@ index aa178ea..1f0d207 100644
 -                            userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
 -                            userCon.init();
 -
--                            if ( getVersion() >= ProtocolConstants.MINECRAFT_1_7_6 )
--                            {
--                                unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
--                            } else
--                            {
--                                unsafe.sendPacket( new LoginSuccess( getUUID(), getName() ) ); // Without dashes, for older clients.
--                            }
+-                            unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
 -                            ch.setProtocol( Protocol.GAME );
 -
 -                            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
@@ -533,25 +535,10 @@ index aa178ea..1f0d207 100644
 -
 -                            thisState = State.FINISHED;
 -                        }
-+                        unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
-+                    } else
-+                    {
-+                        unsafe.sendPacket( new LoginSuccess( getUUID(), getName() ) ); // Without dashes, for older clients.
++                        server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
                      }
 -                } );
 -            }
-+                    ch.setProtocol( Protocol.GAME );
-+
-+                    ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
-+                    bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
-+                    ServerInfo server;
-+                    if ( bungee.getReconnectHandler() != null )
-+                    {
-+                        server = bungee.getReconnectHandler().getServer( userCon );
-+                    } else
-+                    {
-+                        server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
-+                    }
 +                    if ( server == null )
 +                    {
 +                        server = bungee.getServerInfo( listener.getDefaultServer() );
@@ -565,7 +552,7 @@ index aa178ea..1f0d207 100644
          };
  
          // fire login event
-@@ -579,14 +543,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -574,14 +538,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                  // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
                  // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
                  // end has a somewhat better chance of receiving the proper packet.
@@ -577,7 +564,7 @@ index aa178ea..1f0d207 100644
 -                        InitialHandler.this.disconnect0( reason );
 -                    }
 -                }, 500, TimeUnit.MILLISECONDS );
-+                ch.getHandle().eventLoop().schedule( ( Runnable ) () -> InitialHandler.this.disconnect0( reason ), 500, TimeUnit.MILLISECONDS );
++                ch.getHandle().eventLoop().schedule( ( Runnable ) () -> disconnect0( reason ), 500, TimeUnit.MILLISECONDS );
              } else
              {
                  disconnect0( reason );

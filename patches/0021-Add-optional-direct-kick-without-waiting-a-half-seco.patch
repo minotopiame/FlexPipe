@@ -1,4 +1,4 @@
-From 5c0e14a2abcfb86c7ac4cb16fdd0c27a13c06a9d Mon Sep 17 00:00:00 2001
+From 8700461cb2ec78cc2828388bcd26cc9f7d94d010 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 20:18:57 +0100
 Subject: Add optional direct kick, without waiting a half second.
@@ -108,10 +108,10 @@ index 375815c..787e1fb 100644
 +    void disconnect(BaseComponent reason, boolean wait);
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/UserConnection.java b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-index 1215449..a69fe1f 100644
+index 6ce20b9..614e1f0 100644
 --- a/proxy/src/main/java/net/md_5/bungee/UserConnection.java
 +++ b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-@@ -301,22 +301,40 @@ public final class UserConnection implements ProxiedPlayer
+@@ -327,22 +327,40 @@ public final class UserConnection implements ProxiedPlayer
      @Override
      public void disconnect(String reason)
      {
@@ -156,7 +156,7 @@ index 1215449..a69fe1f 100644
      {
          if ( !ch.isClosed() )
          {
-@@ -325,29 +343,39 @@ public final class UserConnection implements ProxiedPlayer
+@@ -351,29 +369,39 @@ public final class UserConnection implements ProxiedPlayer
                  getName(), BaseComponent.toLegacyText( reason )
              } );
  
@@ -211,10 +211,10 @@ index 1215449..a69fe1f 100644
      public void chat(String message)
      {
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
-index bc531d4..d52b415 100644
+index 6b0ebeb..375696b 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
-@@ -474,7 +474,7 @@ public class DownstreamBridge extends PacketHandler
+@@ -460,7 +460,7 @@ public class DownstreamBridge extends PacketHandler
              con.connectNow( event.getCancelServer() );
          } else
          {
@@ -224,10 +224,10 @@ index bc531d4..d52b415 100644
          server.setObsolete( true );
          throw CancelSendSignal.INSTANCE;
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index b70f0e1..aa178ea 100644
+index 4b44d6d..2c1e6ab 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -264,7 +264,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -265,7 +265,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              thisState = State.USERNAME;
              // setting protocol to login so we can send the kick message which is actually supported by the minecraft client after it sent the handshake
              ch.setProtocol( Protocol.LOGIN );
@@ -237,7 +237,7 @@ index b70f0e1..aa178ea 100644
              // this stops the also sent login request packet to be handled
              thisJoinThrottled = true;
              return;
-@@ -551,32 +552,45 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -546,32 +547,45 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public void disconnect(String reason)
      {
@@ -298,7 +298,7 @@ index b70f0e1..aa178ea 100644
          }
      }
  
-@@ -586,7 +600,26 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -581,7 +595,26 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          disconnect( new BaseComponent[]
          {
              reason

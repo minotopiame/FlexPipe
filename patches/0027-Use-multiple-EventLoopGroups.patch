@@ -1,4 +1,4 @@
-From 832bc56f6723d8869a152d848cc66642763ea35a Mon Sep 17 00:00:00 2001
+From d06f1d98ab6399bf5b325dcca972e2bb41266cc5 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 29 Feb 2016 20:44:17 +0100
 Subject: Use multiple EventLoopGroups.
@@ -14,10 +14,10 @@ Usage of boss and a worker EventLoopGroups is the recommended setup for netty se
  2 files changed, 29 insertions(+), 7 deletions(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index 301a0c9..e5d071b 100644
+index 8dcf159..50718f2 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-@@ -107,7 +107,7 @@ public class BungeeCord extends ProxyServer
+@@ -111,7 +111,7 @@ public class BungeeCord extends ProxyServer
       * Localization bundle.
       */
      public ResourceBundle bundle;
@@ -26,7 +26,7 @@ index 301a0c9..e5d071b 100644
      /**
       * locations.yml save thread.
       */
-@@ -293,7 +293,8 @@ public class BungeeCord extends ProxyServer
+@@ -297,7 +297,8 @@ public class BungeeCord extends ProxyServer
              ResourceLeakDetector.setLevel( ResourceLeakDetector.Level.DISABLED ); // Eats performance
          }
  
@@ -36,7 +36,7 @@ index 301a0c9..e5d071b 100644
  
          File moduleDirectory = new File( "modules" );
          config.load();
-@@ -352,12 +353,13 @@ public class BungeeCord extends ProxyServer
+@@ -356,12 +357,13 @@ public class BungeeCord extends ProxyServer
                      .childOption( ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 1024 * 1024 )
                      .childAttr( PipelineUtils.LISTENER, info )
                      .childHandler( PipelineUtils.SERVER_CHILD )
@@ -51,7 +51,7 @@ index 301a0c9..e5d071b 100644
                  ChannelFutureListener bindListener = future -> {
                      if ( future.isSuccess() )
                      {
-@@ -368,7 +370,7 @@ public class BungeeCord extends ProxyServer
+@@ -372,7 +374,7 @@ public class BungeeCord extends ProxyServer
                          getLogger().log( Level.WARNING, "Could not bind to host " + info.getHost(), future.cause() );
                      }
                  };
@@ -60,7 +60,7 @@ index 301a0c9..e5d071b 100644
              }
          }
      }
-@@ -424,13 +426,33 @@ public class BungeeCord extends ProxyServer
+@@ -428,13 +430,33 @@ public class BungeeCord extends ProxyServer
                  }
  
                  getLogger().info( "Closing IO threads" );

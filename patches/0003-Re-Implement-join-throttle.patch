@@ -1,4 +1,4 @@
-From 084ab15d9f769fa92eb3e11de812f9fdf10b0cb0 Mon Sep 17 00:00:00 2001
+From 388fd07774933398e561864c4d6ae262a2eecf86 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 7 Oct 2015 21:53:26 +0200
 Subject: Re-Implement join throttle
@@ -56,7 +56,7 @@ index 7d52931..9cd6ab9 100644
          throttle = adapter.getInt( "connection_throttle", throttle );
          ipForward = adapter.getBoolean( "ip_forward", ipForward );
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index bcc6f9a..553970c 100644
+index 34b1a4b..960a57d 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -99,6 +99,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
@@ -68,15 +68,15 @@ index bcc6f9a..553970c 100644
      private enum State
      {
  
-@@ -212,7 +214,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -213,7 +215,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                      @Override
                      public void done(ProxyPingEvent pingResult, Throwable error)
                      {
 -                        BungeeCord.getInstance().getConnectionThrottle().unthrottle( getAddress().getAddress() );
-                         Gson gson = handshake.getProtocolVersion() == ProtocolConstants.MINECRAFT_1_7_2 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
+                         Gson gson = BungeeCord.getInstance().gson;
                          unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
                      }
-@@ -253,6 +254,22 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -254,6 +255,22 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          this.handshake = handshake;
          ch.setVersion( handshake.getProtocolVersion() );
  
@@ -99,7 +99,7 @@ index bcc6f9a..553970c 100644
          // Starting with FML 1.8, a "\0FML\0" token is appended to the handshake. This interferes 
          // with Bungee's IP forwarding, so we detect it, and remove it from the host string, for now.
          // We know FML appends \00FML\00. However, we need to also consider that other systems might
-@@ -284,9 +301,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -285,9 +302,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                  ch.setProtocol( Protocol.STATUS );
                  break;
              case 2:
@@ -110,7 +110,7 @@ index bcc6f9a..553970c 100644
                  break;
              default:
                  throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
-@@ -296,6 +313,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -297,6 +314,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public void handle(LoginRequest loginRequest) throws Exception
      {
