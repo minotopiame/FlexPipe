@@ -7,6 +7,12 @@ cd BungeeCord
 origin_commit=`git rev-parse --short origin/master`
 
 echo ""
+if [ -z "$BUILD_NUMBER" ]; then
+    BUILD_NUMBER="0"
+    echo "======= Set BUILD_NUMBER to 0, as it was not set";
+fi
+
+echo "======= The build number is $BUILD_NUMBER"
 echo "======= Building FlexPipe from origin commit $origin_commit with patcher commit $patcher_commit"
 echo ""
 

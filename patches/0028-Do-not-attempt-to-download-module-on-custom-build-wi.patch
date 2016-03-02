@@ -1,0 +1,30 @@
+From 071d5d6ba47ddb7db9bb801983f0d874542027fa Mon Sep 17 00:00:00 2001
+From: Janmm14 <janmarianmeyer@gmx.de>
+Date: Wed, 2 Mar 2016 15:09:09 +0100
+Subject: Do not attempt to download module on custom build with default
+ version number
+
+---
+ proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java b/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java
+index 7a42094..f84298f 100644
+--- a/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java
++++ b/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java
+@@ -57,6 +57,12 @@ public class ModuleManager
+             return;
+         }
+ 
++        if ( bungeeVersion.getBuild().equals("0") )
++        {
++            proxy.getLogger().info( "Default build version '0' detected, custom FlexPipe build. Module download is skipped.");
++            return;
++        }
++
+         List<ModuleSpec> modules = new ArrayList<>();
+         File configFile = new File( "modules.yml" );
+         // Start Yaml
+-- 
+2.1.4
+
