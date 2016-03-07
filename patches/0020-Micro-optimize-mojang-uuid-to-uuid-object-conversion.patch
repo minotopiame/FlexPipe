@@ -1,4 +1,4 @@
-From bbaa6d7b239364cfebd6bc1b982486e48a4f0cf6 Mon Sep 17 00:00:00 2001
+From 2bda5e0019e7a279e15d93a6fd94d81f281858dc Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Thu, 18 Feb 2016 15:59:37 +0100
 Subject: Micro-optimize mojang uuid to uuid object conversion (and other way
@@ -158,7 +158,7 @@ index 86a0055..7b4532b 100644
      }
  }
 diff --git a/api/src/main/java/net/md_5/bungee/api/ServerPing.java b/api/src/main/java/net/md_5/bungee/api/ServerPing.java
-index f3e7a56..41af373 100644
+index 4eb04cd..1a0daaf 100644
 --- a/api/src/main/java/net/md_5/bungee/api/ServerPing.java
 +++ b/api/src/main/java/net/md_5/bungee/api/ServerPing.java
 @@ -73,7 +73,7 @@ public class ServerPing

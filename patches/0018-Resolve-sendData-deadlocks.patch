@@ -1,4 +1,4 @@
-From f34ee00cd7f0b730b6db2608e7ba374d1ef8852b Mon Sep 17 00:00:00 2001
+From 841e6be1bfc7d7bd2e4ddf09946c30024758510e Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Wed, 17 Feb 2016 00:34:15 +0100
 Subject: Resolve sendData() deadlocks

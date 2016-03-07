@@ -1,4 +1,4 @@
-From 8700461cb2ec78cc2828388bcd26cc9f7d94d010 Mon Sep 17 00:00:00 2001
+From faf2c52a6f3bd34d1a68df612ebc1c4a8b865921 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 20:18:57 +0100
 Subject: Add optional direct kick, without waiting a half second.
@@ -108,10 +108,10 @@ index 375815c..787e1fb 100644
 +    void disconnect(BaseComponent reason, boolean wait);
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/UserConnection.java b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-index 6ce20b9..614e1f0 100644
+index 4dbff7c..d00ffd8 100644
 --- a/proxy/src/main/java/net/md_5/bungee/UserConnection.java
 +++ b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-@@ -327,22 +327,40 @@ public final class UserConnection implements ProxiedPlayer
+@@ -333,22 +333,40 @@ public final class UserConnection implements ProxiedPlayer
      @Override
      public void disconnect(String reason)
      {
@@ -156,7 +156,7 @@ index 6ce20b9..614e1f0 100644
      {
          if ( !ch.isClosed() )
          {
-@@ -351,29 +369,39 @@ public final class UserConnection implements ProxiedPlayer
+@@ -357,29 +375,39 @@ public final class UserConnection implements ProxiedPlayer
                  getName(), BaseComponent.toLegacyText( reason )
              } );
  
@@ -211,7 +211,7 @@ index 6ce20b9..614e1f0 100644
      public void chat(String message)
      {
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
-index 6b0ebeb..375696b 100644
+index dcd51fa..f8e1d3e 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
 @@ -460,7 +460,7 @@ public class DownstreamBridge extends PacketHandler

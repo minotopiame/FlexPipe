@@ -1,0 +1,249 @@
+From 25c17b06bc6b5ecd6963a1f28a0b49d2facfb182 Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Mon, 7 Mar 2016 13:33:26 +0100
+Subject: Restore 1.8-like ping motd description output for compability to
+ various pinging tools.
+
+This commit also changes BungeeCord.getInstance().gson to have a getter with an optional ProtocolVersion argument.
+---
+ .../net/md_5/bungee/chat/LegacyMotdSerializer.java | 52 ++++++++++++++++++++++
+ .../md_5/bungee/protocol/ProtocolConstants.java    |  1 +
+ .../src/main/java/net/md_5/bungee/BungeeCord.java  | 33 +++++++++++++-
+ .../java/net/md_5/bungee/PlayerInfoSerializer.java | 19 +++++++-
+ .../main/java/net/md_5/bungee/ServerConnector.java |  2 +-
+ .../net/md_5/bungee/connection/InitialHandler.java |  6 +--
+ .../net/md_5/bungee/connection/PingHandler.java    |  2 +-
+ 7 files changed, 106 insertions(+), 9 deletions(-)
+ create mode 100644 chat/src/main/java/net/md_5/bungee/chat/LegacyMotdSerializer.java
+
+diff --git a/chat/src/main/java/net/md_5/bungee/chat/LegacyMotdSerializer.java b/chat/src/main/java/net/md_5/bungee/chat/LegacyMotdSerializer.java
+new file mode 100644
+index 0000000..3f0c64e
+--- /dev/null
++++ b/chat/src/main/java/net/md_5/bungee/chat/LegacyMotdSerializer.java
+@@ -0,0 +1,52 @@
++package net.md_5.bungee.chat;
++
++import com.google.gson.JsonDeserializationContext;
++import com.google.gson.JsonDeserializer;
++import com.google.gson.JsonElement;
++import com.google.gson.JsonParseException;
++import com.google.gson.JsonPrimitive;
++import com.google.gson.JsonSerializationContext;
++import com.google.gson.JsonSerializer;
++import java.lang.reflect.Type;
++import net.md_5.bungee.api.ChatColor;
++import net.md_5.bungee.api.chat.BaseComponent;
++import net.md_5.bungee.api.chat.TextComponent;
++
++
++/**
++ * This class converts TextComponents (with all its subcomponents) to legacy text and reverse.
++ * This is required for various pinging tools which can't properly handle json motds. It just
++ * needs to handle TextComponents due to everything is wrapped in a Textcomponent due to a
++ * minecraft client bug.
++ *
++ * This class should only be used for 1.7.x and 1.8.x clients pinging as for 1.9 the pinging
++ * tools need to update as vanilla minecraft servers output json motds.
++ */
++public class LegacyMotdSerializer implements JsonDeserializer<TextComponent>, JsonSerializer<TextComponent>
++{
++    @Override
++    public TextComponent deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
++    {
++        TextComponent component = new TextComponent( ComponentSerializer.parse( json.toString() ) );
++
++        //While this class restores function of various pinging tools, the default chat color turns to white for some
++        //reason. This fixes it by setting the default color to GRAY, which is nearly the default color, which is
++        //between GRAY and DARK_GRAY
++        if (component.getColorRaw() == null)
++        {
++            component.setColor( ChatColor.GRAY );
++        }
++        return component;
++    }
++
++    @Override
++    public JsonElement serialize(TextComponent src, Type typeOfSrc, JsonSerializationContext context)
++    {
++        if (src.getColorRaw() == null)
++        {
++            src.setColor( ChatColor.GRAY );
++        }
++
++        return new JsonPrimitive( BaseComponent.toLegacyText( src ) );
++    }
++}
+diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/ProtocolConstants.java b/protocol/src/main/java/net/md_5/bungee/protocol/ProtocolConstants.java
+index 5100d58..0472d66 100644
+--- a/protocol/src/main/java/net/md_5/bungee/protocol/ProtocolConstants.java
++++ b/protocol/src/main/java/net/md_5/bungee/protocol/ProtocolConstants.java
+@@ -5,6 +5,7 @@ import java.util.List;
+ 
+ public class ProtocolConstants
+ {
++    public static final int MINECRAFT_1_7_2 = 4;
+     public static final int MINECRAFT_1_8 = 47;
+     public static final int MINECRAFT_1_9 = 107;
+     public static final List<String> SUPPORTED_VERSIONS = Arrays.asList(
+diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+index 50718f2..d9958dc 100644
+--- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
++++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+@@ -18,6 +18,7 @@ import net.md_5.bungee.api.Favicon;
+ import net.md_5.bungee.api.ServerPing;
+ import net.md_5.bungee.api.Title;
+ import net.md_5.bungee.api.chat.TranslatableComponent;
++import net.md_5.bungee.chat.LegacyMotdSerializer;
+ import net.md_5.bungee.chat.TextComponentSerializer;
+ import net.md_5.bungee.chat.TranslatableComponentSerializer;
+ import net.md_5.bungee.module.ModuleManager;
+@@ -148,12 +149,40 @@ public class BungeeCord extends ProxyServer
+     private final ConsoleReader consoleReader;
+     @Getter
+     private final Logger logger;
+-    public final Gson gson = new GsonBuilder()
++    private final Gson gson = new GsonBuilder()
+             .registerTypeAdapter( BaseComponent.class, new ComponentSerializer() )
+             .registerTypeAdapter( TextComponent.class, new TextComponentSerializer() )
+             .registerTypeAdapter( TranslatableComponent.class, new TranslatableComponentSerializer() )
+-            .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer() )
++            .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer( ProtocolConstants.MINECRAFT_1_9 ) )
+             .registerTypeAdapter( Favicon.class, Favicon.getFaviconTypeAdapter() ).create();
++    private final Gson gson1_7_2 = new GsonBuilder()
++        .registerTypeAdapter( BaseComponent.class, new LegacyMotdSerializer() )
++        .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer( ProtocolConstants.MINECRAFT_1_7_2 ) )
++        .registerTypeAdapter( Favicon.class, Favicon.getFaviconTypeAdapter() ).create();
++    private final Gson gson1_8 = new GsonBuilder()
++        .registerTypeAdapter( BaseComponent.class, new LegacyMotdSerializer() )
++        .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer( ProtocolConstants.MINECRAFT_1_8 ) )
++        .registerTypeAdapter( Favicon.class, Favicon.getFaviconTypeAdapter() ).create();
++
++    public final Gson getLatestGson()
++    {
++        return gson;
++    }
++
++    public final Gson getGson(int protocol)
++    {
++        if ( protocol <= ProtocolConstants.MINECRAFT_1_7_2 )
++        {
++            return BungeeCord.getInstance().gson1_7_2;
++        } else if ( protocol <= ProtocolConstants.MINECRAFT_1_8 )
++        {
++            return BungeeCord.getInstance().gson1_8;
++        } else
++        {
++            return BungeeCord.getInstance().gson;
++        }
++    }
++
+     @Getter
+     private ConnectionThrottle connectionThrottle;
+     private final ModuleManager moduleManager = new ModuleManager();
+diff --git a/proxy/src/main/java/net/md_5/bungee/PlayerInfoSerializer.java b/proxy/src/main/java/net/md_5/bungee/PlayerInfoSerializer.java
+index c8c4f1b..5dc78a8 100644
+--- a/proxy/src/main/java/net/md_5/bungee/PlayerInfoSerializer.java
++++ b/proxy/src/main/java/net/md_5/bungee/PlayerInfoSerializer.java
+@@ -11,16 +11,25 @@ import net.md_5.bungee.api.ServerPing;
+ 
+ import java.lang.reflect.Type;
+ import java.util.UUID;
++import net.md_5.bungee.protocol.ProtocolConstants;
+ 
+ public class PlayerInfoSerializer implements JsonSerializer<ServerPing.PlayerInfo>, JsonDeserializer<ServerPing.PlayerInfo>
+ {
++
++    private final int protocol;
++
++    public PlayerInfoSerializer(int protocol)
++    {
++        this.protocol = protocol;
++    }
++
+     @Override
+     public ServerPing.PlayerInfo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
+     {
+         JsonObject js = json.getAsJsonObject();
+         ServerPing.PlayerInfo info = new ServerPing.PlayerInfo( js.get( "name" ).getAsString(), (UUID) null );
+         String id = js.get( "id" ).getAsString();
+-        if ( !id.contains( "-" ) )
++        if ( protocol == ProtocolConstants.MINECRAFT_1_7_2 || !id.contains( "-" ) )
+         {
+             info.setId( id );
+         } else
+@@ -35,7 +44,13 @@ public class PlayerInfoSerializer implements JsonSerializer<ServerPing.PlayerInf
+     {
+         JsonObject out = new JsonObject();
+         out.addProperty( "name", src.getName() );
+-        out.addProperty( "id", src.getUniqueId().toString() );
++        if ( protocol == ProtocolConstants.MINECRAFT_1_7_2 )
++        {
++            out.addProperty( "id", src.getId() );
++        } else
++        {
++            out.addProperty( "id", src.getUniqueId().toString() );
++        }
+         return out;
+     }
+ }
+diff --git a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
+index 0cb2ba1..0212bcd 100644
+--- a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
++++ b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
+@@ -94,7 +94,7 @@ public class ServerConnector extends PacketHandler
+             LoginResult profile = user.getPendingConnection().getLoginProfile();
+             if ( profile != null && profile.getProperties() != null && profile.getProperties().length > 0 )
+             {
+-                newHost += "\00" + BungeeCord.getInstance().gson.toJson( profile.getProperties() );
++                newHost += "\00" + BungeeCord.getInstance().getLatestGson().toJson( profile.getProperties() );
+             }
+             copiedHandshake.setHost( newHost );
+         } else if ( !user.getExtraDataInHandshake().isEmpty() )
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+index 84a809e..5b492ab 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+@@ -6,7 +6,6 @@ import java.math.BigInteger;
+ import java.net.InetSocketAddress;
+ import java.net.URLEncoder;
+ import java.security.MessageDigest;
+-import java.util.ArrayList;
+ import java.util.List;
+ import java.util.UUID;
+ import java.util.logging.Level;
+@@ -223,7 +222,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+             }
+ 
+             Callback<ProxyPingEvent> callback = (pingResult, error1) -> {
+-                Gson gson = BungeeCord.getInstance().gson;
++                Gson gson = BungeeCord.getInstance().getGson( handshake.getProtocolVersion() );
++
+                 unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
+             };
+ 
+@@ -437,7 +437,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+         Callback<String> handler = (result, error) -> {
+             if ( error == null )
+             {
+-                LoginResult obj = BungeeCord.getInstance().gson.fromJson( result, LoginResult.class );
++                LoginResult obj = BungeeCord.getInstance().getLatestGson().fromJson( result, LoginResult.class );
+                 if ( obj != null )
+                 {
+                     loginProfile = obj;
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/PingHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/PingHandler.java
+index 30fc756..56fded2 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/PingHandler.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/PingHandler.java
+@@ -53,7 +53,7 @@ public class PingHandler extends PacketHandler
+     @SuppressFBWarnings("UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
+     public void handle(StatusResponse statusResponse) throws Exception
+     {
+-        Gson gson = BungeeCord.getInstance().gson;
++        Gson gson = BungeeCord.getInstance().getLatestGson();
+         callback.done( gson.fromJson( statusResponse.getResponse(), ServerPing.class ), null );
+         channel.close();
+     }
+-- 
+1.9.5.msysgit.0
+

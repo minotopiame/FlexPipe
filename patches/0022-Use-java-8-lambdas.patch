@@ -1,4 +1,4 @@
-From 4d4865f5a3fd4046ef1209b2a6a0650dcf137ba6 Mon Sep 17 00:00:00 2001
+From 67c8e7ff77733ea4d8ce066c32a38a51a49a2dd9 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 21:37:46 +0100
 Subject: Use java 8 lambdas.
@@ -10,12 +10,12 @@ Subject: Use java 8 lambdas.
  .../java/net/md_5/bungee/BungeeServerInfo.java     |  17 +-
  .../java/net/md_5/bungee/ServerConnection.java     |   9 +-
  .../main/java/net/md_5/bungee/UserConnection.java  |  54 ++---
- .../net/md_5/bungee/connection/InitialHandler.java | 241 +++++++++------------
+ .../net/md_5/bungee/connection/InitialHandler.java | 243 +++++++++------------
  .../main/java/net/md_5/bungee/http/HttpClient.java |  25 +--
  .../java/net/md_5/bungee/module/ModuleManager.java |   9 +-
  .../net/md_5/bungee/scheduler/BungeeScheduler.java |  10 +-
  .../net/md_5/bungee/scheduler/SchedulerTest.java   |  20 +-
- 11 files changed, 159 insertions(+), 301 deletions(-)
+ 11 files changed, 160 insertions(+), 302 deletions(-)
 
 diff --git a/api/src/main/java/net/md_5/bungee/command/PlayerCommand.java b/api/src/main/java/net/md_5/bungee/command/PlayerCommand.java
 index c9f9576..8a1d21f 100644
@@ -189,10 +189,10 @@ index 8c1260a..555a193 100644
      }
  
 diff --git a/proxy/src/main/java/net/md_5/bungee/UserConnection.java b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-index 614e1f0..e6cc40e 100644
+index d00ffd8..3b55999 100644
 --- a/proxy/src/main/java/net/md_5/bungee/UserConnection.java
 +++ b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-@@ -279,34 +279,28 @@ public final class UserConnection implements ProxiedPlayer
+@@ -285,34 +285,28 @@ public final class UserConnection implements ProxiedPlayer
                  ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target ) );
              }
          };
@@ -246,7 +246,7 @@ index 614e1f0..e6cc40e 100644
                  }
              }
          };
-@@ -376,15 +370,7 @@ public final class UserConnection implements ProxiedPlayer
+@@ -382,15 +376,7 @@ public final class UserConnection implements ProxiedPlayer
                  // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
                  // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
                  // end has a somewhat better chance of receiving the proper packet.
@@ -264,7 +264,7 @@ index 614e1f0..e6cc40e 100644
              {
                  disconnectInternal( reason );
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 2c1e6ab..223aa9a 100644
+index 2c1e6ab..d62e2bf 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -147,38 +147,33 @@ public class InitialHandler extends PacketHandler implements PendingConnection
@@ -356,11 +356,12 @@ index 2c1e6ab..223aa9a 100644
 -                    @Override
 -                    public void done(ProxyPingEvent pingResult, Throwable error)
 -                    {
-+            Callback<ProxyPingEvent> callback = (pingResult, error1) -> {
-                         Gson gson = BungeeCord.getInstance().gson;
+-                        Gson gson = BungeeCord.getInstance().gson;
 -                        unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
 -                    }
 -                };
++            Callback<ProxyPingEvent> callback = (pingResult, error1) -> {
++                Gson gson = BungeeCord.getInstance().gson;
 +                unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
 +            };
  

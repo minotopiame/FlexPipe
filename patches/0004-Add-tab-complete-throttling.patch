@@ -1,4 +1,4 @@
-From fd31b3d2e5791e07d243c0b7330ff7ba1c7f8046 Mon Sep 17 00:00:00 2001
+From 8f3cf7906693322466c8e91bb554ea630c2ba1e5 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Fri, 9 Oct 2015 16:59:23 +0200
 Subject: Add tab-complete throttling
@@ -29,7 +29,7 @@ index 25590e3..61c0d14 100644
       */
      @Deprecated
 diff --git a/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java b/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
-index 9cd6ab9..3bf31de 100644
+index f1470ce..5a4e53c 100644
 --- a/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
 +++ b/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
 @@ -61,6 +61,7 @@ public class Configuration implements ProxyConfig

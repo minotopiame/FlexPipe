@@ -1,4 +1,4 @@
-From c0bc7b72c66aebafe87e9b24155b0a5554f08664 Mon Sep 17 00:00:00 2001
+From 8da5b6dbb129ab0a620ecd24b558dfae5df90e24 Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Wed, 17 Feb 2016 00:20:59 +0100
 Subject: Don't create a data input stream for every plugin message we get from
@@ -10,7 +10,7 @@ Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
-index c28399d..6b0ebeb 100644
+index 6369d2e..dcd51fa 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
 @@ -220,7 +220,6 @@ public class DownstreamBridge extends PacketHandler

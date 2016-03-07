@@ -1,4 +1,4 @@
-From 071d5d6ba47ddb7db9bb801983f0d874542027fa Mon Sep 17 00:00:00 2001
+From 3ed6cee5e23efcc4f742256e3dd0f85670ed20cd Mon Sep 17 00:00:00 2001
 From: Janmm14 <janmarianmeyer@gmx.de>
 Date: Wed, 2 Mar 2016 15:09:09 +0100
 Subject: Do not attempt to download module on custom build with default
@@ -26,5 +26,5 @@ index 7a42094..f84298f 100644
          File configFile = new File( "modules.yml" );
          // Start Yaml
 -- 
-2.1.4
+1.9.5.msysgit.0
 

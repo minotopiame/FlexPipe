@@ -1,4 +1,4 @@
-From 4ee97c1a83f81619c040a735be2a8635591d8ebd Mon Sep 17 00:00:00 2001
+From ee9496547bab7ca13d0d0268f4be0d37472571a2 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 22:01:12 +0100
 Subject: Performance, log sanity: No exception on invalid packet order, just
@@ -9,7 +9,7 @@ Subject: Performance, log sanity: No exception on invalid packet order, just
  1 file changed, 38 insertions(+), 6 deletions(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 223aa9a..87f1e4c 100644
+index d62e2bf..84f5b75 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -6,7 +6,6 @@ import java.math.BigInteger;
