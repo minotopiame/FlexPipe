@@ -18,7 +18,7 @@ fi
 
 echo "======= Building FlexPipe version git:$maven_version:origin-$origin_commit:patcher-$patcher_commit:$BUILD_NUMBER"
 echo ""
-exit
+
 mvn clean install -Dorigin_commit=$origin_commit -Dpatcher_commit=$patcher_commit -Dbuild.number=$BUILD_NUMBER
 
 cd ../
