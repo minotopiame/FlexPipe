@@ -7,7 +7,7 @@ cd BungeeCord
 echo ""
 echo "======= Recieving maven version..."
 
-maven_version=$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -e '^[[:digit:]]')
+maven_version=$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version -B -N | grep '^[[:digit:]]' | tail -1)
 
 origin_commit=`git rev-parse --short origin/master`
 
@@ -18,7 +18,7 @@ fi
 
 echo "======= Building FlexPipe version git:$maven_version:origin-$origin_commit:patcher-$patcher_commit:$BUILD_NUMBER"
 echo ""
-
+exit
 mvn clean install -Dorigin_commit=$origin_commit -Dpatcher_commit=$patcher_commit -Dbuild.number=$BUILD_NUMBER
 
 cd ../
