@@ -1,30 +1,33 @@
-From f068fdbb9377b221e05c22213bc1a3e03d7eb1a8 Mon Sep 17 00:00:00 2001
+From 8bf8b6c27a6f607ae4a278eaf4e18eb5c254bfd6 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 15 Feb 2016 21:28:29 +0100
 Subject: Update .gitignore: Add *.orig from merge tools and bungeecord files
+ and windows' desktop.ini
 
-Add bungeecord files to .gitignore
 ---
- .gitignore | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ .gitignore | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
 diff --git a/.gitignore b/.gitignore
-index a34de59..fdfdbd8 100644
+index a34de59..f5c6648 100644
 --- a/.gitignore
 +++ b/.gitignore
-@@ -37,3 +37,11 @@ manifest.mf
+@@ -37,3 +37,15 @@ manifest.mf
  
  # delombok
  */src/main/lombok
 +
++#Windows
++desktop.ini
++
++#Left merge files
 +*.orig
 +
-+#bungeecord files
++#BungeeCord files
 +/config.yml
 +/messages.properties
 +/plugins/
 +/modules/
-\ No newline at end of file
 -- 
 1.9.5.msysgit.0
 

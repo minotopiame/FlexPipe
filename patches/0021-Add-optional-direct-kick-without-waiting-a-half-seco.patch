@@ -1,4 +1,4 @@
-From c5ee733f26bf8759a6cdfa070417fdacfb1ebc75 Mon Sep 17 00:00:00 2001
+From 8d19f1f77487a783415b98ce74d4039fc692a2bd Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 20:18:57 +0100
 Subject: Add optional direct kick, without waiting a half second.
