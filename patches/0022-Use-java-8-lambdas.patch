@@ -1,4 +1,4 @@
-From 67c8e7ff77733ea4d8ce066c32a38a51a49a2dd9 Mon Sep 17 00:00:00 2001
+From 789576492670219d2aab875c56c54d61f773c385 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 21:37:46 +0100
 Subject: Use java 8 lambdas.

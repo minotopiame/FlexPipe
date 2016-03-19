@@ -1,4 +1,4 @@
-From d8e03ab579268ef28dc5015f23af3ed8ec916aea Mon Sep 17 00:00:00 2001
+From 9d35a2f9d823f0524602947563edd7e7deacdf0a Mon Sep 17 00:00:00 2001
 From: Harry <me@harry5573.uk>
 Date: Tue, 16 Feb 2016 23:42:49 +0100
 Subject: Don't create a new KickStringWriter for each new connection.
@@ -26,7 +26,7 @@ index eda9571..e2e34a3 100644
  {
  
 diff --git a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
-index 8f09e9d..273d7db 100644
+index bbcc8df..9d78532 100644
 --- a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
 +++ b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
 @@ -54,7 +54,7 @@ public class PipelineUtils

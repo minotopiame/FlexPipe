@@ -1,4 +1,4 @@
-From bdb8f907587bda46bcdd5e7ee28c839715967ace Mon Sep 17 00:00:00 2001
+From e600b45663965b09a9c344230230607ed28b1b10 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Tue, 16 Feb 2016 21:33:45 +0100
 Subject: Send FlexPipe as server version in Metrics instead of '0'

@@ -1,4 +1,4 @@
-From 619feb66554e206c30d51a1dbbdb0967c4e31076 Mon Sep 17 00:00:00 2001
+From e8590ca169967b53e0a788856ffb8cc768aa0ec0 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 7 Oct 2015 21:53:26 +0200
 Subject: Re-Implement join throttle
@@ -130,7 +130,7 @@ index 34b1a4b..960a57d 100644
          this.loginRequest = loginRequest;
  
 diff --git a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
-index a5feb1e..8f09e9d 100644
+index 4d19bbe..bbcc8df 100644
 --- a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
 +++ b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
 @@ -49,12 +49,6 @@ public class PipelineUtils

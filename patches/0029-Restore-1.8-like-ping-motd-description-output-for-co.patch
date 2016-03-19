@@ -1,4 +1,4 @@
-From 25c17b06bc6b5ecd6963a1f28a0b49d2facfb182 Mon Sep 17 00:00:00 2001
+From 75b3433306a20a7f64c3df24e12e76732c5618e0 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 7 Mar 2016 13:33:26 +0100
 Subject: Restore 1.8-like ping motd description output for compability to
