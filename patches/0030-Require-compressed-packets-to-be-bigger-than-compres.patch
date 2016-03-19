@@ -1,0 +1,59 @@
+From b78bc2e5f20e63d7736430bfe18f3044689ef0ae Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Fri, 18 Mar 2016 18:29:29 +0100
+Subject: Require compressed packets to be bigger than compression threshold to
+ prevent a dos attack
+
+Fixes SpigotMC/BungeeCord#1762
+---
+ proxy/src/main/java/net/md_5/bungee/compress/PacketDecompressor.java | 5 +++++
+ proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java        | 2 +-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/compress/PacketDecompressor.java b/proxy/src/main/java/net/md_5/bungee/compress/PacketDecompressor.java
+index 21b3ea2..49c8d71 100644
+--- a/proxy/src/main/java/net/md_5/bungee/compress/PacketDecompressor.java
++++ b/proxy/src/main/java/net/md_5/bungee/compress/PacketDecompressor.java
+@@ -5,14 +5,18 @@ import io.netty.buffer.ByteBuf;
+ import io.netty.channel.ChannelHandlerContext;
+ import io.netty.handler.codec.MessageToMessageDecoder;
+ import java.util.List;
++import lombok.RequiredArgsConstructor;
+ import net.md_5.bungee.jni.zlib.BungeeZlib;
+ import net.md_5.bungee.protocol.DefinedPacket;
+ 
++@RequiredArgsConstructor
+ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
+ {
+ 
+     private final BungeeZlib zlib = CompressFactory.zlib.newInstance();
+ 
++    private final int compressionThreshold;
++
+     @Override
+     public void handlerAdded(ChannelHandlerContext ctx) throws Exception
+     {
+@@ -35,6 +39,7 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
+             in.skipBytes( in.readableBytes() );
+         } else
+         {
++            Preconditions.checkState( size >= compressionThreshold, "Decompressed size %s less than compression threshold %s", size, compressionThreshold );
+             ByteBuf decompressed = ctx.alloc().directBuffer();
+ 
+             try
+diff --git a/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java b/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java
+index 9f39288..d91e72a 100644
+--- a/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java
++++ b/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java
+@@ -103,7 +103,7 @@ public class ChannelWrapper
+ 
+         if ( ch.pipeline().get( PacketDecompressor.class ) == null && compressionThreshold != -1 )
+         {
+-            addBefore( PipelineUtils.PACKET_DECODER, "decompress", new PacketDecompressor() );
++            addBefore( PipelineUtils.PACKET_DECODER, "decompress", new PacketDecompressor(compressionThreshold) );
+         }
+         if ( compressionThreshold == -1 )
+         {
+-- 
+1.9.5.msysgit.0
+
