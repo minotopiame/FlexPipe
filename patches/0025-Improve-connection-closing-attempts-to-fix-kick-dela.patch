@@ -1,9 +1,11 @@
-From 031324790d166c77403b2240a8a9099fb3e18f95 Mon Sep 17 00:00:00 2001
+From 71ce5c9c49252cdc110367620cf9b3e18de736e9 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 29 Feb 2016 22:14:58 +0100
 Subject: Improve connection closing, attempts to fix kick delay.
 
 Adapted from https://github.com/SpigotMC/BungeeCord/pull/1706 by @kamcio96, he claimed that these channel closing changes are removing the need of delayed kick packets.
+
+Also adapted changes from https://github.com/WaterfallMC/Waterfall/commit/b88c7de33abc0b2ea220b324dd77985628ea81d4 by @minecrafter
 ---
  .../java/net/md_5/bungee/ServerConnection.java     |  2 +-
  .../main/java/net/md_5/bungee/ServerConnector.java |  7 +++---
@@ -137,7 +139,7 @@ index 5c66ab8..747b52c 100644
      }
  
 diff --git a/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java b/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java
-index 06d19c3..9f39288 100644
+index 06d19c3..4514a21 100644
 --- a/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java
 +++ b/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java
 @@ -1,5 +1,6 @@
@@ -158,11 +160,11 @@ index 06d19c3..9f39288 100644
              {
                  ( (PacketWrapper) packet ).setReleased( true );
 -                ch.write( ( (PacketWrapper) packet ).buf, ch.voidPromise() );
-+                ch.writeAndFlush( ( (PacketWrapper) packet ).buf).addListener( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE );
++                ch.writeAndFlush( ( (PacketWrapper) packet ).buf, ch.voidPromise());
              } else
              {
 -                ch.write( packet, ch.voidPromise() );
-+                ch.writeAndFlush( packet ).addListener( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE );
++                ch.writeAndFlush( packet, ch.voidPromise() );
              }
 -            ch.flush();
          }
