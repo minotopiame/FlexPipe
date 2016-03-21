@@ -1,0 +1,40 @@
+From 9c159149778381613c6cc19654124c4d6ec6f4cb Mon Sep 17 00:00:00 2001
+From: Tux <write@imaginarycode.com>
+Date: Mon, 21 Mar 2016 22:29:05 +0100
+Subject: Let matchPlayer use java stream api instead of Guava, use
+ regionMatches instead of toLowerCase().startWith
+
+Copied from https://github.com/SpigotMC/BungeeCord/commit/c6936c19f6f89c7f5d8fb579b181fc700a15e172 by @minecrafter
+
+Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
+---
+ proxy/src/main/java/net/md_5/bungee/BungeeCord.java | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+index f737bd1..789471c 100644
+--- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
++++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+@@ -63,6 +63,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
+ import java.util.logging.Handler;
+ import java.util.logging.Level;
+ import java.util.logging.Logger;
++import java.util.stream.Collectors;
++
+ import jline.UnsupportedTerminal;
+ import jline.console.ConsoleReader;
+ import jline.internal.Log;
+@@ -767,7 +769,9 @@ public class BungeeCord extends ProxyServer
+             return Collections.singleton( exactMatch );
+         }
+ 
+-        return Sets.newHashSet( Iterables.filter( getPlayers(), input -> ( input == null ) ? false : input.getName().toLowerCase().startsWith( partialName.toLowerCase() ) ) );
++        return getPlayers().stream()
++            .filter(p -> p.getName().regionMatches(true, 0, partialName, 0, partialName.length()))
++            .collect(Collectors.toSet());
+     }
+ 
+     @Override
+-- 
+1.9.5.msysgit.0
+
