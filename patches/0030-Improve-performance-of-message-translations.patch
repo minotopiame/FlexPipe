@@ -1,0 +1,41 @@
+From 5a7deb30ae966bd3a01315d60c68002844cde6b4 Mon Sep 17 00:00:00 2001
+From: Mystiflow <Mystiflow@users.noreply.github.com>
+Date: Sat, 19 Mar 2016 16:44:10 +0100
+Subject: Improve performance of message translations
+
+MessageFormat#format will look to replace the pattern with the arguments provided regardless of array length, however a lot of the translations in BungeeCord do not require an argument.
+By skipping replacement if there are no arguments we can reduce object creation and remove unnecessary logic.
+
+Adapted from WaterfallMC/Waterfall#39 with a micro-optimization
+
+Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
+---
+ proxy/src/main/java/net/md_5/bungee/BungeeCord.java | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+index d9958dc..f737bd1 100644
+--- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
++++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+@@ -561,14 +561,15 @@ public class BungeeCord extends ProxyServer
+     @Override
+     public String getTranslation(String name, Object... args)
+     {
+-        String translation = "<translation '" + name + "' missing>";
+         try
+         {
+-            translation = MessageFormat.format( bundle.getString( name ), args );
++            String translationPattern = bundle.getString( name );
++
++            return args.length == 0 ? translationPattern : MessageFormat.format( translationPattern, args );
+         } catch ( MissingResourceException ex )
+         {
++            return "<translation '" + name + "' missing>";
+         }
+-        return translation;
+     }
+ 
+     @Override
+-- 
+1.9.5.msysgit.0
+
