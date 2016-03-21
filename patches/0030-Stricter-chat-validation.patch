@@ -1,4 +1,4 @@
-From ff2b6fee8cf6fb08e1fc102038fd58f0ce8a678a Mon Sep 17 00:00:00 2001
+From b53716c759ebb55c0d999fe3f0ed3cd843197b4c Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 21 Mar 2016 03:25:13 +0100
 Subject: Stricter chat validation.
@@ -12,7 +12,7 @@ This prevents some joinbot attacks where bots start chatting before they actuall
  2 files changed, 25 insertions(+)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 2ee4d8c..f4a7f40 100644
+index d5a2ca7..71cf563 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -22,6 +22,7 @@ import net.md_5.bungee.api.Favicon;
@@ -23,15 +23,15 @@ index 2ee4d8c..f4a7f40 100644
  import net.md_5.bungee.api.chat.TextComponent;
  import net.md_5.bungee.api.config.ListenerInfo;
  import net.md_5.bungee.api.config.ServerInfo;
-@@ -39,6 +40,7 @@ import net.md_5.bungee.netty.PipelineUtils;
- import net.md_5.bungee.netty.cipher.CipherDecoder;
+@@ -40,6 +41,7 @@ import net.md_5.bungee.netty.cipher.CipherDecoder;
  import net.md_5.bungee.netty.cipher.CipherEncoder;
  import net.md_5.bungee.protocol.DefinedPacket;
+ import net.md_5.bungee.protocol.PacketWrapper;
 +import net.md_5.bungee.protocol.packet.Chat;
  import net.md_5.bungee.protocol.packet.Handshake;
  import net.md_5.bungee.protocol.packet.PluginMessage;
  import net.md_5.bungee.protocol.packet.EncryptionResponse;
-@@ -632,4 +634,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -625,4 +627,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      {
          return !ch.isClosed();
      }

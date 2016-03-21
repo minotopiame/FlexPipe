@@ -1,4 +1,4 @@
-From d9f627005c730eb85cca802e28f203e4a7a9846f Mon Sep 17 00:00:00 2001
+From 33da14b3e90f29ebb2c6468ee91733f303c97c53 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 17 Feb 2016 22:29:54 +0100
 Subject: Use java 8 and java 8 lambdas.
@@ -349,10 +349,10 @@ index a33b84a..fa8ffa9 100644
              {
                  server.disconnect( "Quitting" );
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 83c2db1..4bcaf43 100644
+index 97cac77..9b40ea0 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -147,38 +147,33 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -153,38 +153,33 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                  new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
                  new TextComponent( TextComponent.fromLegacyText( listener.getMotd() ) ), (Favicon) null );
  
@@ -414,7 +414,7 @@ index 83c2db1..4bcaf43 100644
          };
  
          bungee.getPluginManager().callEvent( new ProxyPingEvent( this, legacy, callback ) );
-@@ -198,30 +193,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -204,30 +199,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
          final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
  
@@ -456,7 +456,7 @@ index 83c2db1..4bcaf43 100644
          };
  
          if ( forced != null && listener.isPingPassthrough() )
-@@ -366,30 +351,24 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -358,30 +343,24 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              return;
          }
  
@@ -487,11 +487,11 @@ index 83c2db1..4bcaf43 100644
 -                thisState = State.ENCRYPT;
 +                disconnect( result.getCancelReason() );
 +                return;
-             }
++            }
 +            if ( ch.isClosed() )
 +            {
 +                return;
-+            }
+             }
 +            if ( onlineMode )
 +            {
 +                unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
@@ -503,7 +503,7 @@ index 83c2db1..4bcaf43 100644
          };
  
          // fire pre login event
-@@ -421,27 +400,22 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -413,27 +392,22 @@ public class InitialHandler extends PacketHandler implements PendingConnection
  
          String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash;
  
@@ -544,7 +544,7 @@ index 83c2db1..4bcaf43 100644
              }
          };
  
-@@ -486,57 +460,47 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -478,57 +452,47 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              uniqueId = offlineId;
          }
  
@@ -638,7 +638,7 @@ index 83c2db1..4bcaf43 100644
          };
  
          // fire login event
-@@ -559,18 +523,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -552,18 +516,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
              // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
              // end has a somewhat better chance of receiving the proper packet.

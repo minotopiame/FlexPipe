@@ -1,4 +1,4 @@
-From 129a2d2a1966ab678ef5f6259c726fb0018f7763 Mon Sep 17 00:00:00 2001
+From 2a90d566cbf1a2c3c855e5ca3174ac0bbb798f5d Mon Sep 17 00:00:00 2001
 From: Minecrell <dev@minecrell.net>
 Date: Tue, 16 Feb 2016 23:38:36 +0100
 Subject: Edit messages without modifying the JAR file.

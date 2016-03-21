@@ -1,4 +1,4 @@
-From 8b609c494fe6b992f4167048ce1d48cacd1b3520 Mon Sep 17 00:00:00 2001
+From 514ff28d156055a24fdd6cc8358be2571a043710 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sat, 12 Dec 2015 23:43:30 +0100
 Subject: Optional server list ping logging; Add IPs to the log where user
@@ -81,10 +81,10 @@ index cb9dbaf..6369d2e 100644
      }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 771e883..83c2db1 100644
+index abad6d1..97cac77 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -290,7 +290,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -294,7 +294,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          }
  
          this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
@@ -92,7 +92,7 @@ index 771e883..83c2db1 100644
  
          bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
  
-@@ -298,11 +297,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -302,11 +301,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          {
              case 1:
                  // Ping
@@ -109,7 +109,7 @@ index 771e883..83c2db1 100644
                  thisState = State.USERNAME;
                  ch.setProtocol( Protocol.LOGIN );
                  break;
-@@ -628,7 +632,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -621,7 +625,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public String toString()
      {

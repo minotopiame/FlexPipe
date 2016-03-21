@@ -1,4 +1,4 @@
-From ba6c14d1bf4396aff7f2fa9789a2c5357dc4b74b Mon Sep 17 00:00:00 2001
+From 8b9e54cc8328481fef50ece3e61c6a87be068b84 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 7 Mar 2016 13:33:26 +0100
 Subject: Restore 1.8-like ping motd description output for compability to
@@ -201,10 +201,10 @@ index 0cb2ba1..0212bcd 100644
              copiedHandshake.setHost( newHost );
          } else if ( !user.getExtraDataInHandshake().isEmpty() )
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index eba7868..2ee4d8c 100644
+index d809724..d5a2ca7 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -222,7 +222,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -228,7 +228,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              }
  
              Callback<ProxyPingEvent> callback = (pingResult, error1) -> {
@@ -214,7 +214,7 @@ index eba7868..2ee4d8c 100644
                  unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
              };
  
-@@ -435,7 +436,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -427,7 +428,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          Callback<String> handler = (result, error) -> {
              if ( error == null )
              {

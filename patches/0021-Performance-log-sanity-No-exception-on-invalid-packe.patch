@@ -1,4 +1,4 @@
-From e7aa796fdd5e90ee61e89ea0398b2a9b1fbe839c Mon Sep 17 00:00:00 2001
+From 9726ad6b515715a8b43e9a470e3f92512f38bc62 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 22:01:12 +0100
 Subject: Performance, log sanity: No exception on invalid packet order, just
@@ -9,7 +9,7 @@ Subject: Performance, log sanity: No exception on invalid packet order, just
  1 file changed, 38 insertions(+), 6 deletions(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 3f8446b..3d55427 100644
+index 38f4115..c39ed1a 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -6,7 +6,6 @@ import java.math.BigInteger;
@@ -20,7 +20,7 @@ index 3f8446b..3d55427 100644
  import java.util.List;
  import java.util.UUID;
  import java.util.logging.Level;
-@@ -185,10 +184,31 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -191,10 +190,31 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          return pos == -1 ? str : str.substring( 0, pos );
      }
  
@@ -53,7 +53,7 @@ index 3f8446b..3d55427 100644
  
          ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
          final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
-@@ -228,7 +248,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -234,7 +254,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public void handle(PingPacket ping) throws Exception
      {
@@ -65,7 +65,7 @@ index 3f8446b..3d55427 100644
          unsafe.sendPacket( ping );
          disconnect( "" );
      }
-@@ -236,7 +259,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -242,7 +265,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public void handle(Handshake handshake) throws Exception
      {
@@ -77,10 +77,10 @@ index 3f8446b..3d55427 100644
          this.handshake = handshake;
          ch.setVersion( handshake.getProtocolVersion() );
  
-@@ -315,7 +341,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
-             ch.close();
-             return;
-         }
+@@ -307,7 +333,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+     @Override
+     public void handle(LoginRequest loginRequest) throws Exception
+     {
 -        Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
 +        if ( !checkState( State.USERNAME ) )
 +        {
@@ -89,7 +89,7 @@ index 3f8446b..3d55427 100644
          this.loginRequest = loginRequest;
  
          if ( !Protocol.supportedVersions.contains( handshake.getProtocolVersion() ) )
-@@ -378,7 +407,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -370,7 +399,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public void handle(final EncryptionResponse encryptResponse) throws Exception
      {

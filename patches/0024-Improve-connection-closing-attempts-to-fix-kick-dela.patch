@@ -1,11 +1,11 @@
-From b23e2a30668bfcef86f284026572d8711b9561ae Mon Sep 17 00:00:00 2001
+From 65ed241b5a86eb4a72f7557273494f8d872fdd5b Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 29 Feb 2016 22:14:58 +0100
 Subject: Improve connection closing, attempts to fix kick delay.
 
 Adapted from https://github.com/SpigotMC/BungeeCord/pull/1706 by @kamcio96, he claimed that these channel closing changes are removing the need of delayed kick packets.
 
-Also adapted changes from https://github.com/WaterfallMC/Waterfall/commit/b88c7de33abc0b2ea220b324dd77985628ea81d4 by @minecrafter
+Also adapted void promise usage from https://github.com/WaterfallMC/Waterfall/commit/b88c7de33abc0b2ea220b324dd77985628ea81d4 by @minecrafter
 ---
  .../java/net/md_5/bungee/ServerConnection.java     |  2 +-
  .../main/java/net/md_5/bungee/ServerConnector.java |  7 +++---
@@ -88,10 +88,10 @@ index 5c307ce..31ca757 100644
      public void chat(String message)
      {
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 3d55427..eba7868 100644
+index c39ed1a..d809724 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -196,7 +196,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -202,7 +202,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          if (thisState != expectedState)
          {
              bungee.getLogger().log( Level.WARNING, "{0} Not expecting {1}", new Object[]{ this, expectedState } );
@@ -100,10 +100,10 @@ index 3d55427..eba7868 100644
              return false;
          }
          return true;
-@@ -550,18 +550,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
-     {
-         if ( !ch.isClosed() )
+@@ -543,18 +543,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+         if ( !disconnecting || !ch.isClosed() )
          {
+             disconnecting = true;
 -            // Why do we have to delay this you might ask? Well the simple reason is MOJANG.
 -            // Despite many a bug report posted, ever since the 1.7 protocol rewrite, the client STILL has a race condition upon switching protocols.
 -            // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception

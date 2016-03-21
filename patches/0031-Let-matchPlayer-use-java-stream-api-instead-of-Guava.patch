@@ -1,4 +1,4 @@
-From 9c159149778381613c6cc19654124c4d6ec6f4cb Mon Sep 17 00:00:00 2001
+From c5ba361a281dce7f699959c5208df3deb8b16ad3 Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Mon, 21 Mar 2016 22:29:05 +0100
 Subject: Let matchPlayer use java stream api instead of Guava, use
