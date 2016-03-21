@@ -1,0 +1,25 @@
+From 729af537694f02dc9db2e6591ae2e56999ed8053 Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Mon, 21 Mar 2016 02:54:10 +0100
+Subject: Remove nasty space at end of line from InitialHandler
+
+---
+ proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+index 34b1a4b..dbce941 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+@@ -254,7 +254,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+         this.handshake = handshake;
+         ch.setVersion( handshake.getProtocolVersion() );
+ 
+-        // Starting with FML 1.8, a "\0FML\0" token is appended to the handshake. This interferes 
++        // Starting with FML 1.8, a "\0FML\0" token is appended to the handshake. This interferes
+         // with Bungee's IP forwarding, so we detect it, and remove it from the host string, for now.
+         // We know FML appends \00FML\00. However, we need to also consider that other systems might
+         // add their own data to the end of the string. So, we just take everything from the \0 character
+-- 
+1.9.5.msysgit.0
+

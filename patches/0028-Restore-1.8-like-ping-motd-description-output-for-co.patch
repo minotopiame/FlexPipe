@@ -1,4 +1,4 @@
-From 1849e664b4a3775c2b70101690bc16c603726c19 Mon Sep 17 00:00:00 2001
+From 04c1fbe3c2470cfbf44b758e772d86a055201d84 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 7 Mar 2016 13:33:26 +0100
 Subject: Restore 1.8-like ping motd description output for compability to
@@ -11,9 +11,9 @@ This commit also changes BungeeCord.getInstance().gson to have a getter with an 
  .../src/main/java/net/md_5/bungee/BungeeCord.java  | 33 +++++++++++++-
  .../java/net/md_5/bungee/PlayerInfoSerializer.java | 19 +++++++-
  .../main/java/net/md_5/bungee/ServerConnector.java |  2 +-
- .../net/md_5/bungee/connection/InitialHandler.java |  6 +--
+ .../net/md_5/bungee/connection/InitialHandler.java |  5 ++-
  .../net/md_5/bungee/connection/PingHandler.java    |  2 +-
- 7 files changed, 106 insertions(+), 9 deletions(-)
+ 7 files changed, 106 insertions(+), 8 deletions(-)
  create mode 100644 chat/src/main/java/net/md_5/bungee/chat/LegacyMotdSerializer.java
 
 diff --git a/chat/src/main/java/net/md_5/bungee/chat/LegacyMotdSerializer.java b/chat/src/main/java/net/md_5/bungee/chat/LegacyMotdSerializer.java
@@ -201,18 +201,10 @@ index 0cb2ba1..0212bcd 100644
              copiedHandshake.setHost( newHost );
          } else if ( !user.getExtraDataInHandshake().isEmpty() )
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 84a809e..5b492ab 100644
+index eba7868..2ee4d8c 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -6,7 +6,6 @@ import java.math.BigInteger;
- import java.net.InetSocketAddress;
- import java.net.URLEncoder;
- import java.security.MessageDigest;
--import java.util.ArrayList;
- import java.util.List;
- import java.util.UUID;
- import java.util.logging.Level;
-@@ -223,7 +222,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -222,7 +222,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              }
  
              Callback<ProxyPingEvent> callback = (pingResult, error1) -> {
@@ -222,7 +214,7 @@ index 84a809e..5b492ab 100644
                  unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
              };
  
-@@ -437,7 +437,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -435,7 +436,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          Callback<String> handler = (result, error) -> {
              if ( error == null )
              {

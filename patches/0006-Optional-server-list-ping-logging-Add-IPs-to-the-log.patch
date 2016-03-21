@@ -1,4 +1,4 @@
-From 950131148343b1a945af4ab72e38d6452f1e8b7b Mon Sep 17 00:00:00 2001
+From 8b609c494fe6b992f4167048ce1d48cacd1b3520 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sat, 12 Dec 2015 23:43:30 +0100
 Subject: Optional server list ping logging; Add IPs to the log where user
@@ -81,7 +81,7 @@ index cb9dbaf..6369d2e 100644
      }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 960a57d..5de771f 100644
+index 771e883..83c2db1 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -290,7 +290,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection

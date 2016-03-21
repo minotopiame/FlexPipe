@@ -1,22 +1,39 @@
-From eb6299a0f3b3a4d295c4e7de194357fdd93787e0 Mon Sep 17 00:00:00 2001
+From d9f627005c730eb85cca802e28f203e4a7a9846f Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
-Date: Sun, 21 Feb 2016 21:37:46 +0100
-Subject: Use java 8 lambdas.
+Date: Wed, 17 Feb 2016 22:29:54 +0100
+Subject: Use java 8 and java 8 lambdas.
 
+Based on https://github.com/WaterfallMC/Waterfall/commit/5a8f65afe1b74a0a2d6df356f21b1ac5b75614da by @Techcable and https://github.com/WaterfallMC/Waterfall/commit/b07b54397bdcaa6be52f6178501155e8a5a07020 by @kashike
 ---
+ .travis.yml                                        |   2 -
  .../net/md_5/bungee/command/PlayerCommand.java     |  18 +-
+ .../src/main/java/net/md_5/bungee/Bootstrap.java   |   4 +-
  .../bungee/module/cmd/server/CommandServer.java    |   9 +-
+ pom.xml                                            |  29 +--
  .../src/main/java/net/md_5/bungee/BungeeCord.java  |  48 ++--
  .../java/net/md_5/bungee/BungeeServerInfo.java     |  17 +-
  .../java/net/md_5/bungee/ServerConnection.java     |   9 +-
- .../main/java/net/md_5/bungee/UserConnection.java  |  54 ++---
- .../net/md_5/bungee/connection/InitialHandler.java | 243 +++++++++------------
+ .../main/java/net/md_5/bungee/UserConnection.java  |  57 ++---
+ .../net/md_5/bungee/connection/InitialHandler.java | 248 +++++++++------------
  .../main/java/net/md_5/bungee/http/HttpClient.java |  25 +--
  .../java/net/md_5/bungee/module/ModuleManager.java |   9 +-
  .../net/md_5/bungee/scheduler/BungeeScheduler.java |  10 +-
  .../net/md_5/bungee/scheduler/SchedulerTest.java   |  20 +-
- 11 files changed, 160 insertions(+), 302 deletions(-)
+ 14 files changed, 170 insertions(+), 335 deletions(-)
 
+diff --git a/.travis.yml b/.travis.yml
+index 1cd525b..53ac3fe 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -1,8 +1,6 @@
+ sudo: false
+ language: java
+ jdk:
+-  - openjdk7
+-  - oraclejdk7
+   - oraclejdk8
+ notifications:
+   email: false
 diff --git a/api/src/main/java/net/md_5/bungee/command/PlayerCommand.java b/api/src/main/java/net/md_5/bungee/command/PlayerCommand.java
 index c9f9576..8a1d21f 100644
 --- a/api/src/main/java/net/md_5/bungee/command/PlayerCommand.java
@@ -45,6 +62,22 @@ index c9f9576..8a1d21f 100644
 +        } ), player -> player.getName() );
      }
  }
+diff --git a/bootstrap/src/main/java/net/md_5/bungee/Bootstrap.java b/bootstrap/src/main/java/net/md_5/bungee/Bootstrap.java
+index 4b9d2dd..e3aecc5 100644
+--- a/bootstrap/src/main/java/net/md_5/bungee/Bootstrap.java
++++ b/bootstrap/src/main/java/net/md_5/bungee/Bootstrap.java
+@@ -5,9 +5,9 @@ public class Bootstrap
+ 
+     public static void main(String[] args) throws Exception
+     {
+-        if ( Float.parseFloat( System.getProperty( "java.class.version" ) ) < 51.0 )
++        if ( Float.parseFloat( System.getProperty( "java.class.version" ) ) < 52.0 )
+         {
+-            System.err.println( "*** ERROR *** FlexPipe requires Java 7 or above to function! Please download and install it!" );
++            System.err.println( "*** ERROR *** FlexPipe requires Java 8 or above to function! Please download and install it!" );
+             System.out.println( "You can check your Java version with the command: java -version" );
+             return;
+         }
 diff --git a/module/cmd-server/src/main/java/net/md_5/bungee/module/cmd/server/CommandServer.java b/module/cmd-server/src/main/java/net/md_5/bungee/module/cmd/server/CommandServer.java
 index 36da83e..d6f161e 100644
 --- a/module/cmd-server/src/main/java/net/md_5/bungee/module/cmd/server/CommandServer.java
@@ -64,6 +97,53 @@ index 36da83e..d6f161e 100644
 +        } ), input -> input.getName() );
      }
  }
+diff --git a/pom.xml b/pom.xml
+index 68aeff7..32eb23f 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -72,8 +72,8 @@
+     <properties>
+         <build.number>unknown</build.number>
+         <netty.version>4.0.33.Final</netty.version>
+-        <maven.compiler.source>1.7</maven.compiler.source>
+-        <maven.compiler.target>1.7</maven.compiler.target>
++        <maven.compiler.source>1.8</maven.compiler.source>
++        <maven.compiler.target>1.8</maven.compiler.target>
+         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+         <origin_commit>unknown</origin_commit>
+         <patcher_commit>unknown</patcher_commit>
+@@ -110,31 +110,6 @@
+     <build>
+         <plugins>
+             <plugin>
+-                <groupId>org.codehaus.mojo</groupId>
+-                <artifactId>animal-sniffer-maven-plugin</artifactId>
+-                <version>1.13</version>
+-                <executions>
+-                    <execution>
+-                        <phase>process-classes</phase>
+-                        <goals>
+-                            <goal>check</goal>
+-                        </goals>
+-                    </execution>
+-                </executions>
+-                <configuration>
+-                    <ignores>
+-                        <ignore>java.lang.ClassLoader</ignore>
+-                        <ignore>java.lang.Throwable</ignore>
+-                        <ignore>java.util.Locale</ignore>
+-                    </ignores>
+-                    <signature>
+-                        <groupId>org.codehaus.mojo.signature</groupId>
+-                        <artifactId>java16</artifactId>
+-                        <version>1.1</version>
+-                    </signature>
+-                </configuration>
+-            </plugin>
+-            <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-javadoc-plugin</artifactId>
+                 <!-- 2.10+ claimed to be broken says FlexPipe -->
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 index 84e548b..45d0354 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
@@ -140,10 +220,10 @@ index 84e548b..45d0354 100644
  
      @Override
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeServerInfo.java b/proxy/src/main/java/net/md_5/bungee/BungeeServerInfo.java
-index b1de1d3..d6d38f8 100644
+index 1dd0aeb..bc33465 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeServerInfo.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeServerInfo.java
-@@ -132,18 +132,13 @@ public class BungeeServerInfo implements ServerInfo
+@@ -126,18 +126,13 @@ public class BungeeServerInfo implements ServerInfo
      {
          Preconditions.checkNotNull( callback, "callback" );
  
@@ -189,7 +269,7 @@ index 8c1260a..555a193 100644
      }
  
 diff --git a/proxy/src/main/java/net/md_5/bungee/UserConnection.java b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-index d00ffd8..3b55999 100644
+index a33b84a..fa8ffa9 100644
 --- a/proxy/src/main/java/net/md_5/bungee/UserConnection.java
 +++ b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
 @@ -285,34 +285,28 @@ public final class UserConnection implements ProxiedPlayer
@@ -210,22 +290,15 @@ index d00ffd8..3b55999 100644
 -                }
 +                callback.done( future.isSuccess(), future.cause() );
 +            }
- 
--                if ( !future.isSuccess() )
++
 +            if ( !future.isSuccess() )
 +            {
 +                future.channel().close();
 +                pendingConnects.remove( target );
-+
+ 
+-                if ( !future.isSuccess() )
 +                ServerInfo def = updateAndGetNextServer( target );
 +                if ( retry && def != null && ( getServer() == null || def != getServer().getInfo() ) )
-+                {
-+                    sendMessage( bungee.getTranslation( "fallback_lobby" ) );
-+                    connect( def, null, false );
-+                } else if ( dimensionChange )
-+                {
-+                    disconnect( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
-+                } else
                  {
 -                    future.channel().close();
 -                    pendingConnects.remove( target );
@@ -242,29 +315,41 @@ index d00ffd8..3b55999 100644
 -                    {
 -                        sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
 -                    }
++                    sendMessage( bungee.getTranslation( "fallback_lobby" ) );
++                    connect( def, null, false );
++                } else if ( dimensionChange )
++                {
++                    disconnect( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
++                } else
++                {
 +                    sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
                  }
              }
          };
-@@ -382,15 +376,7 @@ public final class UserConnection implements ProxiedPlayer
-                 // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
-                 // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
-                 // end has a somewhat better chance of receiving the proper packet.
--                ch.getHandle().eventLoop().schedule( new Runnable()
--                {
+@@ -362,17 +356,12 @@ public final class UserConnection implements ProxiedPlayer
+             // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
+             // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
+             // end has a somewhat better chance of receiving the proper packet.
+-            ch.getHandle().eventLoop().schedule( new Runnable()
+-            {
 -
--                    @Override
--                    public void run()
--                    {
--                        disconnectInternal( reason );
--                    }
--                }, 500, TimeUnit.MILLISECONDS );
-+                ch.getHandle().eventLoop().schedule( ( Runnable ) () -> disconnectInternal( reason ), 500, TimeUnit.MILLISECONDS );
-             } else
+-                @Override
+-                public void run()
+-                {
+-                    unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
+-                    ch.close();
+-                }
++            ch.getHandle().eventLoop().schedule( ( Runnable ) () -> {
++                unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
++                ch.close();
+             }, 500, TimeUnit.MILLISECONDS );
+ 
++
+             if ( server != null )
              {
-                 disconnectInternal( reason );
+                 server.disconnect( "Quitting" );
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 2c1e6ab..d62e2bf 100644
+index 83c2db1..4bcaf43 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -147,38 +147,33 @@ public class InitialHandler extends PacketHandler implements PendingConnection
@@ -371,7 +456,7 @@ index 2c1e6ab..d62e2bf 100644
          };
  
          if ( forced != null && listener.isPingPassthrough() )
-@@ -367,30 +352,24 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -366,30 +351,24 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              return;
          }
  
@@ -418,7 +503,7 @@ index 2c1e6ab..d62e2bf 100644
          };
  
          // fire pre login event
-@@ -422,27 +401,22 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -421,27 +400,22 @@ public class InitialHandler extends PacketHandler implements PendingConnection
  
          String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash;
  
@@ -459,7 +544,7 @@ index 2c1e6ab..d62e2bf 100644
              }
          };
  
-@@ -487,57 +461,47 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -486,57 +460,47 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              uniqueId = offlineId;
          }
  
@@ -553,22 +638,29 @@ index 2c1e6ab..d62e2bf 100644
          };
  
          // fire login event
-@@ -574,14 +538,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
-                 // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
-                 // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
-                 // end has a somewhat better chance of receiving the proper packet.
--                ch.getHandle().eventLoop().schedule( ( Runnable ) new Runnable()
--                {
--                    @Override
--                    public void run()
+@@ -559,18 +523,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+             // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
+             // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
+             // end has a somewhat better chance of receiving the proper packet.
+-            ch.getHandle().eventLoop().schedule( new Runnable()
+-            {
+-
+-                @Override
+-                public void run()
++            ch.getHandle().eventLoop().schedule( ( Runnable ) () -> {
++                if ( thisState != State.STATUS && thisState != State.PING )
+                 {
+-                    if ( thisState != State.STATUS && thisState != State.PING )
 -                    {
--                        InitialHandler.this.disconnect0( reason );
+-                        unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
 -                    }
--                }, 500, TimeUnit.MILLISECONDS );
-+                ch.getHandle().eventLoop().schedule( ( Runnable ) () -> disconnect0( reason ), 500, TimeUnit.MILLISECONDS );
-             } else
-             {
-                 disconnect0( reason );
+-                    ch.close();
++                    unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
+                 }
++                ch.close();
+             }, 500, TimeUnit.MILLISECONDS );
+         }
+     }
 diff --git a/proxy/src/main/java/net/md_5/bungee/http/HttpClient.java b/proxy/src/main/java/net/md_5/bungee/http/HttpClient.java
 index 2feb4d6..b992beb 100644
 --- a/proxy/src/main/java/net/md_5/bungee/http/HttpClient.java
