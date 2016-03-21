@@ -1,4 +1,4 @@
-From cb843e7975dd812ea0223d4e8500d4d4f40d3e9a Mon Sep 17 00:00:00 2001
+From 1985aae0c520bc26e3e48ca93929a4128bd82489 Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Wed, 17 Feb 2016 00:20:59 +0100
 Subject: Don't create a data input stream for every plugin message we get from
