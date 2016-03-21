@@ -1,0 +1,88 @@
+From 485ee62062b2abe75ac8bfe4ba95941680ec55d2 Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Mon, 21 Mar 2016 03:25:13 +0100
+Subject: Stricter chat validation.
+
+Allow chatting only after user has actually joined a server. Forbid empty or whitespace messages. These are not sent by the minecraft client.
+
+This prevents some joinbot attacks where bots start chatting before they actually joined the target server (real minecraft client would be at some login screen). As the default minecraft client does not send empty or whitespace chat messages, but some bot tools do, this further prevents attacks from badly configured bots.
+---
+ .../java/net/md_5/bungee/connection/InitialHandler.java    | 11 +++++++++++
+ .../java/net/md_5/bungee/connection/UpstreamBridge.java    | 14 ++++++++++++++
+ 2 files changed, 25 insertions(+)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+index 2ee4d8c..f4a7f40 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+@@ -22,6 +22,7 @@ import net.md_5.bungee.api.Favicon;
+ import net.md_5.bungee.api.ProxyServer;
+ import net.md_5.bungee.api.ServerPing;
+ import net.md_5.bungee.api.chat.BaseComponent;
++import net.md_5.bungee.api.chat.ComponentBuilder;
+ import net.md_5.bungee.api.chat.TextComponent;
+ import net.md_5.bungee.api.config.ListenerInfo;
+ import net.md_5.bungee.api.config.ServerInfo;
+@@ -39,6 +40,7 @@ import net.md_5.bungee.netty.PipelineUtils;
+ import net.md_5.bungee.netty.cipher.CipherDecoder;
+ import net.md_5.bungee.netty.cipher.CipherEncoder;
+ import net.md_5.bungee.protocol.DefinedPacket;
++import net.md_5.bungee.protocol.packet.Chat;
+ import net.md_5.bungee.protocol.packet.Handshake;
+ import net.md_5.bungee.protocol.packet.PluginMessage;
+ import net.md_5.bungee.protocol.packet.EncryptionResponse;
+@@ -632,4 +634,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+     {
+         return !ch.isClosed();
+     }
++
++    private static final BaseComponent[] CHAT_TOO_EARLY_DISCONNECT_REASON = new ComponentBuilder( "You may not chat right now." ).color( ChatColor.RED ).create();
++
++    @Override
++    public void handle(Chat chat) throws Exception
++    {
++        // I don't know whether anyone is so dump to send chat messages that early and whether it gets stopped earlier, but this code does not hurt
++        disconnect( CHAT_TOO_EARLY_DISCONNECT_REASON );
++    }
+ }
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
+index 747b52c..d4f5509 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
+@@ -4,7 +4,10 @@ import com.google.common.base.Preconditions;
+ import net.md_5.bungee.BungeeCord;
+ import net.md_5.bungee.UserConnection;
+ import net.md_5.bungee.Util;
++import net.md_5.bungee.api.ChatColor;
+ import net.md_5.bungee.api.ProxyServer;
++import net.md_5.bungee.api.chat.BaseComponent;
++import net.md_5.bungee.api.chat.ComponentBuilder;
+ import net.md_5.bungee.api.connection.ProxiedPlayer;
+ import net.md_5.bungee.api.event.ChatEvent;
+ import net.md_5.bungee.api.event.PlayerDisconnectEvent;
+@@ -102,11 +105,22 @@ public class UpstreamBridge extends PacketHandler
+         }
+     }
+ 
++    private static final BaseComponent[] CHAT_TOO_EARLY_DISCONNECT_REASON = new ComponentBuilder( "You may not chat right now." ).color( ChatColor.RED ).create();
++
+     @Override
+     public void handle(Chat chat) throws Exception
+     {
++        Preconditions.checkArgument( !chat.getMessage().trim().isEmpty(), "Chat message is invalid" ); // Yes, I'm sorry but these are actually sent out by some bot tools
+         Preconditions.checkArgument( chat.getMessage().length() <= 100, "Chat message too long" ); // Mojang limit, check on updates
+ 
++        // Users can't chat if they were never on a server yet after joining
++        // Users also would get kicked if the command is not handled by the bungee with an npe, but this stops some unneccessary cpu cycles
++        if(con.getServer() == null)
++        {
++            con.disconnect( CHAT_TOO_EARLY_DISCONNECT_REASON );
++            return;
++        }
++
+         ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
+         if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
+         {
+-- 
+1.9.5.msysgit.0
+
