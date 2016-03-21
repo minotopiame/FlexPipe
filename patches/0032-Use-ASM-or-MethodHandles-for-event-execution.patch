@@ -1,11 +1,9 @@
-From f25930e248b65b67181381eb9588e767584c2978 Mon Sep 17 00:00:00 2001
-From: Techcable <Techcable@outlook.com>
+From c6164cb0b9f0c2619f5ffe407322b57e5f76d5dd Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Tue, 22 Mar 2016 00:11:46 +0100
 Subject: Use ASM or MethodHandles for event execution
 
-Nearly the same as if you applied https://github.com/WaterfallMC/Waterfall/commit/1692934370735165f128fa8ece9a24fff5211094 , https://github.com/WaterfallMC/Waterfall/commit/88eb9065f95b1ae95bbab381dcc5907a1795d265 , https://github.com/WaterfallMC/Waterfall/commit/a0df6a2e737f6db21780fc461e3cf360ae518688 and https://github.com/WaterfallMC/Waterfall/commit/500ab62afa82653fa0c8c605a82ea7be31d63637 by @Techcable
-
-Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
+Nearly the same as if you applied https://github.com/WaterfallMC/Waterfall/commit/1692934370735165f128fa8ece9a24fff5211094 , https://github.com/WaterfallMC/Waterfall/commit/88eb9065f95b1ae95bbab381dcc5907a1795d265 , https://github.com/WaterfallMC/Waterfall/commit/a0df6a2e737f6db21780fc461e3cf360ae518688 and https://github.com/WaterfallMC/Waterfall/commit/500ab62afa82653fa0c8c605a82ea7be31d63637 by @Techcable and https://github.com/WaterfallMC/Waterfall/commit/52fbf2ff34ffc481a8c0400a37f37042c8ceafb9 by @minecrafter
 ---
  event/pom.xml                                      |  8 +++
  .../main/java/net/md_5/bungee/event/EventBus.java  |  7 +-
@@ -234,7 +232,7 @@ index 0000000..dd20542
 +}
 diff --git a/event/src/main/java/net/md_5/bungee/event/asm/ASMEventExecutorGenerator.java b/event/src/main/java/net/md_5/bungee/event/asm/ASMEventExecutorGenerator.java
 new file mode 100644
-index 0000000..ea30255
+index 0000000..fca42d3
 --- /dev/null
 +++ b/event/src/main/java/net/md_5/bungee/event/asm/ASMEventExecutorGenerator.java
 @@ -0,0 +1,51 @@
@@ -281,7 +279,7 @@ index 0000000..ea30255
 +        return writer.toByteArray();
 +    }
 +
-+    public static AtomicInteger NEXT_ID = new AtomicInteger( 1 );
++    private static final AtomicInteger NEXT_ID = new AtomicInteger( 1 );
 +
 +    public static String generateName()
 +    {
