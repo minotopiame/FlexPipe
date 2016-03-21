@@ -1,0 +1,421 @@
+From f25930e248b65b67181381eb9588e767584c2978 Mon Sep 17 00:00:00 2001
+From: Techcable <Techcable@outlook.com>
+Date: Tue, 22 Mar 2016 00:11:46 +0100
+Subject: Use ASM or MethodHandles for event execution
+
+Nearly the same as if you applied https://github.com/WaterfallMC/Waterfall/commit/1692934370735165f128fa8ece9a24fff5211094 , https://github.com/WaterfallMC/Waterfall/commit/88eb9065f95b1ae95bbab381dcc5907a1795d265 , https://github.com/WaterfallMC/Waterfall/commit/a0df6a2e737f6db21780fc461e3cf360ae518688 and https://github.com/WaterfallMC/Waterfall/commit/500ab62afa82653fa0c8c605a82ea7be31d63637 by @Techcable
+
+Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
+---
+ event/pom.xml                                      |  8 +++
+ .../main/java/net/md_5/bungee/event/EventBus.java  |  7 +-
+ .../java/net/md_5/bungee/event/EventExecutor.java  | 51 ++++++++++++++
+ .../net/md_5/bungee/event/EventHandlerMethod.java  | 11 +++-
+ .../bungee/event/MethodHandleEventExecutor.java    | 38 +++++++++++
+ .../event/StaticMethodHandleEventExecutor.java     | 41 ++++++++++++
+ .../event/asm/ASMEventExecutorGenerator.java       | 51 ++++++++++++++
+ .../net/md_5/bungee/event/asm/ClassDefiner.java    | 38 +++++++++++
+ .../md_5/bungee/event/asm/SafeClassDefiner.java    | 77 ++++++++++++++++++++++
+ 9 files changed, 314 insertions(+), 8 deletions(-)
+ create mode 100644 event/src/main/java/net/md_5/bungee/event/EventExecutor.java
+ create mode 100644 event/src/main/java/net/md_5/bungee/event/MethodHandleEventExecutor.java
+ create mode 100644 event/src/main/java/net/md_5/bungee/event/StaticMethodHandleEventExecutor.java
+ create mode 100644 event/src/main/java/net/md_5/bungee/event/asm/ASMEventExecutorGenerator.java
+ create mode 100644 event/src/main/java/net/md_5/bungee/event/asm/ClassDefiner.java
+ create mode 100644 event/src/main/java/net/md_5/bungee/event/asm/SafeClassDefiner.java
+
+diff --git a/event/pom.xml b/event/pom.xml
+index 8f76679..84ccd4f 100644
+--- a/event/pom.xml
++++ b/event/pom.xml
+@@ -15,4 +15,12 @@
+ 
+     <name>FlexPipe-Event</name>
+     <description>Generic java event dispatching API intended for use with FlexPipe</description>
++
++    <dependencies>
++        <dependency>
++            <groupId>org.ow2.asm</groupId>
++            <artifactId>asm-all</artifactId>
++            <version>5.0.4</version>
++        </dependency>
++    </dependencies>
+ </project>
+diff --git a/event/src/main/java/net/md_5/bungee/event/EventBus.java b/event/src/main/java/net/md_5/bungee/event/EventBus.java
+index 5b5d420..8f0aa96 100644
+--- a/event/src/main/java/net/md_5/bungee/event/EventBus.java
++++ b/event/src/main/java/net/md_5/bungee/event/EventBus.java
+@@ -44,13 +44,10 @@ public class EventBus
+                 try
+                 {
+                     method.invoke( event );
+-                } catch ( IllegalAccessException ex )
+-                {
+-                    throw new Error( "Method became inaccessible: " + event, ex );
+-                } catch ( IllegalArgumentException ex )
++                } catch ( ClassCastException ex )
+                 {
+                     throw new Error( "Method rejected target/argument: " + event, ex );
+-                } catch ( InvocationTargetException ex )
++                } catch ( Throwable ex )
+                 {
+                     logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
+                 }
+diff --git a/event/src/main/java/net/md_5/bungee/event/EventExecutor.java b/event/src/main/java/net/md_5/bungee/event/EventExecutor.java
+new file mode 100644
+index 0000000..3af2fa3
+--- /dev/null
++++ b/event/src/main/java/net/md_5/bungee/event/EventExecutor.java
+@@ -0,0 +1,51 @@
++package net.md_5.bungee.event;
++
++import java.lang.reflect.Method;
++import java.lang.reflect.Modifier;
++
++import com.google.common.base.Preconditions;
++
++import net.md_5.bungee.event.asm.ASMEventExecutorGenerator;
++import net.md_5.bungee.event.asm.ClassDefiner;
++
++import org.objectweb.asm.Type;
++
++public interface EventExecutor
++{
++
++    /**
++     * Invoke the method on the listener with the given event as an argument
++     *
++     * @param listener the listener to invoke
++     * @param event the event
++     * @throws ClassCastException if the listener or event is not of an appropriate type
++     * @throws Throwable any throwable thrown by the underlying method
++     */
++    public void invoke(Object listener, Object event) throws Throwable;
++
++    public static EventExecutor create(Method m)
++    {
++        Preconditions.checkNotNull( m, "Null method" );
++        Preconditions.checkArgument( m.getParameterCount() != 0, "Incorrect number of arguments %s", m.getParameterCount() );
++        ClassDefiner definer = ClassDefiner.getInstance();
++        if ( Modifier.isStatic( m.getModifiers() ) )
++        {
++            return new StaticMethodHandleEventExecutor( m );
++        } else if ( definer.isBypassAccessChecks() || ( Modifier.isPublic( m.getDeclaringClass().getModifiers() ) && Modifier.isPublic( m.getModifiers() ) ) )
++        {
++            String name = ASMEventExecutorGenerator.generateName();
++            byte[] classData = ASMEventExecutorGenerator.generateEventExecutor( m, name );
++            Class<? extends EventExecutor> c = definer.defineClass( m.getDeclaringClass().getClassLoader(), Type.getObjectType( name ), classData ).asSubclass( EventExecutor.class );
++            try
++            {
++                return c.newInstance();
++            } catch ( InstantiationException | IllegalAccessException e )
++            {
++                throw new AssertionError( "Unable to initialize generated event executor", e );
++            }
++        } else
++        {
++            return new MethodHandleEventExecutor( m );
++        }
++    }
++}
+diff --git a/event/src/main/java/net/md_5/bungee/event/EventHandlerMethod.java b/event/src/main/java/net/md_5/bungee/event/EventHandlerMethod.java
+index ad19c02..226461e 100644
+--- a/event/src/main/java/net/md_5/bungee/event/EventHandlerMethod.java
++++ b/event/src/main/java/net/md_5/bungee/event/EventHandlerMethod.java
+@@ -12,10 +12,15 @@ public class EventHandlerMethod
+     @Getter
+     private final Object listener;
+     @Getter
+-    private final Method method;
++    private final EventExecutor executor;
+ 
+-    public void invoke(Object event) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
++    public EventHandlerMethod(Object listener, Method m)
+     {
+-        method.invoke( listener, event );
++        this( listener, EventExecutor.create( m ) );
++    }
++
++    public void invoke(Object event) throws Throwable
++    {
++        executor.invoke( listener, event );
+     }
+ }
+diff --git a/event/src/main/java/net/md_5/bungee/event/MethodHandleEventExecutor.java b/event/src/main/java/net/md_5/bungee/event/MethodHandleEventExecutor.java
+new file mode 100644
+index 0000000..95f4937
+--- /dev/null
++++ b/event/src/main/java/net/md_5/bungee/event/MethodHandleEventExecutor.java
+@@ -0,0 +1,38 @@
++package net.md_5.bungee.event;
++
++import lombok.RequiredArgsConstructor;
++
++import java.lang.invoke.MethodHandle;
++import java.lang.invoke.MethodHandles;
++import java.lang.invoke.WrongMethodTypeException;
++import java.lang.reflect.Method;
++
++@RequiredArgsConstructor
++public class MethodHandleEventExecutor implements EventExecutor
++{
++    private final MethodHandle handle;
++
++    public MethodHandleEventExecutor(Method method)
++    {
++        try
++        {
++            method.setAccessible( true );
++            this.handle = MethodHandles.lookup().unreflect( method );
++        } catch ( IllegalAccessException e )
++        {
++            throw new AssertionError( e );
++        }
++    }
++
++    @Override
++    public void invoke(Object listener, Object event) throws Throwable
++    {
++        try
++        {
++            handle.invoke( listener, event );
++        } catch ( ClassCastException | WrongMethodTypeException e )
++        {
++            throw new IllegalArgumentException( e.getMessage() );
++        }
++    }
++}
+diff --git a/event/src/main/java/net/md_5/bungee/event/StaticMethodHandleEventExecutor.java b/event/src/main/java/net/md_5/bungee/event/StaticMethodHandleEventExecutor.java
+new file mode 100644
+index 0000000..dd20542
+--- /dev/null
++++ b/event/src/main/java/net/md_5/bungee/event/StaticMethodHandleEventExecutor.java
+@@ -0,0 +1,41 @@
++package net.md_5.bungee.event;
++
++import java.lang.invoke.MethodHandle;
++import java.lang.invoke.MethodHandles;
++import java.lang.invoke.WrongMethodTypeException;
++import java.lang.reflect.Method;
++import java.lang.reflect.Modifier;
++
++import com.google.common.base.Preconditions;
++import lombok.RequiredArgsConstructor;
++
++@RequiredArgsConstructor
++public class StaticMethodHandleEventExecutor implements EventExecutor
++{
++    private final MethodHandle handle;
++
++    public StaticMethodHandleEventExecutor(Method m)
++    {
++        Preconditions.checkArgument( Modifier.isStatic( m.getModifiers() ), "Not a static method: %s", m );
++        try
++        {
++            m.setAccessible( true );
++            this.handle = MethodHandles.lookup().unreflect( m );
++        } catch ( IllegalAccessException e )
++        {
++            throw new AssertionError( e );
++        }
++    }
++
++    @Override
++    public void invoke(Object listener, Object event) throws Throwable
++    {
++        try
++        {
++            handle.invoke( event );
++        } catch ( ClassCastException | WrongMethodTypeException e )
++        {
++            throw new IllegalArgumentException( e.getMessage() );
++        }
++    }
++}
+diff --git a/event/src/main/java/net/md_5/bungee/event/asm/ASMEventExecutorGenerator.java b/event/src/main/java/net/md_5/bungee/event/asm/ASMEventExecutorGenerator.java
+new file mode 100644
+index 0000000..ea30255
+--- /dev/null
++++ b/event/src/main/java/net/md_5/bungee/event/asm/ASMEventExecutorGenerator.java
+@@ -0,0 +1,51 @@
++package net.md_5.bungee.event.asm;
++
++import java.lang.reflect.Method;
++import java.util.concurrent.atomic.AtomicInteger;
++
++import net.md_5.bungee.event.EventExecutor;
++
++import org.objectweb.asm.ClassWriter;
++import org.objectweb.asm.Type;
++import org.objectweb.asm.commons.GeneratorAdapter;
++
++import static org.objectweb.asm.Opcodes.*;
++
++public class ASMEventExecutorGenerator
++{
++    public static byte[] generateEventExecutor(Method m, String name)
++    {
++        ClassWriter writer = new ClassWriter( ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS );
++        writer.visit( V1_8, ACC_PUBLIC, name, null, Type.getInternalName( Object.class ), new String[]{ Type.getInternalName( EventExecutor.class ) } );
++        // Generate constructor
++        GeneratorAdapter methodGenerator = new GeneratorAdapter( writer.visitMethod( ACC_PUBLIC, "<init>", "()V", null, null ), ACC_PUBLIC, "<init>", "()V" );
++        methodGenerator.loadThis();
++        methodGenerator.visitMethodInsn( INVOKESPECIAL, Type.getInternalName( Object.class ), "<init>", "()V", false ); // Invoke the super class (Object) constructor
++        methodGenerator.returnValue();
++        methodGenerator.endMethod();
++        // Generate the execute method
++        methodGenerator = new GeneratorAdapter( writer.visitMethod( ACC_PUBLIC, "invoke", "(Ljava/lang/Object;Ljava/lang/Object;)V", null, null ), ACC_PUBLIC, "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V" );
++        ;
++        methodGenerator.loadArg( 0 );
++        methodGenerator.checkCast( Type.getType( m.getDeclaringClass() ) );
++        methodGenerator.loadArg( 1 );
++        methodGenerator.checkCast( Type.getType( m.getParameterTypes()[ 0 ] ) );
++        methodGenerator.visitMethodInsn( INVOKEVIRTUAL, Type.getInternalName( m.getDeclaringClass() ), m.getName(), Type.getMethodDescriptor( m ), m.getDeclaringClass().isInterface() );
++        if ( m.getReturnType() != void.class )
++        {
++            methodGenerator.pop();
++        }
++        methodGenerator.returnValue();
++        methodGenerator.endMethod();
++        writer.visitEnd();
++        return writer.toByteArray();
++    }
++
++    public static AtomicInteger NEXT_ID = new AtomicInteger( 1 );
++
++    public static String generateName()
++    {
++        int id = NEXT_ID.getAndIncrement();
++        return "net/md_5/bungee/event/asm/generated/GeneratedEventExecutor" + id;
++    }
++}
+diff --git a/event/src/main/java/net/md_5/bungee/event/asm/ClassDefiner.java b/event/src/main/java/net/md_5/bungee/event/asm/ClassDefiner.java
+new file mode 100644
+index 0000000..2315f26
+--- /dev/null
++++ b/event/src/main/java/net/md_5/bungee/event/asm/ClassDefiner.java
+@@ -0,0 +1,38 @@
++package net.md_5.bungee.event.asm;
++
++
++import java.util.concurrent.atomic.AtomicInteger;
++
++import org.objectweb.asm.ClassWriter;
++import org.objectweb.asm.Type;
++
++public interface ClassDefiner
++{
++
++    /**
++     * Returns if the defined classes can bypass access checks
++     *
++     * @return if classes bypass access checks
++     */
++    default boolean isBypassAccessChecks()
++    {
++        return false;
++    }
++
++    /**
++     * Define a class
++     *
++     * @param parentLoader the parent classloader
++     * @param name the name of the class
++     * @param data the class data to load
++     * @return the defined class
++     * @throws ClassFormatError if the class data is invalid
++     * @throws NullPointerException if any of the arguments are null
++     */
++    Class<?> defineClass(ClassLoader parentLoader, Type name, byte[] data);
++
++    static ClassDefiner getInstance()
++    {
++        return SafeClassDefiner.INSTANCE;
++    }
++}
+diff --git a/event/src/main/java/net/md_5/bungee/event/asm/SafeClassDefiner.java b/event/src/main/java/net/md_5/bungee/event/asm/SafeClassDefiner.java
+new file mode 100644
+index 0000000..a98b77b
+--- /dev/null
++++ b/event/src/main/java/net/md_5/bungee/event/asm/SafeClassDefiner.java
+@@ -0,0 +1,77 @@
++package net.md_5.bungee.event.asm;
++
++import lombok.*;
++
++import java.util.concurrent.ConcurrentHashMap;
++import java.util.concurrent.ConcurrentMap;
++
++import com.google.common.base.Preconditions;
++
++import org.objectweb.asm.Type;
++
++@NoArgsConstructor(access = AccessLevel.PACKAGE)
++public class SafeClassDefiner implements ClassDefiner
++{
++    static final SafeClassDefiner INSTANCE = new SafeClassDefiner();
++
++    private final ConcurrentMap<ClassLoader, GeneratedClassLoader> loaders = new ConcurrentHashMap<>();
++
++    @Override
++    public Class<?> defineClass(ClassLoader parentLoader, Type type, byte[] data)
++    {
++        GeneratedClassLoader loader = loaders.computeIfAbsent( parentLoader, GeneratedClassLoader::new );
++        String name = type.getClassName();
++        synchronized ( loader.getClassLoadingLock( name ) )
++        {
++            Preconditions.checkState( !loader.hasClass( name ), "%s already defined", name );
++            Class<?> c = loader.define( name, data );
++            assert c.getName().equals( name );
++            return c;
++        }
++    }
++
++    private static class GeneratedClassLoader extends ClassLoader
++    {
++        static
++        {
++            ClassLoader.registerAsParallelCapable();
++        }
++
++        protected GeneratedClassLoader(ClassLoader parent)
++        {
++            super( parent );
++        }
++
++        private Class<?> define(String name, byte[] data)
++        {
++            synchronized ( getClassLoadingLock( name ) )
++            {
++                assert !hasClass( name );
++                Class<?> c = defineClass( name, data, 0, data.length );
++                resolveClass( c );
++                return c;
++            }
++        }
++
++        @Override
++        public Object getClassLoadingLock(String name)
++        {
++            return super.getClassLoadingLock( name );
++        }
++
++        public boolean hasClass(String name)
++        {
++            synchronized ( getClassLoadingLock( name ) )
++            {
++                try
++                {
++                    Class.forName( name );
++                    return true;
++                } catch ( ClassNotFoundException e )
++                {
++                    return false;
++                }
++            }
++        }
++    }
++}
+-- 
+1.9.5.msysgit.0
+
