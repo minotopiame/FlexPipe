@@ -2,8 +2,9 @@ sudo: false
 language: java
 script:
   - ./reset-apply-build.sh
-  - rm -rf BungeeCord/**/target/
-  - rm -rf $HOME/.m2/repository/me/minotopia/flexpipe
+  - rm -rfv target
+  - rm -rfv BungeeCord/**/target
+  - rm -rfv $HOME/.m2/repository/me/minotopia/flexpipe
 jdk:
   - oraclejdk8
 notifications:
