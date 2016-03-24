@@ -1,4 +1,4 @@
-From 33da14b3e90f29ebb2c6468ee91733f303c97c53 Mon Sep 17 00:00:00 2001
+From d7c21c5d1b434e16996c4b33173949a26f923fea Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 17 Feb 2016 22:29:54 +0100
 Subject: Use java 8 and java 8 lambdas.
@@ -145,10 +145,10 @@ index 68aeff7..32eb23f 100644
                  <artifactId>maven-javadoc-plugin</artifactId>
                  <!-- 2.10+ claimed to be broken says FlexPipe -->
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index 84e548b..45d0354 100644
+index a4430aa..a64df75 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-@@ -338,19 +338,14 @@ public class BungeeCord extends ProxyServer
+@@ -291,19 +291,14 @@ public class BungeeCord extends ProxyServer
      {
          for ( final ListenerInfo info : config.getListeners() )
          {
@@ -175,7 +175,7 @@ index 84e548b..45d0354 100644
                  }
              };
              new ServerBootstrap()
-@@ -364,19 +359,14 @@ public class BungeeCord extends ProxyServer
+@@ -317,19 +312,14 @@ public class BungeeCord extends ProxyServer
  
              if ( info.isQueryEnabled() )
              {
@@ -202,7 +202,7 @@ index 84e548b..45d0354 100644
                      }
                  };
                  new RemoteQuery( this, info ).start( PipelineUtils.getDatagramChannel(), new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), eventLoops, bindListener );
-@@ -722,15 +712,7 @@ public class BungeeCord extends ProxyServer
+@@ -675,15 +665,7 @@ public class BungeeCord extends ProxyServer
              return Collections.singleton( exactMatch );
          }
  

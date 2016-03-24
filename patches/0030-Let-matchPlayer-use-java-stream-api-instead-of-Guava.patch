@@ -1,4 +1,4 @@
-From 7830c5c75e3aad2a2d5a098af350a430e619c5ff Mon Sep 17 00:00:00 2001
+From 58c8bf0d9c3cd7108b60c22a8fa0acef8627e014 Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Mon, 21 Mar 2016 22:29:05 +0100
 Subject: Let matchPlayer use java stream api instead of Guava, use
@@ -12,10 +12,10 @@ Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
  1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index f737bd1..789471c 100644
+index d98b0a7..f7995a7 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-@@ -63,6 +63,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
+@@ -59,6 +59,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  import java.util.logging.Handler;
  import java.util.logging.Level;
  import java.util.logging.Logger;
@@ -24,7 +24,7 @@ index f737bd1..789471c 100644
  import jline.UnsupportedTerminal;
  import jline.console.ConsoleReader;
  import jline.internal.Log;
-@@ -767,7 +769,9 @@ public class BungeeCord extends ProxyServer
+@@ -720,7 +722,9 @@ public class BungeeCord extends ProxyServer
              return Collections.singleton( exactMatch );
          }
  

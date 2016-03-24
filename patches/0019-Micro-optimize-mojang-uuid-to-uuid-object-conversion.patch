@@ -1,4 +1,4 @@
-From 1a5f7213bf388a3a15603a4e8356abe9fa658574 Mon Sep 17 00:00:00 2001
+From c29e317b199edaaee9b4667fdbcddd6219f80122 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Thu, 18 Feb 2016 15:59:37 +0100
 Subject: Micro-optimize mojang uuid to uuid object conversion (and other way

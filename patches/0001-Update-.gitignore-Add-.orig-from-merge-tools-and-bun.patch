@@ -1,4 +1,4 @@
-From 8bf8b6c27a6f607ae4a278eaf4e18eb5c254bfd6 Mon Sep 17 00:00:00 2001
+From d8ac23640b0df79188ced9861704cd93e455181b Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 15 Feb 2016 21:28:29 +0100
 Subject: Update .gitignore: Add *.orig from merge tools and bungeecord files
