@@ -1,4 +1,4 @@
-From c8981d4c5432d6669de1a1ada9b82122ab55c6e5 Mon Sep 17 00:00:00 2001
+From 07d7e95b3f3d52b16aca43d965904373a64692d9 Mon Sep 17 00:00:00 2001
 From: Mystiflow <Mystiflow@users.noreply.github.com>
 Date: Sat, 19 Mar 2016 16:44:10 +0100
 Subject: Improve performance of message translations
@@ -14,18 +14,18 @@ Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
  1 file changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index 8424469..d98b0a7 100644
+index d9958dc..f737bd1 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-@@ -514,14 +514,15 @@ public class BungeeCord extends ProxyServer
+@@ -561,14 +561,15 @@ public class BungeeCord extends ProxyServer
      @Override
      public String getTranslation(String name, Object... args)
      {
 -        String translation = "<translation '" + name + "' missing>";
          try
          {
--            translation = MessageFormat.format( customBundle != null && customBundle.containsKey( name ) ? customBundle.getString( name ) : baseBundle.getString( name ), args );
-+            String translationPattern = MessageFormat.format( customBundle != null && customBundle.containsKey( name ) ? customBundle.getString( name ) : baseBundle.getString( name ), args );
+-            translation = MessageFormat.format( bundle.getString( name ), args );
++            String translationPattern = bundle.getString( name );
 +
 +            return args.length == 0 ? translationPattern : MessageFormat.format( translationPattern, args );
          } catch ( MissingResourceException ex )

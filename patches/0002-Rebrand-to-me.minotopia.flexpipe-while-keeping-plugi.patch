@@ -1,4 +1,4 @@
-From c6ee4a05562833ee3a16c2acef67bbc56a43eac5 Mon Sep 17 00:00:00 2001
+From c95735a12d43909520809342ecdcdc0a0604fff8 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 15 Feb 2016 21:19:03 +0100
 Subject: Rebrand to me.minotopia.flexpipe while keeping plugins' functioning;
@@ -663,10 +663,10 @@ index 9d51608..da98f0a 100644
  
          while ( bungee.isRunning )
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index e97ee53..7463abf 100644
+index e5afb89..03677e6 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-@@ -176,7 +176,7 @@ public class BungeeCord extends ProxyServer
+@@ -173,7 +173,7 @@ public class BungeeCord extends ProxyServer
      public BungeeCord() throws IOException
      {
          // Java uses ! to indicate a resource inside of a jar/zip/other container. Running Bungee from within a directory that has a ! will cause this to muck up.
@@ -675,7 +675,7 @@ index e97ee53..7463abf 100644
  
          System.setSecurityManager( new BungeeSecurityManager() );
  
-@@ -203,8 +203,8 @@ public class BungeeCord extends ProxyServer
+@@ -192,8 +192,8 @@ public class BungeeCord extends ProxyServer
          // Furthermore this behaviour only occurs in specific combinations due to the parsing done by jansi.
          // For example test-test works fine, but test-test-test does not! In order to avoid this all together but
          // still keep our versions the same as they were, we set the override property to the essentially garbage version
@@ -686,7 +686,7 @@ index e97ee53..7463abf 100644
  
          AnsiConsole.systemInstall();
          consoleReader = new ConsoleReader();
-@@ -458,7 +458,7 @@ public class BungeeCord extends ProxyServer
+@@ -447,7 +447,7 @@ public class BungeeCord extends ProxyServer
      @Override
      public String getName()
      {
