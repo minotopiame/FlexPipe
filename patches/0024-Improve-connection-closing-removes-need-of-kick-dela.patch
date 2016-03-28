@@ -1,4 +1,4 @@
-From 9256f8b6025753ed659fbaca5634e87b659be2c5 Mon Sep 17 00:00:00 2001
+From 0c14f824eb8b89ca4facfaffeba515512ee04e93 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 29 Feb 2016 22:14:58 +0100
 Subject: Improve connection closing, removes need of kick delay.

@@ -1,14 +1,14 @@
-From 2f80e2c615d3c10cf263f5b81fd24b85d808890b Mon Sep 17 00:00:00 2001
+From 4690f36bd8680606772f8a0e516ad80dbeeda827 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Thu, 24 Mar 2016 14:29:14 +0100
 Subject: Add SuspiciousPlayerBehaviourEvent
 
-The event gets called after the connection was closed and reports certain actions to plugins so they can primarily identify bot joins. Note that good bots can easily circumvent these checks.
+The event gets called after the connection was closed and reports certain actions to plugins so they can primarily identify bot joins.
 ---
  .../api/event/SuspiciousPlayerBehaviourEvent.java  | 36 ++++++++++++++++++++++
- .../net/md_5/bungee/connection/InitialHandler.java |  4 +++
- .../net/md_5/bungee/connection/UpstreamBridge.java | 19 ++++++++++--
- 3 files changed, 57 insertions(+), 2 deletions(-)
+ .../net/md_5/bungee/connection/InitialHandler.java |  8 +++--
+ .../net/md_5/bungee/connection/UpstreamBridge.java | 22 ++++++++++---
+ 3 files changed, 59 insertions(+), 7 deletions(-)
  create mode 100644 api/src/main/java/me/minotopia/flexpipe/api/event/SuspiciousPlayerBehaviourEvent.java
 
 diff --git a/api/src/main/java/me/minotopia/flexpipe/api/event/SuspiciousPlayerBehaviourEvent.java b/api/src/main/java/me/minotopia/flexpipe/api/event/SuspiciousPlayerBehaviourEvent.java
@@ -54,7 +54,7 @@ index 0000000..39dfb24
 +    }
 +}
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 71cf563..798ccee 100644
+index 71cf563..a7ab02f 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -1,5 +1,7 @@
@@ -65,7 +65,23 @@ index 71cf563..798ccee 100644
  import com.google.common.base.Charsets;
  import com.google.common.base.Preconditions;
  import java.math.BigInteger;
-@@ -286,6 +288,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -22,7 +24,6 @@ import net.md_5.bungee.api.Favicon;
+ import net.md_5.bungee.api.ProxyServer;
+ import net.md_5.bungee.api.ServerPing;
+ import net.md_5.bungee.api.chat.BaseComponent;
+-import net.md_5.bungee.api.chat.ComponentBuilder;
+ import net.md_5.bungee.api.chat.TextComponent;
+ import net.md_5.bungee.api.config.ListenerInfo;
+ import net.md_5.bungee.api.config.ServerInfo;
+@@ -52,7 +53,6 @@ import net.md_5.bungee.api.event.PlayerHandshakeEvent;
+ import net.md_5.bungee.api.event.PreLoginEvent;
+ import net.md_5.bungee.jni.cipher.BungeeCipher;
+ import net.md_5.bungee.protocol.Protocol;
+-import net.md_5.bungee.protocol.ProtocolConstants;
+ import net.md_5.bungee.protocol.packet.LegacyHandshake;
+ import net.md_5.bungee.protocol.packet.LegacyPing;
+ import net.md_5.bungee.protocol.packet.LoginRequest;
+@@ -286,6 +286,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              // setting protocol to login so we can send the kick message which is actually supported by the minecraft client after it sent the handshake
              ch.setProtocol( Protocol.LOGIN );
              disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( BungeeCord.getInstance().getConfig().getThrottle() ) ) );
@@ -73,7 +89,15 @@ index 71cf563..798ccee 100644
              return;
          }
  
-@@ -635,5 +638,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -628,12 +629,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+         return !ch.isClosed();
+     }
+ 
+-    private static final BaseComponent[] CHAT_TOO_EARLY_DISCONNECT_REASON = new ComponentBuilder( "You may not chat right now." ).color( ChatColor.RED ).create();
++    private static final BaseComponent[] CHAT_TOO_EARLY_DISCONNECT_REASON = new BaseComponent[]{ new TextComponent( "Outdated Client!" ) };
+ 
+     @Override
+     public void handle(Chat chat) throws Exception
      {
          // I don't know whether anyone is so dump to send chat messages that early and whether it gets stopped earlier, but this code does not hurt
          disconnect( CHAT_TOO_EARLY_DISCONNECT_REASON );
@@ -81,7 +105,7 @@ index 71cf563..798ccee 100644
      }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
-index d4f5509..afef258 100644
+index d4f5509..f883cd0 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 @@ -1,5 +1,7 @@
@@ -92,12 +116,20 @@ index d4f5509..afef258 100644
  import com.google.common.base.Preconditions;
  import net.md_5.bungee.BungeeCord;
  import net.md_5.bungee.UserConnection;
-@@ -106,18 +108,31 @@ public class UpstreamBridge extends PacketHandler
+@@ -8,6 +10,7 @@ import net.md_5.bungee.api.ChatColor;
+ import net.md_5.bungee.api.ProxyServer;
+ import net.md_5.bungee.api.chat.BaseComponent;
+ import net.md_5.bungee.api.chat.ComponentBuilder;
++import net.md_5.bungee.api.chat.TextComponent;
+ import net.md_5.bungee.api.connection.ProxiedPlayer;
+ import net.md_5.bungee.api.event.ChatEvent;
+ import net.md_5.bungee.api.event.PlayerDisconnectEvent;
+@@ -105,19 +108,30 @@ public class UpstreamBridge extends PacketHandler
+         }
      }
  
-     private static final BaseComponent[] CHAT_TOO_EARLY_DISCONNECT_REASON = new ComponentBuilder( "You may not chat right now." ).color( ChatColor.RED ).create();
-+    private static final BaseComponent[] CHAT_TOO_LONG_DISCONNECT_REASON = new ComponentBuilder( "Chat message too long." ).color( ChatColor.RED ).create();
-+    private static final BaseComponent[] CHAT_INVALID_DISCONNECT_REASON = new ComponentBuilder( "Chat message is invalid." ).color( ChatColor.RED ).create();
+-    private static final BaseComponent[] CHAT_TOO_EARLY_DISCONNECT_REASON = new ComponentBuilder( "You may not chat right now." ).color( ChatColor.RED ).create();
++    private static final BaseComponent[] CHAT_INVALID_DISCONNECT_REASON = new BaseComponent[]{ new TextComponent( "Outdated Client!" ) };
  
      @Override
      public void handle(Chat chat) throws Exception
@@ -112,7 +144,7 @@ index d4f5509..afef258 100644
 +        }
 +        if (chat.getMessage().length() > 100) // Mojang limit, check on updates
 +        {
-+            con.disconnect( CHAT_TOO_LONG_DISCONNECT_REASON );
++            con.disconnect( CHAT_INVALID_DISCONNECT_REASON );
 +            BungeeCord.getInstance().getPluginManager().callEvent( new SuspiciousPlayerBehaviourEvent( con, SuspiciousPlayerBehaviourEvent.Check.CHAT_TOO_LONG ) );
 +            return;
 +        }
@@ -121,7 +153,8 @@ index d4f5509..afef258 100644
          // Users also would get kicked if the command is not handled by the bungee with an npe, but this stops some unneccessary cpu cycles
          if(con.getServer() == null)
          {
-             con.disconnect( CHAT_TOO_EARLY_DISCONNECT_REASON );
+-            con.disconnect( CHAT_TOO_EARLY_DISCONNECT_REASON );
++            con.disconnect( CHAT_INVALID_DISCONNECT_REASON );
 +            BungeeCord.getInstance().getPluginManager().callEvent( new SuspiciousPlayerBehaviourEvent( con, SuspiciousPlayerBehaviourEvent.Check.CHAT_TOO_EARLY ) );
              return;
          }

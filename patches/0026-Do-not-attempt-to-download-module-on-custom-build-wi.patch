@@ -1,4 +1,4 @@
-From 3c99c18ffd241e8e1787e6e9e47465aea9f6feeb Mon Sep 17 00:00:00 2001
+From affc674b60077af7f4d9dfe589adf07270b9e07d Mon Sep 17 00:00:00 2001
 From: Janmm14 <janmarianmeyer@gmx.de>
 Date: Wed, 2 Mar 2016 15:09:09 +0100
 Subject: Do not attempt to download module on custom build with default
