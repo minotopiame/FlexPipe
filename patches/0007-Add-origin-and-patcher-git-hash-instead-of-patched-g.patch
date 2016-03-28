@@ -1,4 +1,4 @@
-From 6a91a3f3d3df4f910b1961c75f1c7e7f9db1674c Mon Sep 17 00:00:00 2001
+From c578774aecb707a6bb312f61325cb59e58ff8cb6 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 17:22:05 +0100
 Subject: Add origin and patcher git hash instead of patched git hash to

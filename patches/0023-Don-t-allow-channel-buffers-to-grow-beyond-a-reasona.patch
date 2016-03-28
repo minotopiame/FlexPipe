@@ -1,4 +1,4 @@
-From 3fd1c229110d753b084d1aadf8105cbc18cb93ee Mon Sep 17 00:00:00 2001
+From 6df9db8b0039b7b08ba92b6aaeb4702c490d10ee Mon Sep 17 00:00:00 2001
 From: Iceee <andrew@optic.tv>
 Date: Sat, 27 Feb 2016 12:07:18 +0100
 Subject: Don't allow channel buffers to grow beyond a reasonable limit, thanks
