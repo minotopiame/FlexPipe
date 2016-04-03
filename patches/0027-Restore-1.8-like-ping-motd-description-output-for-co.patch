@@ -1,4 +1,4 @@
-From 01538ea68184bc62b3b5f0207f0fb2636d63497c Mon Sep 17 00:00:00 2001
+From 105adbf3d803467006e97a00d195a3476cb3c12c Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 7 Mar 2016 13:33:26 +0100
 Subject: Restore 1.8-like ping motd description output for compability to
@@ -75,17 +75,17 @@ index 0000000..3f0c64e
 +    }
 +}
 diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/ProtocolConstants.java b/protocol/src/main/java/net/md_5/bungee/protocol/ProtocolConstants.java
-index 5100d58..0472d66 100644
+index 4b6d9fa..1b3f473 100644
 --- a/protocol/src/main/java/net/md_5/bungee/protocol/ProtocolConstants.java
 +++ b/protocol/src/main/java/net/md_5/bungee/protocol/ProtocolConstants.java
-@@ -5,6 +5,7 @@ import java.util.List;
- 
+@@ -6,6 +6,7 @@ import java.util.List;
  public class ProtocolConstants
  {
+ 
 +    public static final int MINECRAFT_1_7_2 = 4;
      public static final int MINECRAFT_1_8 = 47;
      public static final int MINECRAFT_1_9 = 107;
-     public static final List<String> SUPPORTED_VERSIONS = Arrays.asList(
+     public static final int MINECRAFT_1_9_1 = 108;
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 index 50718f2..d9958dc 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java

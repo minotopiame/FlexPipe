@@ -1,4 +1,4 @@
-From 8addd0ac4356bf389ea253c37b0d20118c1408f3 Mon Sep 17 00:00:00 2001
+From c76e47bd15ca96ca5324dfebff88cba79836b7ba Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 18:25:52 +0100
 Subject: Allow configuring module source uri scheme, set ci.janmm14.de as
