@@ -1,0 +1,83 @@
+From 21fa261e961153d79c2754b17f124e64149490bc Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Mon, 4 Apr 2016 10:13:15 +0200
+Subject: Ensure kick messages can be sent while being at protocol HANDSHAKE by
+ setting the protocol to LOGIN at kick.
+
+---
+ .../java/net/md_5/bungee/protocol/MinecraftDecoder.java   |  2 ++
+ .../java/net/md_5/bungee/connection/InitialHandler.java   | 15 ++++++++++++---
+ .../main/java/net/md_5/bungee/netty/ChannelWrapper.java   |  5 +++++
+ 3 files changed, 19 insertions(+), 3 deletions(-)
+
+diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java b/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java
+index e7cb380..4846ec6 100644
+--- a/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java
++++ b/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java
+@@ -5,12 +5,14 @@ import io.netty.channel.ChannelHandlerContext;
+ import io.netty.handler.codec.MessageToMessageDecoder;
+ import java.util.List;
+ import lombok.AllArgsConstructor;
++import lombok.Getter;
+ import lombok.Setter;
+ 
+ @AllArgsConstructor
+ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
+ {
+ 
++    @Getter
+     @Setter
+     private Protocol protocol;
+     private final boolean server;
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+index a7ab02f..919a837 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+@@ -283,8 +283,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+             }
+             // setting thisState to username to stop possible code execution on repeated handshakes
+             thisState = State.USERNAME;
+-            // setting protocol to login so we can send the kick message which is actually supported by the minecraft client after it sent the handshake
+-            ch.setProtocol( Protocol.LOGIN );
+             disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( BungeeCord.getInstance().getConfig().getThrottle() ) ) );
+             BungeeCord.getInstance().getPluginManager().callEvent( new SuspiciousPlayerBehaviourEvent( this, SuspiciousPlayerBehaviourEvent.Check.JOIN_THROTTLE_TRIGGERED ) );
+             return;
+@@ -549,7 +547,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+             disconnecting = true;
+             if ( thisState != State.STATUS && thisState != State.PING )
+             {
+-                ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
++                if ( ch.getProtocol() == Protocol.HANDSHAKE )
++                {
++                    ch.setProtocol( Protocol.LOGIN );
++                }
++                try
++                {
++                    ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
++                } catch ( IllegalArgumentException ex )
++                {
++                    BungeeCord.getInstance().getLogger().log( Level.WARNING, "{0} Error while kicking: ", ex );
++                    ch.close();
++                }
+             } else
+             {
+                 ch.close();
+diff --git a/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java b/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java
+index 9481678..67dff4f 100644
+--- a/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java
++++ b/proxy/src/main/java/net/md_5/bungee/netty/ChannelWrapper.java
+@@ -24,6 +24,11 @@ public class ChannelWrapper
+     {
+         this.ch = ctx.channel();
+     }
++    
++    public Protocol getProtocol()
++    {
++        return ch.pipeline().get( MinecraftDecoder.class ).getProtocol();
++    }
+ 
+     public void setProtocol(Protocol protocol)
+     {
+-- 
+1.9.5.msysgit.0
+
