@@ -1,9 +1,11 @@
-From 15169fea72431352ce92170bf48989502ae74204 Mon Sep 17 00:00:00 2001
+From e5bef401eea6b33329df542693c99ac7b7a7e228 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Fri, 8 Apr 2016 00:04:13 +0200
 Subject: Slice packets in MinecraftDecoder where possible, based on packet Id
 
 Give MinecraftDecoder a SliceDecider which links through the HandlerBoss handler to the EntityMap, which then looks whether the packetId is either registered to be changed or handled in the version-specific rewrites.
+
+Additionally it removes some overhead by the MessageToMessageEncoder from MinecraftDecoder.
 ---
  .../net/md_5/bungee/protocol/MinecraftDecoder.java | 67 +++++++++++++++++++---
  .../md_5/bungee/protocol/util/SliceDecider.java    |  6 ++
