@@ -1,0 +1,415 @@
+From 15169fea72431352ce92170bf48989502ae74204 Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Fri, 8 Apr 2016 00:04:13 +0200
+Subject: Slice packets in MinecraftDecoder where possible, based on packet Id
+
+Give MinecraftDecoder a SliceDecider which links through the HandlerBoss handler to the EntityMap, which then looks whether the packetId is either registered to be changed or handled in the version-specific rewrites.
+---
+ .../net/md_5/bungee/protocol/MinecraftDecoder.java | 67 +++++++++++++++++++---
+ .../md_5/bungee/protocol/util/SliceDecider.java    |  6 ++
+ .../main/java/net/md_5/bungee/UserConnection.java  |  4 +-
+ .../md_5/bungee/connection/DownstreamBridge.java   | 14 ++++-
+ .../net/md_5/bungee/connection/PingHandler.java    |  4 +-
+ .../md_5/bungee/connection/SliceDeciderImpl.java   | 18 ++++++
+ .../net/md_5/bungee/connection/UpstreamBridge.java | 13 ++++-
+ .../java/net/md_5/bungee/entitymap/EntityMap.java  | 16 +++++-
+ .../net/md_5/bungee/entitymap/EntityMap_1_8.java   | 12 ++++
+ .../net/md_5/bungee/entitymap/EntityMap_1_9.java   | 12 ++++
+ .../java/net/md_5/bungee/netty/HandlerBoss.java    |  3 +
+ .../java/net/md_5/bungee/netty/PacketHandler.java  |  5 ++
+ .../java/net/md_5/bungee/netty/PipelineUtils.java  |  4 +-
+ 13 files changed, 164 insertions(+), 14 deletions(-)
+ create mode 100644 protocol/src/main/java/net/md_5/bungee/protocol/util/SliceDecider.java
+ create mode 100644 proxy/src/main/java/net/md_5/bungee/connection/SliceDeciderImpl.java
+
+diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java b/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java
+index 4846ec6..4b914ad 100644
+--- a/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java
++++ b/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java
+@@ -1,5 +1,9 @@
+ package net.md_5.bungee.protocol;
+ 
++import io.netty.channel.ChannelInboundHandlerAdapter;
++import io.netty.handler.codec.DecoderException;
++import net.md_5.bungee.protocol.util.SliceDecider;
++
+ import io.netty.buffer.ByteBuf;
+ import io.netty.channel.ChannelHandlerContext;
+ import io.netty.handler.codec.MessageToMessageDecoder;
+@@ -9,7 +13,7 @@ import lombok.Getter;
+ import lombok.Setter;
+ 
+ @AllArgsConstructor
+-public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
++public class MinecraftDecoder extends ChannelInboundHandlerAdapter
+ {
+ 
+     @Getter
+@@ -18,17 +22,28 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
+     private final boolean server;
+     @Setter
+     private int protocolVersion;
++    private final SliceDecider sliceDecider;
+ 
+-    @Override
+-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
++    private Object decode(ByteBuf in) throws Exception
+     {
+         Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
+-        ByteBuf slice = in.copy(); // Can't slice this one due to EntityMap :(
++        ByteBuf newBuf = null;
+ 
+         try
+         {
++            int originalReaderIndex = in.readerIndex();
++            int originalReadableBytes = in.readableBytes();
++
+             int packetId = DefinedPacket.readVarInt( in );
+ 
++            if ( sliceDecider.shouldNotSlice( packetId ) )
++            {
++                newBuf = in.copy( originalReaderIndex, originalReadableBytes );
++            } else
++            {
++                newBuf = in.slice( originalReaderIndex, originalReadableBytes ).retain();
++            }
++
+             DefinedPacket packet = prot.createPacket( packetId, protocolVersion );
+             if ( packet != null )
+             {
+@@ -43,13 +58,49 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
+                 in.skipBytes( in.readableBytes() );
+             }
+ 
+-            out.add( new PacketWrapper( packet, slice ) );
+-            slice = null;
++            PacketWrapper packetWrapper = new PacketWrapper( packet, newBuf );
++            newBuf = null;
++            return packetWrapper;
++        } finally
++        {
++            if ( newBuf != null )
++            {
++                newBuf.release();
++            }
++        }
++    }
++
++    @Override
++    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
++    {
++        Object out = null;
++        try
++        {
++            if ( msg instanceof ByteBuf )
++            {
++                ByteBuf cast = ( ByteBuf ) msg;
++                try
++                {
++                    out = decode( cast );
++                } finally
++                {
++                    cast.release();
++                }
++            } else
++            {
++                out = msg;
++            }
++        } catch ( DecoderException e )
++        {
++            throw e;
++        } catch ( Exception e )
++        {
++            throw new DecoderException( e );
+         } finally
+         {
+-            if ( slice != null )
++            if ( out != null )
+             {
+-                slice.release();
++                ctx.fireChannelRead( out );
+             }
+         }
+     }
+diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/util/SliceDecider.java b/protocol/src/main/java/net/md_5/bungee/protocol/util/SliceDecider.java
+new file mode 100644
+index 0000000..93c3d40
+--- /dev/null
++++ b/protocol/src/main/java/net/md_5/bungee/protocol/util/SliceDecider.java
+@@ -0,0 +1,6 @@
++package net.md_5.bungee.protocol.util;
++
++public interface SliceDecider
++{
++    boolean shouldNotSlice(int packetId);
++}
+diff --git a/proxy/src/main/java/net/md_5/bungee/UserConnection.java b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
+index 894a2f2..48b0507 100644
+--- a/proxy/src/main/java/net/md_5/bungee/UserConnection.java
++++ b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
+@@ -1,5 +1,7 @@
+ package net.md_5.bungee;
+ 
++import net.md_5.bungee.connection.SliceDeciderImpl;
++
+ import com.google.common.base.Objects;
+ import com.google.common.base.Preconditions;
+ import com.google.common.collect.ImmutableMap;
+@@ -280,7 +282,7 @@ public final class UserConnection implements ProxiedPlayer
+             protected void initChannel(Channel ch) throws Exception
+             {
+                 PipelineUtils.BASE.initChannel( ch );
+-                ch.pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, false, getPendingConnection().getVersion() ) );
++                ch.pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, false, getPendingConnection().getVersion(), new SliceDeciderImpl( ch.pipeline().get( HandlerBoss.class ) ) ) );
+                 ch.pipeline().addAfter( PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, false, getPendingConnection().getVersion() ) );
+                 ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target ) );
+             }
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
+index dcd51fa..b1d971e 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
+@@ -1,5 +1,7 @@
+ package net.md_5.bungee.connection;
+ 
++import io.netty.buffer.SlicedByteBuf;
++
+ import com.google.common.base.Objects;
+ import com.google.common.io.ByteArrayDataOutput;
+ import com.google.common.io.ByteStreams;
+@@ -98,11 +100,21 @@ public class DownstreamBridge extends PacketHandler
+     @Override
+     public void handle(PacketWrapper packet) throws Exception
+     {
+-        con.getEntityRewrite().rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
++        // if we get a SlicedByteBuf we know that entity rewrite is not needed - see MinecraftDecoder
++        if ( !( packet.buf instanceof SlicedByteBuf ) )
++        {
++            con.getEntityRewrite().rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
++        }
+         con.sendPacket( packet );
+     }
+ 
+     @Override
++    public boolean isEntityRewritePossiblyNeeded(int packetId)
++    {
++        return con.getEntityRewrite().isRewriteClientbound( packetId );
++    }
++
++    @Override
+     public void handle(KeepAlive alive) throws Exception
+     {
+         con.setSentPingId( alive.getRandomId() );
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/PingHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/PingHandler.java
+index 56fded2..160cc0d 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/PingHandler.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/PingHandler.java
+@@ -1,5 +1,7 @@
+ package net.md_5.bungee.connection;
+ 
++import net.md_5.bungee.netty.HandlerBoss;
++
+ import com.google.gson.Gson;
+ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+ import lombok.RequiredArgsConstructor;
+@@ -34,7 +36,7 @@ public class PingHandler extends PacketHandler
+         this.channel = channel;
+         MinecraftEncoder encoder = new MinecraftEncoder( Protocol.HANDSHAKE, false, protocol );
+ 
+-        channel.getHandle().pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.STATUS, false, ProxyServer.getInstance().getProtocolVersion() ) );
++        channel.getHandle().pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.STATUS, false, ProxyServer.getInstance().getProtocolVersion(), new SliceDeciderImpl( channel.getHandle().pipeline().get( HandlerBoss.class ) ) ) );
+         channel.getHandle().pipeline().addAfter( PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER, encoder );
+ 
+         channel.write( new Handshake( protocol, target.getAddress().getHostString(), target.getAddress().getPort(), 1 ) );
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/SliceDeciderImpl.java b/proxy/src/main/java/net/md_5/bungee/connection/SliceDeciderImpl.java
+new file mode 100644
+index 0000000..2b6a5c7
+--- /dev/null
++++ b/proxy/src/main/java/net/md_5/bungee/connection/SliceDeciderImpl.java
+@@ -0,0 +1,18 @@
++package net.md_5.bungee.connection;
++
++import lombok.RequiredArgsConstructor;
++
++import net.md_5.bungee.netty.HandlerBoss;
++import net.md_5.bungee.protocol.util.SliceDecider;
++
++@RequiredArgsConstructor
++public class SliceDeciderImpl implements SliceDecider
++{
++    private final HandlerBoss handlerBoss;
++    
++    @Override
++    public boolean shouldNotSlice(int packetId)
++    {
++        return handlerBoss != null && handlerBoss.getHandler().isEntityRewritePossiblyNeeded( packetId );
++    }
++}
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
+index f883cd0..f68c327 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
+@@ -1,5 +1,6 @@
+ package net.md_5.bungee.connection;
+ 
++import io.netty.buffer.SlicedByteBuf;
+ import me.minotopia.flexpipe.api.event.SuspiciousPlayerBehaviourEvent;
+ 
+ import com.google.common.base.Preconditions;
+@@ -90,7 +91,11 @@ public class UpstreamBridge extends PacketHandler
+     @Override
+     public void handle(PacketWrapper packet) throws Exception
+     {
+-        con.getEntityRewrite().rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
++        // if we get a SlicedByteBuf we know that entity rewrite is not needed - see MinecraftDecoder
++        if ( !( packet.buf instanceof SlicedByteBuf ) )
++        {
++            con.getEntityRewrite().rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
++        }
+         if ( con.getServer() != null )
+         {
+             con.getServer().getCh().write( packet );
+@@ -98,6 +103,12 @@ public class UpstreamBridge extends PacketHandler
+     }
+ 
+     @Override
++    public boolean isEntityRewritePossiblyNeeded(int packetId)
++    {
++        return con.getEntityRewrite().isRewriteServerbound( packetId );
++    }
++
++    @Override
+     public void handle(KeepAlive alive) throws Exception
+     {
+         if ( alive.getRandomId() == con.getSentPingId() )
+diff --git a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap.java b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap.java
+index 51ef928..1e2d08e 100644
+--- a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap.java
++++ b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap.java
+@@ -85,7 +85,7 @@ public abstract class EntityMap
+     {
+         // Need to rewrite the packet because VarInts are variable length
+         int readId = DefinedPacket.readVarInt( packet );
+-        int readIdLength = packet.readerIndex() - offset;
++        //int readIdLength = packet.readerIndex() - offset;
+         if ( readId == oldId || readId == newId )
+         {
+             ByteBuf data = packet.copy();
+@@ -113,4 +113,18 @@ public abstract class EntityMap
+         }
+         packet.readerIndex( readerIndex );
+     }
++
++    protected abstract boolean isRewriteServerbound0(int packetId);
++
++    protected abstract boolean isRewriteClientbound0(int packetId);
++
++    public final boolean isRewriteServerbound(int packetId)
++    {
++        return ( serverboundInts[ packetId ] || serverboundVarInts[ packetId ] ) || isRewriteServerbound0( packetId );
++    }
++
++    public final boolean isRewriteClientbound(int packetId)
++    {
++        return ( clientboundInts[ packetId ] || clientboundVarInts[ packetId ] ) || isRewriteClientbound0( packetId );
++    }
+ }
+diff --git a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_8.java b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_8.java
+index fb41064..ba993de 100644
+--- a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_8.java
++++ b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_8.java
+@@ -162,4 +162,16 @@ class EntityMap_1_8 extends EntityMap
+         }
+         packet.readerIndex( readerIndex );
+     }
++
++    @Override
++    protected boolean isRewriteClientbound0(int packetId)
++    {
++        return packetId == 0x0D || packetId == 0x1B || packetId == 0x13 || packetId == 0x0E || packetId == 0x0C || packetId == 0x42;
++    }
++
++    @Override
++    protected boolean isRewriteServerbound0(int packetId)
++    {
++        return packetId == 0x18;
++    }
+ }
+diff --git a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9.java b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9.java
+index 1f15dcb..c3a2542 100644
+--- a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9.java
++++ b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9.java
+@@ -170,4 +170,16 @@ class EntityMap_1_9 extends EntityMap
+         }
+         packet.readerIndex( readerIndex );
+     }
++
++    @Override
++    protected boolean isRewriteClientbound0(int packetId)
++    {
++        return packetId == 0x49 || packetId == 0x40 || packetId == 0x30 || packetId == 0x00 || packetId == 0x05 || packetId == 0x2C;
++    }
++
++    @Override
++    protected boolean isRewriteServerbound0(int packetId)
++    {
++        return packetId == 0x1B;
++    }
+ }
+diff --git a/proxy/src/main/java/net/md_5/bungee/netty/HandlerBoss.java b/proxy/src/main/java/net/md_5/bungee/netty/HandlerBoss.java
+index 8b9712b..dfdcedc 100644
+--- a/proxy/src/main/java/net/md_5/bungee/netty/HandlerBoss.java
++++ b/proxy/src/main/java/net/md_5/bungee/netty/HandlerBoss.java
+@@ -1,5 +1,7 @@
+ package net.md_5.bungee.netty;
+ 
++import lombok.Getter;
++
+ import net.md_5.bungee.protocol.PacketWrapper;
+ import com.google.common.base.Preconditions;
+ import io.netty.channel.ChannelHandlerContext;
+@@ -23,6 +25,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
+ {
+ 
+     private ChannelWrapper channel;
++    @Getter
+     private PacketHandler handler;
+ 
+     public void setHandler(PacketHandler handler)
+diff --git a/proxy/src/main/java/net/md_5/bungee/netty/PacketHandler.java b/proxy/src/main/java/net/md_5/bungee/netty/PacketHandler.java
+index 7958eaa..bd50826 100644
+--- a/proxy/src/main/java/net/md_5/bungee/netty/PacketHandler.java
++++ b/proxy/src/main/java/net/md_5/bungee/netty/PacketHandler.java
+@@ -28,4 +28,9 @@ public abstract class PacketHandler extends net.md_5.bungee.protocol.AbstractPac
+     public void disconnected(ChannelWrapper channel) throws Exception
+     {
+     }
++    
++    public boolean isEntityRewritePossiblyNeeded(int packetId)
++    {
++        return false;
++    }
+ }
+diff --git a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
+index 1ab66e1..1c38bb3 100644
+--- a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
++++ b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
+@@ -1,5 +1,7 @@
+ package net.md_5.bungee.netty;
+ 
++import net.md_5.bungee.connection.SliceDeciderImpl;
++
+ import io.netty.buffer.PooledByteBufAllocator;
+ import io.netty.channel.Channel;
+ import io.netty.channel.ChannelException;
+@@ -52,7 +54,7 @@ public class PipelineUtils
+ 
+             BASE.initChannel( ch );
+             ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
+-            ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
++            ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion(), new SliceDeciderImpl( ch.pipeline().get( HandlerBoss.class ) ) ) );
+             ch.pipeline().addAfter( FRAME_PREPENDER, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
+             ch.pipeline().addBefore( FRAME_PREPENDER, LEGACY_KICKER, KICK_STRING_WRITER );
+             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( ProxyServer.getInstance(), ch.attr( LISTENER ).get() ) );
+-- 
+1.9.5.msysgit.0
+
