@@ -1,18 +1,18 @@
-From 4dc0e3a5c9f3672d37080b20eea9e0773068f85e Mon Sep 17 00:00:00 2001
+From 95b773766c99471e3c1d4dcea0f302f1d82e14ae Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 15 Feb 2016 21:28:29 +0100
 Subject: Update .gitignore: Add *.orig from merge tools and bungeecord files
  and windows' desktop.ini
 
 ---
- .gitignore | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ .gitignore | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 diff --git a/.gitignore b/.gitignore
-index a34de59..f5c6648 100644
+index a34de59..6e23c9b 100644
 --- a/.gitignore
 +++ b/.gitignore
-@@ -37,3 +37,15 @@ manifest.mf
+@@ -37,3 +37,16 @@ manifest.mf
  
  # delombok
  */src/main/lombok
@@ -28,6 +28,7 @@ index a34de59..f5c6648 100644
 +/messages.properties
 +/plugins/
 +/modules/
++/locations.yml
 -- 
 1.9.5.msysgit.0
 
