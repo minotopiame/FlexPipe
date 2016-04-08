@@ -37,8 +37,8 @@ We would really appreciate it if you take part in developing FlexPipe. Here is h
 2. Compile the project once (see above).
 3. Go into the bungeecord folder.
 4. Edit what you want, but
-   - before you edit, start an interactive rebase to edit the commit/patch you want to edit, *or*
+   - before you edit, start an interactive rebase on ```origin/master``` to edit the commit/patch you want to edit, *or*
    - change anything that's not related directly to a previous commit and commit your changes.
 5. Run ```./format-patches.sh```
-6. Commit the changes of the patch files to your FlexPipe fork and create a pull request to FlexPipe.
+6. Commit the changes of the patch files to your FlexPipe fork and create a pull request to FlexPipe. Optionally you can exclude any patch file where only line numbers and git hashes changed.
 7. Thanks!
