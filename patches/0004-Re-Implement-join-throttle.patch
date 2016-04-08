@@ -1,4 +1,4 @@
-From a282037fa69509c11be0b31c1a885c357c8b3170 Mon Sep 17 00:00:00 2001
+From cd77ec6bf63ed863767c693dbe4ba479a693dec2 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 7 Oct 2015 21:53:26 +0200
 Subject: Re-Implement join throttle
@@ -7,58 +7,15 @@ This join throttle takes care of pings by kicking in only if its clearly a join 
 This implementation sends a kick message containing the seconds players needs to wait between join attempts.
 Additionally it ignores the following LoginRequest of the connection which seems to be send together with the handshake by the client.
 
-Whether throttled join tries are logged can be specified by the log_throttled config.yml option, defaults to false.
-
 Adapted stop of packet processing after disconnect from https://github.com/WaterfallMC/Waterfall/commit/45e4a61df042ad13cf6580b5e7901e55164c438b by @Techcable
 ---
- .../main/java/net/md_5/bungee/api/ProxyConfig.java |  5 ++++
- .../java/net/md_5/bungee/conf/Configuration.java   |  5 ++++
- .../net/md_5/bungee/connection/InitialHandler.java | 28 +++++++++++++++++++---
- .../java/net/md_5/bungee/netty/PipelineUtils.java  |  6 -----
+ .../net/md_5/bungee/connection/InitialHandler.java | 24 +++++++++++++++++++---
+ .../java/net/md_5/bungee/netty/PipelineUtils.java  |  6 ------
  proxy/src/main/resources/messages.properties       |  2 ++
- 5 files changed, 37 insertions(+), 9 deletions(-)
+ 3 files changed, 23 insertions(+), 9 deletions(-)
 
-diff --git a/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java b/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
-index edd82c1..25590e3 100644
---- a/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
-+++ b/api/src/main/java/net/md_5/bungee/api/ProxyConfig.java
-@@ -46,6 +46,11 @@ public interface ProxyConfig
-     boolean isLogCommands();
- 
-     /**
-+     * Whether we log throttled join attempts
-+     */
-+    boolean isLogThrottled();
-+
-+    /**
-      * Returns the player max.
-      */
-     int getPlayerLimit();
-diff --git a/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java b/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
-index 25d87d9..f1470ce 100644
---- a/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
-+++ b/proxy/src/main/java/net/md_5/bungee/conf/Configuration.java
-@@ -51,6 +51,10 @@ public class Configuration implements ProxyConfig
-      * Whether we log proxy commands to the proxy log
-      */
-     private boolean logCommands;
-+    /**
-+     * Whether we log throttled join attempts
-+     */
-+    private boolean logThrottled;
-     private int playerLimit = -1;
-     private Collection<String> disabledCommands;
-     private int throttle = 4000;
-@@ -80,6 +84,7 @@ public class Configuration implements ProxyConfig
-         uuid = adapter.getString( "stats", uuid );
-         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
-         logCommands = adapter.getBoolean( "log_commands", logCommands );
-+        logThrottled = adapter.getBoolean( "log_throttled", logThrottled );
-         playerLimit = adapter.getInt( "player_limit", playerLimit );
-         throttle = adapter.getInt( "connection_throttle", throttle );
-         ipForward = adapter.getBoolean( "ip_forward", ipForward );
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index dbce941..abad6d1 100644
+index dbce941..6959fe7 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -40,6 +40,7 @@ import net.md_5.bungee.netty.PipelineUtils;
@@ -91,16 +48,12 @@ index dbce941..abad6d1 100644
                          Gson gson = BungeeCord.getInstance().gson;
                          unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
                      }
-@@ -254,6 +261,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -254,6 +261,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          this.handshake = handshake;
          ch.setVersion( handshake.getProtocolVersion() );
  
 +        if ( handshake.getRequestedProtocol() == 2 && BungeeCord.getInstance().getConnectionThrottle().throttle( ( ( InetSocketAddress ) ch.getHandle().remoteAddress() ).getAddress() ) )
 +        {
-+            if ( BungeeCord.getInstance().getConfig().isLogThrottled() )
-+            {
-+                bungee.getLogger().log( Level.INFO, "{0} throttled", this );
-+            }
 +            // setting thisState to username to stop possible code execution on repeated handshakes
 +            thisState = State.USERNAME;
 +            // setting protocol to login so we can send the kick message which is actually supported by the minecraft client after it sent the handshake
@@ -112,7 +65,7 @@ index dbce941..abad6d1 100644
          // Starting with FML 1.8, a "\0FML\0" token is appended to the handshake. This interferes
          // with Bungee's IP forwarding, so we detect it, and remove it from the host string, for now.
          // We know FML appends \00FML\00. However, we need to also consider that other systems might
-@@ -285,9 +306,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -285,9 +302,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                  ch.setProtocol( Protocol.STATUS );
                  break;
              case 2:
@@ -123,7 +76,7 @@ index dbce941..abad6d1 100644
                  break;
              default:
                  throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
-@@ -519,8 +540,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -519,8 +536,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public void disconnect(final BaseComponent... reason)
      {
