@@ -1,4 +1,4 @@
-From 21fa261e961153d79c2754b17f124e64149490bc Mon Sep 17 00:00:00 2001
+From 3847a587151a9cdb32c73823388c68959fd24e33 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 4 Apr 2016 10:13:15 +0200
 Subject: Ensure kick messages can be sent while being at protocol HANDSHAKE by
@@ -30,11 +30,11 @@ index e7cb380..4846ec6 100644
      private Protocol protocol;
      private final boolean server;
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index a7ab02f..919a837 100644
+index bd014a9..c34be65 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -283,8 +283,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
-             }
+@@ -279,8 +279,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+         {
              // setting thisState to username to stop possible code execution on repeated handshakes
              thisState = State.USERNAME;
 -            // setting protocol to login so we can send the kick message which is actually supported by the minecraft client after it sent the handshake
@@ -42,7 +42,7 @@ index a7ab02f..919a837 100644
              disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( BungeeCord.getInstance().getConfig().getThrottle() ) ) );
              BungeeCord.getInstance().getPluginManager().callEvent( new SuspiciousPlayerBehaviourEvent( this, SuspiciousPlayerBehaviourEvent.Check.JOIN_THROTTLE_TRIGGERED ) );
              return;
-@@ -549,7 +547,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -545,7 +543,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              disconnecting = true;
              if ( thisState != State.STATUS && thisState != State.PING )
              {
