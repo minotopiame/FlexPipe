@@ -1,10 +1,12 @@
 sudo: false
 language: java
 script:
+  - rm -rfv BungeeCord/.git/rebase-apply
   - ./reset-apply-build.sh
   - rm -rfv target
   - rm -rfv BungeeCord/**/target
   - rm -rfv $HOME/.m2/repository/me/minotopia/flexpipe
+  - rm -rfv BungeeCord/.git/rebase-apply
 jdk:
   - oraclejdk8
 notifications:
