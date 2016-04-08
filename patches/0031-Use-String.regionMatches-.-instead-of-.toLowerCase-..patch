@@ -1,0 +1,81 @@
+From a34c43bb16e4e9c94da1c7cd45b84463ea875a4c Mon Sep 17 00:00:00 2001
+From: Tux <write@imaginarycode.com>
+Date: Mon, 21 Mar 2016 22:29:05 +0100
+Subject: Use String.regionMatches(...) instead of
+ .toLowerCase().startWith(...)
+
+Based on https://github.com/SpigotMC/BungeeCord/commit/c6936c19f6f89c7f5d8fb579b181fc700a15e172 by @minecrafter
+
+Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
+---
+ .../md_5/bungee/module/cmd/server/CommandServer.java   | 18 +++++++++++++++---
+ proxy/src/main/java/net/md_5/bungee/BungeeCord.java    |  6 ++++--
+ 2 files changed, 19 insertions(+), 5 deletions(-)
+
+diff --git a/module/cmd-server/src/main/java/net/md_5/bungee/module/cmd/server/CommandServer.java b/module/cmd-server/src/main/java/net/md_5/bungee/module/cmd/server/CommandServer.java
+index f93ae19..9d5c938 100644
+--- a/module/cmd-server/src/main/java/net/md_5/bungee/module/cmd/server/CommandServer.java
++++ b/module/cmd-server/src/main/java/net/md_5/bungee/module/cmd/server/CommandServer.java
+@@ -6,6 +6,7 @@ import com.google.common.collect.Iterables;
+ import java.util.Collections;
+ import java.util.Map;
+ import java.util.stream.Collectors;
++import java.util.stream.Stream;
+ import net.md_5.bungee.api.CommandSender;
+ import net.md_5.bungee.api.ProxyServer;
+ import net.md_5.bungee.api.config.ServerInfo;
+@@ -76,13 +77,24 @@ public class CommandServer extends Command implements TabExecutor
+         }
+     }
+ 
++    @SuppressWarnings("unchecked")
+     @Override
+     public Iterable<String> onTabComplete(final CommandSender sender, final String[] args)
+     {
+-        final String lower = ( args.length == 0 ) ? "" : args[0].toLowerCase();
++        if ( args.length > 1 )
++        {
++            return Collections.EMPTY_LIST;
++        }
++
++        Stream<ServerInfo> stream = ProxyServer.getInstance().getServers().values().stream();
+ 
+-        return ( args.length > 1 ) ? Collections.EMPTY_LIST : ProxyServer.getInstance().getServers().values().stream()
+-                .filter( input -> input.getName().toLowerCase().startsWith( lower ) && input.canAccess( sender ) )
++        if (args.length == 0 )
++        {
++            stream = stream.filter( input -> input.canAccess( sender ) );
++        } else {
++            stream = stream.filter( input -> input.getName().regionMatches( true, 0, args[ 0 ], 0, args[ 0 ].length() ) && input.canAccess( sender ) );
++        }
++        return stream
+                 .map( ServerInfo::getName )
+                 .collect( Collectors.toList() );
+     }
+diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+index edb7ffa..13d2759 100644
+--- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
++++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+@@ -64,6 +64,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
+ import java.util.logging.Handler;
+ import java.util.logging.Level;
+ import java.util.logging.Logger;
++import java.util.stream.Collectors;
++
+ import jline.UnsupportedTerminal;
+ import jline.console.ConsoleReader;
+ import jline.internal.Log;
+@@ -769,8 +771,8 @@ public class BungeeCord extends ProxyServer
+         }
+ 
+         return getPlayers().stream()
+-                .filter( input -> input != null && input.getName().toLowerCase().startsWith( partialName.toLowerCase() ) )
+-                .collect( Collectors.toSet() );
++            .filter(p -> p.getName().regionMatches(true, 0, partialName, 0, partialName.length()))
++            .collect(Collectors.toSet());
+     }
+ 
+     @Override
+-- 
+1.9.5.msysgit.0
+
