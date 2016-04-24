@@ -1,4 +1,4 @@
-From d4ac79de1e6f18ad3e2e897c935fa1360e4a58a5 Mon Sep 17 00:00:00 2001
+From b5f276d4660c83ddbf4308e46e51e66f7e8c1004 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 7 Oct 2015 21:53:26 +0200
 Subject: Apply join throttle logic a bit earlier
@@ -8,14 +8,14 @@ Subject: Apply join throttle logic a bit earlier
  1 file changed, 10 insertions(+), 5 deletions(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 556c3b5..c75df0f 100644
+index c059bfb..cd4d30b 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -261,6 +261,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          this.handshake = handshake;
          ch.setVersion( handshake.getProtocolVersion() );
  
-+        if ( handshake.getRequestedProtocol() == 2 && BungeeCord.getInstance().getConnectionThrottle().throttle( ( ( InetSocketAddress ) ch.getHandle().remoteAddress() ).getAddress() ) )
++        if ( handshake.getRequestedProtocol() == 2 && bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( getAddress().getAddress() ) )
 +        {
 +            // setting thisState to username to stop possible code execution on repeated handshakes
 +            thisState = State.USERNAME;
@@ -33,7 +33,7 @@ index 556c3b5..c75df0f 100644
                  thisState = State.USERNAME;
                  ch.setProtocol( Protocol.LOGIN );
 -
--                if ( bungee.getConnectionThrottle().throttle( ( (InetSocketAddress) ch.getHandle().remoteAddress() ).getAddress() ) )
+-                if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( getAddress().getAddress() ) )
 -                {
 -                    disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( bungee.getConfig().getThrottle() ) ) );
 -                }
