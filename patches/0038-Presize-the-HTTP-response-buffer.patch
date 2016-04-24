@@ -1,0 +1,28 @@
+From 952be70d3f6391f57947417995bde7fbeeb8f165 Mon Sep 17 00:00:00 2001
+From: Tux <write@imaginarycode.com>
+Date: Sun, 24 Apr 2016 15:09:43 +0200
+Subject: Presize the HTTP response buffer
+
+16 characters is extremely small, and all responses start around 256 bytes. 640 characters seems to be good (covering skins and capes), based on sampling profile API responses.
+
+Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
+---
+ proxy/src/main/java/net/md_5/bungee/http/HttpHandler.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/http/HttpHandler.java b/proxy/src/main/java/net/md_5/bungee/http/HttpHandler.java
+index 96d0a71..93565cf 100644
+--- a/proxy/src/main/java/net/md_5/bungee/http/HttpHandler.java
++++ b/proxy/src/main/java/net/md_5/bungee/http/HttpHandler.java
+@@ -16,7 +16,7 @@ public class HttpHandler extends SimpleChannelInboundHandler<HttpObject>
+ {
+ 
+     private final Callback<String> callback;
+-    private final StringBuilder buffer = new StringBuilder();
++    private final StringBuilder buffer = new StringBuilder( 640 );
+ 
+     @Override
+     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
+-- 
+1.9.5.msysgit.0
+
