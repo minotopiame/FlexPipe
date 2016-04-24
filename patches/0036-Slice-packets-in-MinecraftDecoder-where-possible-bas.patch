@@ -1,4 +1,4 @@
-From e5bef401eea6b33329df542693c99ac7b7a7e228 Mon Sep 17 00:00:00 2001
+From f6d3ac00996860c766ae0b5842fc718effd597d9 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Fri, 8 Apr 2016 00:04:13 +0200
 Subject: Slice packets in MinecraftDecoder where possible, based on packet Id
@@ -316,10 +316,10 @@ index 51ef928..1e2d08e 100644
 +    }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_8.java b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_8.java
-index fb41064..ba993de 100644
+index 4229fef..3e1fdfa 100644
 --- a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_8.java
 +++ b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_8.java
-@@ -162,4 +162,16 @@ class EntityMap_1_8 extends EntityMap
+@@ -173,4 +173,16 @@ class EntityMap_1_8 extends EntityMap
          }
          packet.readerIndex( readerIndex );
      }
@@ -392,7 +392,7 @@ index 7958eaa..bd50826 100644
 +    }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
-index 1ab66e1..1c38bb3 100644
+index e6e74f4..b35dea6 100644
 --- a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
 +++ b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
 @@ -1,5 +1,7 @@
@@ -403,15 +403,15 @@ index 1ab66e1..1c38bb3 100644
  import io.netty.buffer.PooledByteBufAllocator;
  import io.netty.channel.Channel;
  import io.netty.channel.ChannelException;
-@@ -52,7 +54,7 @@ public class PipelineUtils
- 
+@@ -51,7 +53,7 @@ public class PipelineUtils
+         {
              BASE.initChannel( ch );
              ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
 -            ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
 +            ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion(), new SliceDeciderImpl( ch.pipeline().get( HandlerBoss.class ) ) ) );
              ch.pipeline().addAfter( FRAME_PREPENDER, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
              ch.pipeline().addBefore( FRAME_PREPENDER, LEGACY_KICKER, KICK_STRING_WRITER );
-             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( ProxyServer.getInstance(), ch.attr( LISTENER ).get() ) );
+             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( BungeeCord.getInstance(), ch.attr( LISTENER ).get() ) );
 -- 
 1.9.5.msysgit.0
 

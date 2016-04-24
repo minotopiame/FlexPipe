@@ -1,4 +1,4 @@
-From df209f36fae92f519d74f5967287d5cab2673266 Mon Sep 17 00:00:00 2001
+From 291fd3e96de4a4d260e31977040131dcea4c6a6f Mon Sep 17 00:00:00 2001
 From: Harry <me@harry5573.uk>
 Date: Tue, 16 Feb 2016 23:42:49 +0100
 Subject: Don't create a new KickStringWriter for each new connection.
@@ -26,19 +26,19 @@ index eda9571..e2e34a3 100644
  {
  
 diff --git a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
-index bbcc8df..9d78532 100644
+index 621a06c..19b3dfc 100644
 --- a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
 +++ b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
-@@ -54,7 +54,7 @@ public class PipelineUtils
+@@ -53,7 +53,7 @@ public class PipelineUtils
              ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
              ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
              ch.pipeline().addAfter( FRAME_PREPENDER, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
 -            ch.pipeline().addBefore( FRAME_PREPENDER, LEGACY_KICKER, new KickStringWriter() );
 +            ch.pipeline().addBefore( FRAME_PREPENDER, LEGACY_KICKER, KICK_STRING_WRITER );
-             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( ProxyServer.getInstance(), ch.attr( LISTENER ).get() ) );
+             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( BungeeCord.getInstance(), ch.attr( LISTENER ).get() ) );
          }
      };
-@@ -71,6 +71,8 @@ public class PipelineUtils
+@@ -70,6 +70,8 @@ public class PipelineUtils
      public static final String LEGACY_DECODER = "legacy-decoder";
      public static final String LEGACY_KICKER = "legacy-kick";
  
