@@ -1,0 +1,36 @@
+From e1179e0f6da625bce7466d805190e5842f8afa4f Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Wed, 27 Apr 2016 16:46:09 +0200
+Subject: Ignore server disconnect reason instead of failing
+
+---
+ proxy/src/main/java/net/md_5/bungee/ServerConnection.java | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/ServerConnection.java b/proxy/src/main/java/net/md_5/bungee/ServerConnection.java
+index 2304bd8..60a85af 100644
+--- a/proxy/src/main/java/net/md_5/bungee/ServerConnection.java
++++ b/proxy/src/main/java/net/md_5/bungee/ServerConnection.java
+@@ -50,8 +50,10 @@ public class ServerConnection implements Server
+     @Override
+     public void disconnect(BaseComponent... reason)
+     {
+-        Preconditions.checkArgument( reason.length == 0, "Server cannot have disconnect reason" );
++        disconnect();
++    }
+ 
++    public void disconnect() {
+         if ( !ch.isClosed() )
+         {
+             ch.getHandle().eventLoop().schedule( ( Runnable ) ch::close, 100, TimeUnit.MILLISECONDS );
+@@ -59,6 +61,7 @@ public class ServerConnection implements Server
+     }
+ 
+     @Override
++    @Deprecated
+     public void disconnect(BaseComponent reason)
+     {
+         disconnect();
+-- 
+1.9.5.msysgit.0
+
