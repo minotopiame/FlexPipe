@@ -1,0 +1,52 @@
+From aec178aa5734e9c0571d5eb6541f2c6deff71c3e Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Tue, 26 Apr 2016 20:44:44 +0200
+Subject: Intern common strings of teams which might be send many times due to
+ errourneus scoreboard bukkit plugins.
+
+Based on research done by @Techcable in https://github.com/WaterfallMC/Waterfall/issues/53#issuecomment-214636828
+---
+ .../main/java/net/md_5/bungee/protocol/packet/Team.java    | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/packet/Team.java b/protocol/src/main/java/net/md_5/bungee/protocol/packet/Team.java
+index b470579..cdd5635 100644
+--- a/protocol/src/main/java/net/md_5/bungee/protocol/packet/Team.java
++++ b/protocol/src/main/java/net/md_5/bungee/protocol/packet/Team.java
+@@ -42,18 +42,18 @@ public class Team extends DefinedPacket
+     @Override
+     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
+     {
+-        name = readString( buf );
++        name = readString( buf ).intern();
+         mode = buf.readByte();
+         if ( mode == 0 || mode == 2 )
+         {
+-            displayName = readString( buf );
+-            prefix = readString( buf );
+-            suffix = readString( buf );
++            displayName = readString( buf ).intern();
++            prefix = readString( buf ).intern();
++            suffix = readString( buf ).intern();
+             friendlyFire = buf.readByte();
+-            nameTagVisibility = readString( buf );
++            nameTagVisibility = readString( buf ).intern();
+             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
+             {
+-                collisionRule = readString( buf );
++                collisionRule = readString( buf ).intern();
+             }
+             color = buf.readByte();
+         }
+@@ -63,7 +63,7 @@ public class Team extends DefinedPacket
+             players = new String[ len ];
+             for ( int i = 0; i < len; i++ )
+             {
+-                players[i] = readString( buf );
++                players[i] = readString( buf ).intern();
+             }
+         }
+     }
+-- 
+1.9.5.msysgit.0
+
