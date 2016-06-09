@@ -1,4 +1,4 @@
-From a3a54760cf5bc64d763ce72c73ac329917d8706a Mon Sep 17 00:00:00 2001
+From fb867554ab3ec50d50dcd55b612a8e637496cea9 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 29 Feb 2016 22:14:58 +0100
 Subject: Improve connection closing, removes need of kick delay.
@@ -10,10 +10,10 @@ Also adapted void promise usage from https://github.com/WaterfallMC/Waterfall/co
  .../java/net/md_5/bungee/ServerConnection.java     |  2 +-
  .../main/java/net/md_5/bungee/ServerConnector.java |  7 +++---
  .../main/java/net/md_5/bungee/UserConnection.java  | 13 ++---------
- .../net/md_5/bungee/connection/InitialHandler.java | 19 ++++++---------
+ .../net/md_5/bungee/connection/InitialHandler.java | 17 +++++---------
  .../net/md_5/bungee/connection/UpstreamBridge.java |  2 +-
  .../java/net/md_5/bungee/netty/ChannelWrapper.java | 27 ++++++++++++++++------
- 6 files changed, 35 insertions(+), 35 deletions(-)
+ 6 files changed, 34 insertions(+), 34 deletions(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/ServerConnection.java b/proxy/src/main/java/net/md_5/bungee/ServerConnection.java
 index 555a193..2304bd8 100644
@@ -59,10 +59,10 @@ index bc6849c..0cb2ba1 100644
              bungee.getLogger().warning( "No client connected for pending server!" );
              return;
 diff --git a/proxy/src/main/java/net/md_5/bungee/UserConnection.java b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-index 5c307ce..894a2f2 100644
+index f2c361d..1f41298 100644
 --- a/proxy/src/main/java/net/md_5/bungee/UserConnection.java
 +++ b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-@@ -351,20 +351,11 @@ public final class UserConnection implements ProxiedPlayer
+@@ -365,20 +365,11 @@ public final class UserConnection implements ProxiedPlayer
                  getName(), BaseComponent.toLegacyText( reason )
              } );
  
@@ -86,19 +86,10 @@ index 5c307ce..894a2f2 100644
          }
      }
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index c39ed1a..d809724 100644
+index 48c7a74..8f19830 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -202,7 +202,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
-         if (thisState != expectedState)
-         {
-             bungee.getLogger().log( Level.WARNING, "{0} Not expecting {1}", new Object[]{ this, expectedState } );
--            disconnect( "Not expecting " + thisState, false );
-+            disconnect( "Not expecting " + thisState );
-             return false;
-         }
-         return true;
-@@ -543,18 +543,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -537,18 +537,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          if ( !disconnecting || !ch.isClosed() )
          {
              disconnecting = true;
