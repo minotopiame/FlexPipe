@@ -1,0 +1,82 @@
+From 5432daa2e053722226ea96aeb9b98a294b591023 Mon Sep 17 00:00:00 2001
+From: DoctorDark <doctordark11@gmail.com>
+Date: Fri, 10 Jun 2016 00:27:17 +0200
+Subject: Allow the console to tab complete commands
+
+Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
+---
+ .../src/main/java/net/md_5/bungee/BungeeCord.java  |  1 +
+ .../bungee/command/ConsoleCommandCompleter.java    | 49 ++++++++++++++++++++++
+ 2 files changed, 50 insertions(+)
+ create mode 100644 proxy/src/main/java/net/md_5/bungee/command/ConsoleCommandCompleter.java
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+index 72ba46c..5ff2daa 100644
+--- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
++++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+@@ -234,6 +234,7 @@ public class BungeeCord extends ProxyServer
+         AnsiConsole.systemInstall();
+         consoleReader = new ConsoleReader();
+         consoleReader.setExpandEvents( false );
++        consoleReader.addCompleter( new ConsoleCommandCompleter( this ) );
+ 
+         logger = new BungeeLogger( this );
+         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
+diff --git a/proxy/src/main/java/net/md_5/bungee/command/ConsoleCommandCompleter.java b/proxy/src/main/java/net/md_5/bungee/command/ConsoleCommandCompleter.java
+new file mode 100644
+index 0000000..b993b4e
+--- /dev/null
++++ b/proxy/src/main/java/net/md_5/bungee/command/ConsoleCommandCompleter.java
+@@ -0,0 +1,49 @@
++package net.md_5.bungee.command;
++
++import com.google.common.collect.Iterables;
++import java.util.ArrayList;
++import java.util.List;
++import java.util.logging.Level;
++import jline.console.completer.Completer;
++import net.md_5.bungee.api.ProxyServer;
++
++public class ConsoleCommandCompleter implements Completer
++{
++
++    private final ProxyServer proxy;
++
++    public ConsoleCommandCompleter(ProxyServer proxy)
++    {
++        this.proxy = proxy;
++    }
++
++    @Override
++    public int complete(String buffer, int cursor, List<CharSequence> candidates)
++    {
++        List<String> offers = new ArrayList<>();
++        try
++        {
++            proxy.getPluginManager().dispatchCommand( proxy.getConsole(), buffer, offers );
++        } catch ( Exception ex )
++        {
++            proxy.getLogger().log( Level.WARNING, "Unhandled exception when tab completing", ex );
++            return cursor;
++        }
++
++        if ( offers.isEmpty() )
++        {
++            return cursor;
++        }
++
++        Iterables.addAll( candidates, offers );
++
++        final int lastSpace = buffer.lastIndexOf( ' ' );
++        if ( lastSpace == -1 )
++        {
++            return cursor - buffer.length();
++        } else
++        {
++            return cursor - ( buffer.length() - lastSpace - 1 );
++        }
++    }
++}
+-- 
+1.9.5.msysgit.0
+
