@@ -1,4 +1,4 @@
-From dc49d422d7e919383e3365d5ee2d198ccadad5ae Mon Sep 17 00:00:00 2001
+From 4a2759cec76ffe822e0c788814be34ca389203c2 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 22:01:12 +0100
 Subject: Performance, log sanity: No exception on invalid packet order, just
@@ -9,7 +9,7 @@ Subject: Performance, log sanity: No exception on invalid packet order, just
  1 file changed, 38 insertions(+), 5 deletions(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 48e56ae..48c7a74 100644
+index 48e56ae..141666f 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -188,10 +188,31 @@ public class InitialHandler extends PacketHandler implements PendingConnection
@@ -27,8 +27,8 @@ index 48e56ae..48c7a74 100644
 +    {
 +        if (thisState != expectedState)
 +        {
-+            bungee.getLogger().log( Level.WARNING, "{0} Not expecting {1}", new Object[]{ this, expectedState } );
-+            disconnect( "Not expecting " + thisState );
++            bungee.getLogger().log( Level.WARNING, "{0} Expected {1}, but was on {2}", new Object[]{ this, expectedState, thisState } );
++            disconnect( "Expected " + expectedState + ", but was on " + thisState );
 +            return false;
 +        }
 +        return true;
