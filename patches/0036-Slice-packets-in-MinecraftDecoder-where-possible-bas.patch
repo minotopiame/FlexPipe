@@ -1,4 +1,4 @@
-From f6d3ac00996860c766ae0b5842fc718effd597d9 Mon Sep 17 00:00:00 2001
+From ca271e9af2d956255e08411ea6ac614217c3dd75 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Fri, 8 Apr 2016 00:04:13 +0200
 Subject: Slice packets in MinecraftDecoder where possible, based on packet Id
@@ -15,12 +15,14 @@ Additionally it removes some overhead by the MessageToMessageEncoder from Minecr
  .../md_5/bungee/connection/SliceDeciderImpl.java   | 18 ++++++
  .../net/md_5/bungee/connection/UpstreamBridge.java | 13 ++++-
  .../java/net/md_5/bungee/entitymap/EntityMap.java  | 16 +++++-
+ .../net/md_5/bungee/entitymap/EntityMap_1_10.java  | 12 ++++
  .../net/md_5/bungee/entitymap/EntityMap_1_8.java   | 12 ++++
  .../net/md_5/bungee/entitymap/EntityMap_1_9.java   | 12 ++++
+ .../net/md_5/bungee/entitymap/EntityMap_1_9_4.java | 12 ++++
  .../java/net/md_5/bungee/netty/HandlerBoss.java    |  3 +
  .../java/net/md_5/bungee/netty/PacketHandler.java  |  5 ++
  .../java/net/md_5/bungee/netty/PipelineUtils.java  |  4 +-
- 13 files changed, 164 insertions(+), 14 deletions(-)
+ 15 files changed, 188 insertions(+), 14 deletions(-)
  create mode 100644 protocol/src/main/java/net/md_5/bungee/protocol/util/SliceDecider.java
  create mode 100644 proxy/src/main/java/net/md_5/bungee/connection/SliceDeciderImpl.java
 
@@ -146,7 +148,7 @@ index 0000000..93c3d40
 +    boolean shouldNotSlice(int packetId);
 +}
 diff --git a/proxy/src/main/java/net/md_5/bungee/UserConnection.java b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-index 894a2f2..48b0507 100644
+index 1f41298..2655a9a 100644
 --- a/proxy/src/main/java/net/md_5/bungee/UserConnection.java
 +++ b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
 @@ -1,5 +1,7 @@
@@ -157,7 +159,7 @@ index 894a2f2..48b0507 100644
  import com.google.common.base.Objects;
  import com.google.common.base.Preconditions;
  import com.google.common.collect.ImmutableMap;
-@@ -280,7 +282,7 @@ public final class UserConnection implements ProxiedPlayer
+@@ -294,7 +296,7 @@ public final class UserConnection implements ProxiedPlayer
              protected void initChannel(Channel ch) throws Exception
              {
                  PipelineUtils.BASE.initChannel( ch );
@@ -284,10 +286,10 @@ index f883cd0..f68c327 100644
      {
          if ( alive.getRandomId() == con.getSentPingId() )
 diff --git a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap.java b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap.java
-index 51ef928..1e2d08e 100644
+index 7eb48e0..c5fd5ca 100644
 --- a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap.java
 +++ b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap.java
-@@ -85,7 +85,7 @@ public abstract class EntityMap
+@@ -86,7 +86,7 @@ public abstract class EntityMap
      {
          // Need to rewrite the packet because VarInts are variable length
          int readId = DefinedPacket.readVarInt( packet );
@@ -296,7 +298,7 @@ index 51ef928..1e2d08e 100644
          if ( readId == oldId || readId == newId )
          {
              ByteBuf data = packet.copy();
-@@ -113,4 +113,18 @@ public abstract class EntityMap
+@@ -114,4 +114,18 @@ public abstract class EntityMap
          }
          packet.readerIndex( readerIndex );
      }
@@ -313,6 +315,27 @@ index 51ef928..1e2d08e 100644
 +    public final boolean isRewriteClientbound(int packetId)
 +    {
 +        return ( clientboundInts[ packetId ] || clientboundVarInts[ packetId ] ) || isRewriteClientbound0( packetId );
++    }
+ }
+diff --git a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_10.java b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_10.java
+index 8ee3992..ef7472b 100644
+--- a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_10.java
++++ b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_10.java
+@@ -171,4 +171,16 @@ class EntityMap_1_10 extends EntityMap
+         }
+         packet.readerIndex( readerIndex );
+     }
++
++    @Override
++    protected boolean isRewriteClientbound0(int packetId)
++    {
++        return packetId == 0x48 || packetId == 0x40 || packetId == 0x30 || packetId == 0x00 || packetId == 0x05 || packetId == 0x2C;
++    }
++
++    @Override
++    protected boolean isRewriteServerbound0(int packetId)
++    {
++        return packetId == 0x1B;
 +    }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_8.java b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_8.java
@@ -337,10 +360,10 @@ index 4229fef..3e1fdfa 100644
 +    }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9.java b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9.java
-index 1f15dcb..c3a2542 100644
+index f6eb972..5af4d39 100644
 --- a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9.java
 +++ b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9.java
-@@ -170,4 +170,16 @@ class EntityMap_1_9 extends EntityMap
+@@ -171,4 +171,16 @@ class EntityMap_1_9 extends EntityMap
          }
          packet.readerIndex( readerIndex );
      }
@@ -357,8 +380,29 @@ index 1f15dcb..c3a2542 100644
 +        return packetId == 0x1B;
 +    }
  }
+diff --git a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9_4.java b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9_4.java
+index c7442be..c8841ae 100644
+--- a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9_4.java
++++ b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9_4.java
+@@ -171,4 +171,16 @@ class EntityMap_1_9_4 extends EntityMap
+         }
+         packet.readerIndex( readerIndex );
+     }
++
++    @Override
++    protected boolean isRewriteClientbound0(int packetId)
++    {
++        return packetId == 0x48 || packetId == 0x40 || packetId == 0x30 || packetId == 0x00 || packetId == 0x05 || packetId == 0x2C;
++    }
++
++    @Override
++    protected boolean isRewriteServerbound0(int packetId)
++    {
++        return packetId == 0x1B;
++    }
+ }
 diff --git a/proxy/src/main/java/net/md_5/bungee/netty/HandlerBoss.java b/proxy/src/main/java/net/md_5/bungee/netty/HandlerBoss.java
-index 8b9712b..dfdcedc 100644
+index 94a164e..90f666b 100644
 --- a/proxy/src/main/java/net/md_5/bungee/netty/HandlerBoss.java
 +++ b/proxy/src/main/java/net/md_5/bungee/netty/HandlerBoss.java
 @@ -1,5 +1,7 @@
@@ -369,7 +413,7 @@ index 8b9712b..dfdcedc 100644
  import net.md_5.bungee.protocol.PacketWrapper;
  import com.google.common.base.Preconditions;
  import io.netty.channel.ChannelHandlerContext;
-@@ -23,6 +25,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
+@@ -24,6 +26,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
  {
  
      private ChannelWrapper channel;

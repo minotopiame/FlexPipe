@@ -1,8 +1,8 @@
-From 8b3a530965b59cc01dc4d5f7148c4436a2d7536c Mon Sep 17 00:00:00 2001
+From 088b66b4151f7f12f967162b56ea5bf2b74bb13e Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Fri, 18 Mar 2016 18:29:29 +0100
-Subject: Require compressed packets to be bigger than compression threshold to
- prevent a dos attack
+Subject: Require compressed packets to be bigger than compression threshold
+ (circumvents a dos attack partly)
 
 Fixes SpigotMC/BungeeCord#1762
 ---

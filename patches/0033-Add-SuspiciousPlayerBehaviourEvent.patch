@@ -1,4 +1,4 @@
-From e1e4bfbd68a6d9511ef29860c80360b8518ab3a5 Mon Sep 17 00:00:00 2001
+From a3a89f3513154513f60d0a5310ca3010d466f2c8 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Thu, 24 Mar 2016 14:29:14 +0100
 Subject: Add SuspiciousPlayerBehaviourEvent
@@ -6,9 +6,9 @@ Subject: Add SuspiciousPlayerBehaviourEvent
 The event gets called after the connection was closed and reports certain actions to plugins so they can primarily identify bot joins.
 ---
  .../api/event/SuspiciousPlayerBehaviourEvent.java  | 36 ++++++++++++++++++++++
- .../net/md_5/bungee/connection/InitialHandler.java |  8 +++--
+ .../net/md_5/bungee/connection/InitialHandler.java |  7 +++--
  .../net/md_5/bungee/connection/UpstreamBridge.java | 22 ++++++++++---
- 3 files changed, 59 insertions(+), 7 deletions(-)
+ 3 files changed, 59 insertions(+), 6 deletions(-)
  create mode 100644 api/src/main/java/me/minotopia/flexpipe/api/event/SuspiciousPlayerBehaviourEvent.java
 
 diff --git a/api/src/main/java/me/minotopia/flexpipe/api/event/SuspiciousPlayerBehaviourEvent.java b/api/src/main/java/me/minotopia/flexpipe/api/event/SuspiciousPlayerBehaviourEvent.java
@@ -54,7 +54,7 @@ index 0000000..39dfb24
 +    }
 +}
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 71cf563..a7ab02f 100644
+index 533491a..c2848f6 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -1,5 +1,7 @@
@@ -65,23 +65,15 @@ index 71cf563..a7ab02f 100644
  import com.google.common.base.Charsets;
  import com.google.common.base.Preconditions;
  import java.math.BigInteger;
-@@ -22,7 +24,6 @@ import net.md_5.bungee.api.Favicon;
- import net.md_5.bungee.api.ProxyServer;
+@@ -20,7 +22,6 @@ import net.md_5.bungee.api.ChatColor;
+ import net.md_5.bungee.api.Favicon;
  import net.md_5.bungee.api.ServerPing;
  import net.md_5.bungee.api.chat.BaseComponent;
 -import net.md_5.bungee.api.chat.ComponentBuilder;
  import net.md_5.bungee.api.chat.TextComponent;
  import net.md_5.bungee.api.config.ListenerInfo;
  import net.md_5.bungee.api.config.ServerInfo;
-@@ -52,7 +53,6 @@ import net.md_5.bungee.api.event.PlayerHandshakeEvent;
- import net.md_5.bungee.api.event.PreLoginEvent;
- import net.md_5.bungee.jni.cipher.BungeeCipher;
- import net.md_5.bungee.protocol.Protocol;
--import net.md_5.bungee.protocol.ProtocolConstants;
- import net.md_5.bungee.protocol.packet.LegacyHandshake;
- import net.md_5.bungee.protocol.packet.LegacyPing;
- import net.md_5.bungee.protocol.packet.LoginRequest;
-@@ -286,6 +286,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -280,6 +281,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              // setting protocol to login so we can send the kick message which is actually supported by the minecraft client after it sent the handshake
              ch.setProtocol( Protocol.LOGIN );
              disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( BungeeCord.getInstance().getConfig().getThrottle() ) ) );
@@ -89,7 +81,7 @@ index 71cf563..a7ab02f 100644
              return;
          }
  
-@@ -628,12 +629,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -622,12 +624,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          return !ch.isClosed();
      }
  

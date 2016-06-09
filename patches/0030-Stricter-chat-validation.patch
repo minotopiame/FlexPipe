@@ -1,4 +1,4 @@
-From f1dc6dffcac0e32fbf0b33fc2d922f58a71e62ae Mon Sep 17 00:00:00 2001
+From b7e50def8d73ab5ab71e7f602f45017ce2fc4ec6 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 21 Mar 2016 03:25:13 +0100
 Subject: Stricter chat validation.
@@ -12,26 +12,26 @@ This prevents some joinbot attacks where bots start chatting before they actuall
  2 files changed, 25 insertions(+)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index d5a2ca7..71cf563 100644
+index 9d1e1d3..533491a 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -22,6 +22,7 @@ import net.md_5.bungee.api.Favicon;
- import net.md_5.bungee.api.ProxyServer;
+@@ -20,6 +20,7 @@ import net.md_5.bungee.api.ChatColor;
+ import net.md_5.bungee.api.Favicon;
  import net.md_5.bungee.api.ServerPing;
  import net.md_5.bungee.api.chat.BaseComponent;
 +import net.md_5.bungee.api.chat.ComponentBuilder;
  import net.md_5.bungee.api.chat.TextComponent;
  import net.md_5.bungee.api.config.ListenerInfo;
  import net.md_5.bungee.api.config.ServerInfo;
-@@ -40,6 +41,7 @@ import net.md_5.bungee.netty.cipher.CipherDecoder;
- import net.md_5.bungee.netty.cipher.CipherEncoder;
+@@ -39,6 +40,7 @@ import net.md_5.bungee.netty.cipher.CipherEncoder;
  import net.md_5.bungee.protocol.DefinedPacket;
  import net.md_5.bungee.protocol.PacketWrapper;
+ import net.md_5.bungee.protocol.ProtocolConstants;
 +import net.md_5.bungee.protocol.packet.Chat;
  import net.md_5.bungee.protocol.packet.Handshake;
  import net.md_5.bungee.protocol.packet.PluginMessage;
  import net.md_5.bungee.protocol.packet.EncryptionResponse;
-@@ -625,4 +627,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -619,4 +621,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      {
          return !ch.isClosed();
      }

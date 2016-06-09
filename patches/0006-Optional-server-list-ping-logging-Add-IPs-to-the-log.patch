@@ -1,4 +1,4 @@
-From 452fb724df147e1f03c0e5d809df27cf2e46e4e8 Mon Sep 17 00:00:00 2001
+From a06703e5ce20d4fdfc84a95a3614af5553a5c7ce Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sat, 12 Dec 2015 23:43:30 +0100
 Subject: Optional server list ping logging; Add IPs to the log where user
@@ -81,10 +81,10 @@ index cb9dbaf..6369d2e 100644
      }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 6959fe7..69e14be 100644
+index 65a929e..11759ba 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -290,7 +290,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -287,7 +287,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          }
  
          this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
@@ -92,7 +92,7 @@ index 6959fe7..69e14be 100644
  
          bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
  
-@@ -298,11 +297,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -295,11 +294,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          {
              case 1:
                  // Ping
@@ -108,8 +108,8 @@ index 6959fe7..69e14be 100644
 +                bungee.getLogger().log( Level.INFO, "{0} has connected", this );
                  thisState = State.USERNAME;
                  ch.setProtocol( Protocol.LOGIN );
-                 break;
-@@ -617,7 +621,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+                 if ( !ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) )
+@@ -614,7 +618,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public String toString()
      {
