@@ -15,7 +15,7 @@ server.
 ### Features
 [Complete patch list](https://github.com/minotopiame/FlexPipe/tree/master/patches)
 
-Here is a list of notable changes done in FlexPipe:
+Here is a list of notable changes done in FlexPipe, see individual patches for people who helped out:
 
 * Join throttle applied as early as possible
 * Throttle tab completion as some plugins might get overloaded if its spammed
