@@ -12,6 +12,31 @@ between multiple minecraft servers, preferably spigot servers (and derivates). I
 its a world change while the system disconnects from the previous minecraft server and connects to the target minecraft
 server.
 
+### Features
+[Complete patch list](https://github.com/minotopiame/FlexPipe/tree/master/patches)
+
+Here is a list of notable changes done in FlexPipe:
+
+* Join throttle applied as early as possible
+* Throttle tab completion as some plugins might get overloaded if its spammed
+* Differentiate between pings ad joins in logging, possibility to turn off ping logging
+* Allow modification of the module source url
+* Option to turn off module downloading / updating
+* Tweaking netty values to be optimal
+* Ability to edit bungeecord messages without modifying the jar
+* Resolve possible deadlock
+* Little optimizations
+* Lower log output on invalid packet order
+* Close connections without a half-second delay
+* Keep compatibility with older pinging tools for version 1.8
+* Validate compressed packets against compression threshold
+* Be more strict when validating chat
+* API for unusual behaviour detection
+* Speed up event handling through usage of dynamically created classes (faster than optimized reflection)
+* Don't copy memory where possible
+* Massively reduce memory usage when scoreboard plugins create many teams
+* Allow the console to tab-complete
+
 ## Download
 You can download the newest builds from my [Jenkins](https://ci.janmm14.de/job/public~server~FlexPipe). The latest build
 is always the recommended build, except otherwise stated.
