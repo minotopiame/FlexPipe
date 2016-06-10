@@ -1,22 +1,20 @@
-From cc11922641b6c5895023e8cb4c1d2b1a39dc00fc Mon Sep 17 00:00:00 2001
+From ca271e9af2d956255e08411ea6ac614217c3dd75 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Fri, 8 Apr 2016 00:04:13 +0200
 Subject: Slice packets in MinecraftDecoder where possible, based on packet Id
 
 Give MinecraftDecoder a SliceDecider which links through the HandlerBoss handler to the EntityMap, which then looks whether the packetId is either registered to be changed or handled in the version-specific rewrites.
 
-Move two variables to final fields instead of calculating them every decode.
-
 Additionally it removes some overhead by the MessageToMessageEncoder from MinecraftDecoder.
 ---
- .../net/md_5/bungee/protocol/MinecraftDecoder.java | 84 ++++++++++++++++++----
+ .../net/md_5/bungee/protocol/MinecraftDecoder.java | 67 +++++++++++++++++++---
  .../md_5/bungee/protocol/util/SliceDecider.java    |  6 ++
  .../main/java/net/md_5/bungee/UserConnection.java  |  4 +-
- .../md_5/bungee/connection/DownstreamBridge.java   | 14 +++-
+ .../md_5/bungee/connection/DownstreamBridge.java   | 14 ++++-
  .../net/md_5/bungee/connection/PingHandler.java    |  4 +-
- .../md_5/bungee/connection/SliceDeciderImpl.java   | 18 +++++
- .../net/md_5/bungee/connection/UpstreamBridge.java | 13 +++-
- .../java/net/md_5/bungee/entitymap/EntityMap.java  | 16 ++++-
+ .../md_5/bungee/connection/SliceDeciderImpl.java   | 18 ++++++
+ .../net/md_5/bungee/connection/UpstreamBridge.java | 13 ++++-
+ .../java/net/md_5/bungee/entitymap/EntityMap.java  | 16 +++++-
  .../net/md_5/bungee/entitymap/EntityMap_1_10.java  | 12 ++++
  .../net/md_5/bungee/entitymap/EntityMap_1_8.java   | 12 ++++
  .../net/md_5/bungee/entitymap/EntityMap_1_9.java   | 12 ++++
@@ -24,12 +22,12 @@ Additionally it removes some overhead by the MessageToMessageEncoder from Minecr
  .../java/net/md_5/bungee/netty/HandlerBoss.java    |  3 +
  .../java/net/md_5/bungee/netty/PacketHandler.java  |  5 ++
  .../java/net/md_5/bungee/netty/PipelineUtils.java  |  4 +-
- 15 files changed, 201 insertions(+), 18 deletions(-)
+ 15 files changed, 188 insertions(+), 14 deletions(-)
  create mode 100644 protocol/src/main/java/net/md_5/bungee/protocol/util/SliceDecider.java
  create mode 100644 proxy/src/main/java/net/md_5/bungee/connection/SliceDeciderImpl.java
 
 diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java b/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java
-index 4846ec6..a8a6077 100644
+index 4846ec6..4b914ad 100644
 --- a/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java
 +++ b/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java
 @@ -1,5 +1,9 @@
@@ -42,42 +40,28 @@ index 4846ec6..a8a6077 100644
  import io.netty.buffer.ByteBuf;
  import io.netty.channel.ChannelHandlerContext;
  import io.netty.handler.codec.MessageToMessageDecoder;
-@@ -8,31 +12,51 @@ import lombok.AllArgsConstructor;
- import lombok.Getter;
+@@ -9,7 +13,7 @@ import lombok.Getter;
  import lombok.Setter;
  
--@AllArgsConstructor
+ @AllArgsConstructor
 -public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
 +public class MinecraftDecoder extends ChannelInboundHandlerAdapter
  {
  
      @Getter
-     @Setter
-     private Protocol protocol;
--    private final boolean server;
-+    private final Protocol.DirectionData prot;
-+    private final ProtocolConstants.Direction direction;
+@@ -18,17 +22,28 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
+     private final boolean server;
      @Setter
      private int protocolVersion;
 +    private final SliceDecider sliceDecider;
  
 -    @Override
 -    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
-+    public MinecraftDecoder(Protocol protocol, boolean server, int protocolVersion, SliceDecider sliceDecider)
-+    {
-+        this.protocol = protocol;
-+        prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
-+        direction = prot.getDirection();
-+        this.protocolVersion = protocolVersion;
-+        this.sliceDecider = sliceDecider;
-+    }
-+
 +    private Object decode(ByteBuf in) throws Exception
      {
--        Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
+         Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
 -        ByteBuf slice = in.copy(); // Can't slice this one due to EntityMap :(
 +        ByteBuf newBuf = null;
-+        int protocolVersion = this.protocolVersion;
  
          try
          {
@@ -97,12 +81,7 @@ index 4846ec6..a8a6077 100644
              DefinedPacket packet = prot.createPacket( packetId, protocolVersion );
              if ( packet != null )
              {
--                packet.read( in, prot.getDirection(), protocolVersion );
-+                packet.read( in, direction, protocolVersion );
- 
-                 if ( in.isReadable() )
-                 {
-@@ -43,13 +67,49 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
+@@ -43,13 +58,49 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
                  in.skipBytes( in.readableBytes() );
              }
  
