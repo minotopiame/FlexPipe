@@ -1,4 +1,4 @@
-From 3847a587151a9cdb32c73823388c68959fd24e33 Mon Sep 17 00:00:00 2001
+From 3172da9eaebfe0af69b7ff9f315a5fe99bbd2c58 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 4 Apr 2016 10:13:15 +0200
 Subject: Ensure kick messages can be sent while being at protocol HANDSHAKE by
@@ -30,10 +30,10 @@ index e7cb380..4846ec6 100644
      private Protocol protocol;
      private final boolean server;
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index bd014a9..c34be65 100644
+index 6c6b81a..a7d4e7f 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -279,8 +279,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -277,8 +277,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          {
              // setting thisState to username to stop possible code execution on repeated handshakes
              thisState = State.USERNAME;
@@ -42,8 +42,8 @@ index bd014a9..c34be65 100644
              disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( BungeeCord.getInstance().getConfig().getThrottle() ) ) );
              BungeeCord.getInstance().getPluginManager().callEvent( new SuspiciousPlayerBehaviourEvent( this, SuspiciousPlayerBehaviourEvent.Check.JOIN_THROTTLE_TRIGGERED ) );
              return;
-@@ -545,7 +543,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
-             disconnecting = true;
+@@ -542,7 +540,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+         {
              if ( thisState != State.STATUS && thisState != State.PING )
              {
 -                ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
