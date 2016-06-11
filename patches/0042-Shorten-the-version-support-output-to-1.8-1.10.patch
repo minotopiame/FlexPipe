@@ -1,0 +1,25 @@
+From ab944984eab887e7cec8944be777cb9a8b3c9e89 Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Sat, 11 Jun 2016 15:59:47 +0200
+Subject: Shorten the version support output to '1.8 - 1.10'
+
+---
+ proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+index a7d4e7f..bfabe8f 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
+@@ -243,7 +243,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+         {
+             int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
+             pingBack.done( new ServerPing(
+-                    new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), protocol ),
++                    new ServerPing.Protocol( bungee.getName() + " 1.8 - 1.10", protocol ),
+                     new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
+                     motd, BungeeCord.getInstance().config.getFaviconObject() ),
+                     null );
+-- 
+1.9.5.msysgit.0
+
