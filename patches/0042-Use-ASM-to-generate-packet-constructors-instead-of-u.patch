@@ -1,0 +1,229 @@
+From ee454f0906b583a84590ca2c22c354a5469c865c Mon Sep 17 00:00:00 2001
+From: Janmm14 <computerjanimaus@yahoo.de>
+Date: Fri, 10 Jun 2016 16:52:09 +0200
+Subject: Use ASM to generate packet constructors instead of using reflection
+
+---
+ protocol/pom.xml                                   |  5 ++
+ .../java/net/md_5/bungee/protocol/Protocol.java    | 20 +++--
+ .../constructor/ASMPacketConstructorGenerator.java | 87 ++++++++++++++++++++++
+ .../protocol/constructor/PacketConstructor.java    |  8 ++
+ .../constructor/ReflectivePacketConstructor.java   | 17 +++++
+ 5 files changed, 132 insertions(+), 5 deletions(-)
+ create mode 100644 protocol/src/main/java/net/md_5/bungee/protocol/constructor/ASMPacketConstructorGenerator.java
+ create mode 100644 protocol/src/main/java/net/md_5/bungee/protocol/constructor/PacketConstructor.java
+ create mode 100644 protocol/src/main/java/net/md_5/bungee/protocol/constructor/ReflectivePacketConstructor.java
+
+diff --git a/protocol/pom.xml b/protocol/pom.xml
+index 627b6db..7ce9618 100644
+--- a/protocol/pom.xml
++++ b/protocol/pom.xml
+@@ -35,5 +35,10 @@
+             <version>3.0.3</version>
+             <scope>compile</scope>
+         </dependency>
++        <dependency>
++            <groupId>org.javassist</groupId>
++            <artifactId>javassist</artifactId>
++            <version>3.19.0-GA</version>
++        </dependency>
+     </dependencies>
+ </project>
+diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/Protocol.java b/protocol/src/main/java/net/md_5/bungee/protocol/Protocol.java
+index d15d4ed..8b2278c 100644
+--- a/protocol/src/main/java/net/md_5/bungee/protocol/Protocol.java
++++ b/protocol/src/main/java/net/md_5/bungee/protocol/Protocol.java
+@@ -8,9 +8,13 @@ import gnu.trove.map.hash.TIntObjectHashMap;
+ import gnu.trove.map.hash.TObjectIntHashMap;
+ import java.lang.reflect.Constructor;
+ import java.util.Arrays;
++import java.util.Collections;
+ import java.util.List;
+ import lombok.Getter;
+ import lombok.RequiredArgsConstructor;
++import net.md_5.bungee.protocol.constructor.ASMPacketConstructorGenerator;
++import net.md_5.bungee.protocol.constructor.PacketConstructor;
++import net.md_5.bungee.protocol.constructor.ReflectivePacketConstructor;
+ import net.md_5.bungee.protocol.packet.BossBar;
+ import net.md_5.bungee.protocol.packet.Chat;
+ import net.md_5.bungee.protocol.packet.ClientSettings;
+@@ -227,7 +231,7 @@ public enum Protocol
+ 
+         private final int protocolVersion;
+         private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID );
+-        private final TIntObjectMap<Constructor<? extends DefinedPacket>> packetConstructors = new TIntObjectHashMap<>( MAX_PACKET_ID );
++        private final TIntObjectMap<PacketConstructor> packetConstructors = new TIntObjectHashMap<>( MAX_PACKET_ID );
+     }
+ 
+     @RequiredArgsConstructor
+@@ -254,7 +258,7 @@ public enum Protocol
+         }
+         private final TIntObjectMap<List<Integer>> linkedProtocols = new TIntObjectHashMap<>();
+         {
+-            linkedProtocols.put( ProtocolConstants.MINECRAFT_1_8, Arrays.asList(
++            linkedProtocols.put( ProtocolConstants.MINECRAFT_1_8, Collections.singletonList(
+                     ProtocolConstants.MINECRAFT_1_9
+             ) );
+             linkedProtocols.put( ProtocolConstants.MINECRAFT_1_9, Arrays.asList(
+@@ -290,11 +294,11 @@ public enum Protocol
+                 throw new BadPacketException( "Packet with id " + id + " outside of range " );
+             }
+ 
+-            Constructor<? extends DefinedPacket> constructor = protocolData.packetConstructors.get( id );
++            PacketConstructor constructor = protocolData.packetConstructors.get( id );
+             try
+             {
+                 return ( constructor == null ) ? null : constructor.newInstance();
+-            } catch ( ReflectiveOperationException ex )
++            } catch ( Exception ex )
+             {
+                 throw new BadPacketException( "Could not construct packet with id " + id, ex );
+             }
+@@ -309,7 +313,13 @@ public enum Protocol
+                 {
+                     ProtocolData data = protocols.get( mapping.protocolVersion );
+                     data.packetMap.put( packetClass, mapping.packetID );
+-                    data.packetConstructors.put( mapping.packetID, constructor );
++                    PacketConstructor packetConstructor = ASMPacketConstructorGenerator.generatePacketConstructor( constructor );
++                    if ( packetConstructor == null )
++                    {
++                        System.out.println( "Could not generate asm packet constructor for " + constructor + ", using reflection" );
++                        packetConstructor = new ReflectivePacketConstructor( constructor );
++                    }
++                    data.packetConstructors.put( mapping.packetID, packetConstructor );
+ 
+                     List<Integer> links = linkedProtocols.get( mapping.protocolVersion );
+                     if ( links != null )
+diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/constructor/ASMPacketConstructorGenerator.java b/protocol/src/main/java/net/md_5/bungee/protocol/constructor/ASMPacketConstructorGenerator.java
+new file mode 100644
+index 0000000..e588c23
+--- /dev/null
++++ b/protocol/src/main/java/net/md_5/bungee/protocol/constructor/ASMPacketConstructorGenerator.java
+@@ -0,0 +1,87 @@
++package net.md_5.bungee.protocol.constructor;
++
++import java.lang.reflect.Constructor;
++import java.util.HashMap;
++import java.util.Map;
++import java.util.concurrent.atomic.AtomicInteger;
++import javassist.ByteArrayClassPath;
++import javassist.CannotCompileException;
++import javassist.ClassPool;
++import javassist.NotFoundException;
++import net.md_5.bungee.protocol.DefinedPacket;
++import org.objectweb.asm.ClassWriter;
++import org.objectweb.asm.Type;
++import org.objectweb.asm.commons.GeneratorAdapter;
++import org.objectweb.asm.commons.Method;
++
++import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
++import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
++import static org.objectweb.asm.Opcodes.V1_8;
++
++public class ASMPacketConstructorGenerator
++{
++
++    private static Map<String, PacketConstructor> generatedConstructors = new HashMap<>();
++
++    public static PacketConstructor generatePacketConstructor(Constructor<? extends DefinedPacket> constructor)
++    {
++        Class<? extends DefinedPacket> packetClass = constructor.getDeclaringClass();
++        PacketConstructor packetConstructor = generatedConstructors.get( packetClass.getName() );
++        if ( packetConstructor != null )
++        {
++            return packetConstructor;
++        }
++        try
++        {
++            ClassWriter writer = new ClassWriter( ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS );
++            String bytecodeName = generateName( packetClass );
++            writer.visit( V1_8, ACC_PUBLIC, bytecodeName, null, Type.getInternalName( Object.class ), new String[]{ Type.getInternalName( PacketConstructor.class ) } );
++            generateMethods( constructor, packetClass, writer );
++            writer.visitEnd();
++
++            String javaName = bytecodeName.replace( '/', '.' );
++            byte[] classfile = writer.toByteArray();
++
++            packetConstructor = ( PacketConstructor ) loadClass( javaName, classfile ).getConstructor().newInstance();
++            generatedConstructors.put( packetClass.getName(), packetConstructor );
++            return packetConstructor;
++        } catch ( CannotCompileException | NotFoundException | ReflectiveOperationException e )
++        {
++            e.printStackTrace();
++            return null;
++        }
++    }
++
++    private static void generateMethods(Constructor<? extends DefinedPacket> constructor, Class<? extends DefinedPacket> packetClass, ClassWriter writer)
++    {
++        //Generate constructor
++        GeneratorAdapter methodGenerator = new GeneratorAdapter( writer.visitMethod( ACC_PUBLIC, "<init>", "()V", null, null ), ACC_PUBLIC, "<init>", "()V" );
++        methodGenerator.loadThis();
++        methodGenerator.visitMethodInsn( INVOKESPECIAL, Type.getInternalName( Object.class ), "<init>", "()V", false ); // Invoke the super class (Object) constructor
++        methodGenerator.returnValue();
++        methodGenerator.endMethod();
++        //Generate newInstance method
++        String methodDesc = Type.getMethodDescriptor( Type.getType( DefinedPacket.class ) );
++        methodGenerator = new GeneratorAdapter( writer.visitMethod( ACC_PUBLIC, "newInstance", methodDesc, null, null ), ACC_PUBLIC, "newInstance", methodDesc );
++        methodGenerator.newInstance( Type.getType( packetClass ) );
++        methodGenerator.dup();
++        methodGenerator.invokeConstructor( Type.getType( packetClass ), Method.getMethod( constructor ) );
++        methodGenerator.returnValue();
++        methodGenerator.endMethod();
++    }
++
++    private static Class<?> loadClass(String javaName, byte[] classfile) throws CannotCompileException, NotFoundException
++    {
++        ByteArrayClassPath classPath = new ByteArrayClassPath( javaName, classfile );
++        ClassPool classPool = new ClassPool();
++        classPool.appendClassPath( classPath );
++        return classPool.get( javaName ).toClass();
++    }
++
++    private static final AtomicInteger NEXT_ID = new AtomicInteger( 1 );
++
++    private static String generateName(Class<?> packetClass)
++    {
++        return "net/md_5/bungee/protocol/constructor/generated/GeneratedPacketConstructor" + NEXT_ID.getAndIncrement() + packetClass.getSimpleName();
++    }
++}
+diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/constructor/PacketConstructor.java b/protocol/src/main/java/net/md_5/bungee/protocol/constructor/PacketConstructor.java
+new file mode 100644
+index 0000000..2f9b7b9
+--- /dev/null
++++ b/protocol/src/main/java/net/md_5/bungee/protocol/constructor/PacketConstructor.java
+@@ -0,0 +1,8 @@
++package net.md_5.bungee.protocol.constructor;
++
++import net.md_5.bungee.protocol.DefinedPacket;
++
++public interface PacketConstructor
++{
++    public DefinedPacket newInstance() throws Exception;
++}
+diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/constructor/ReflectivePacketConstructor.java b/protocol/src/main/java/net/md_5/bungee/protocol/constructor/ReflectivePacketConstructor.java
+new file mode 100644
+index 0000000..85ac8df
+--- /dev/null
++++ b/protocol/src/main/java/net/md_5/bungee/protocol/constructor/ReflectivePacketConstructor.java
+@@ -0,0 +1,17 @@
++package net.md_5.bungee.protocol.constructor;
++
++import java.lang.reflect.Constructor;
++import lombok.RequiredArgsConstructor;
++import net.md_5.bungee.protocol.DefinedPacket;
++
++@RequiredArgsConstructor
++public class ReflectivePacketConstructor implements PacketConstructor
++{
++    private final Constructor<? extends DefinedPacket> constructor;
++    
++    @Override
++    public DefinedPacket newInstance() throws Exception
++    {
++        return constructor.newInstance();
++    }
++}
+-- 
+1.9.5.msysgit.0
+
