@@ -1,4 +1,4 @@
-From a06703e5ce20d4fdfc84a95a3614af5553a5c7ce Mon Sep 17 00:00:00 2001
+From 18fe5040ba58e400bb415a268c4bfb8b36ffc7f4 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sat, 12 Dec 2015 23:43:30 +0100
 Subject: Optional server list ping logging; Add IPs to the log where user
@@ -81,7 +81,7 @@ index cb9dbaf..6369d2e 100644
      }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 65a929e..11759ba 100644
+index e9e2422..2077e31 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -287,7 +287,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
@@ -108,8 +108,8 @@ index 65a929e..11759ba 100644
 +                bungee.getLogger().log( Level.INFO, "{0} has connected", this );
                  thisState = State.USERNAME;
                  ch.setProtocol( Protocol.LOGIN );
-                 if ( !ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) )
-@@ -614,7 +618,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+ 
+@@ -621,7 +625,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public String toString()
      {

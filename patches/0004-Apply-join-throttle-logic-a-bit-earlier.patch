@@ -1,14 +1,14 @@
-From 10200ffec1390476a86e22da50bcca20c95f6f44 Mon Sep 17 00:00:00 2001
+From 71b11bdd01d89abf80140fbd6cc52bd5342b22db Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 7 Oct 2015 21:53:26 +0200
 Subject: Apply join throttle logic a bit earlier
 
 ---
- .../java/net/md_5/bungee/connection/InitialHandler.java   | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ .../java/net/md_5/bungee/connection/InitialHandler.java    | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 9240267..65a929e 100644
+index 84e12df..e9e2422 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -258,6 +258,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
@@ -28,14 +28,7 @@ index 9240267..65a929e 100644
          // Starting with FML 1.8, a "\0FML\0" token is appended to the handshake. This interferes
          // with Bungee's IP forwarding, so we detect it, and remove it from the host string, for now.
          // We know FML appends \00FML\00. However, we need to also consider that other systems might
-@@ -292,17 +302,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
-                 // Login
-                 thisState = State.USERNAME;
-                 ch.setProtocol( Protocol.LOGIN );
--
-                 if ( !ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) )
-                 {
-                     disconnect( bungee.getTranslation( "outdated_server" ) );
+@@ -305,10 +315,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                      return;
                  }
  
