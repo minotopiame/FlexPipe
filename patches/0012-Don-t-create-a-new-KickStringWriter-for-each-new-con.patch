@@ -1,4 +1,4 @@
-From 291fd3e96de4a4d260e31977040131dcea4c6a6f Mon Sep 17 00:00:00 2001
+From 78f286b79f291abf50c201b167c5170e7eef5373 Mon Sep 17 00:00:00 2001
 From: Harry <me@harry5573.uk>
 Date: Tue, 16 Feb 2016 23:42:49 +0100
 Subject: Don't create a new KickStringWriter for each new connection.

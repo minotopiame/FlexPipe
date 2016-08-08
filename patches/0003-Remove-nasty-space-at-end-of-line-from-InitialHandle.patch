@@ -1,4 +1,4 @@
-From 12a988ad62ffd6af79e77e2d5d397035176d4ccd Mon Sep 17 00:00:00 2001
+From fe8de45a40377373c385028b29b19103e8b3bf3f Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 21 Mar 2016 02:54:10 +0100
 Subject: Remove nasty space at end of line from InitialHandler
@@ -8,10 +8,10 @@ Subject: Remove nasty space at end of line from InitialHandler
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 34b1a4b..dbce941 100644
+index 3fe1d23..84e12df 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -254,7 +254,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -258,7 +258,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          this.handshake = handshake;
          ch.setVersion( handshake.getProtocolVersion() );
  

@@ -1,4 +1,4 @@
-From f7c671223a6027acc948d9e7a91436ed2dae2108 Mon Sep 17 00:00:00 2001
+From 9d5dda5be5bc1ae26144421a60021daa29be24e5 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Thu, 18 Feb 2016 15:59:37 +0100
 Subject: Micro-optimize mojang uuid to uuid object conversion (and other way
@@ -158,7 +158,7 @@ index 86a0055..7b4532b 100644
      }
  }
 diff --git a/api/src/main/java/net/md_5/bungee/api/ServerPing.java b/api/src/main/java/net/md_5/bungee/api/ServerPing.java
-index 4eb04cd..1a0daaf 100644
+index 314a1d2..8dda2fb 100644
 --- a/api/src/main/java/net/md_5/bungee/api/ServerPing.java
 +++ b/api/src/main/java/net/md_5/bungee/api/ServerPing.java
 @@ -73,7 +73,7 @@ public class ServerPing
@@ -171,7 +171,7 @@ index 4eb04cd..1a0daaf 100644
      }
  
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 9b40ea0..38f4115 100644
+index 8cbb9de..b350b52 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -577,7 +577,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection

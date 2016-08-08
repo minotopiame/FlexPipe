@@ -1,4 +1,4 @@
-From 4a2759cec76ffe822e0c788814be34ca389203c2 Mon Sep 17 00:00:00 2001
+From 59b003aaf848a3804a6a4f328ef91db3e937820d Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 21 Feb 2016 22:01:12 +0100
 Subject: Performance, log sanity: No exception on invalid packet order, just
@@ -9,7 +9,7 @@ Subject: Performance, log sanity: No exception on invalid packet order, just
  1 file changed, 38 insertions(+), 5 deletions(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 48e56ae..141666f 100644
+index b350b52..388d3b0 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -188,10 +188,31 @@ public class InitialHandler extends PacketHandler implements PendingConnection
@@ -69,7 +69,7 @@ index 48e56ae..141666f 100644
          this.handshake = handshake;
          ch.setVersion( handshake.getProtocolVersion() );
  
-@@ -306,7 +333,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -313,7 +340,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public void handle(LoginRequest loginRequest) throws Exception
      {
@@ -81,7 +81,7 @@ index 48e56ae..141666f 100644
          this.loginRequest = loginRequest;
  
          if ( getName().contains( "." ) )
-@@ -363,7 +393,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -370,7 +400,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
      @Override
      public void handle(final EncryptionResponse encryptResponse) throws Exception
      {

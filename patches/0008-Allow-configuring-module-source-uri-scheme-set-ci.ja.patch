@@ -1,4 +1,4 @@
-From c76e47bd15ca96ca5324dfebff88cba79836b7ba Mon Sep 17 00:00:00 2001
+From 1e3f18a9c4113d2eee009fbc81b0cabd4592d508 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 18:25:52 +0100
 Subject: Allow configuring module source uri scheme, set ci.janmm14.de as
@@ -12,10 +12,10 @@ Subject: Allow configuring module source uri scheme, set ci.janmm14.de as
  create mode 100644 proxy/src/main/java/net/md_5/bungee/module/ConfigurableModuleSource.java
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index 7463abf..a4430aa 100644
+index 562196c..2f9a8c7 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-@@ -253,6 +253,7 @@ public class BungeeCord extends ProxyServer
+@@ -249,6 +249,7 @@ public class BungeeCord extends ProxyServer
          eventLoops = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
  
          File moduleDirectory = new File( "modules" );
@@ -23,7 +23,7 @@ index 7463abf..a4430aa 100644
          moduleManager.load( this, moduleDirectory );
          pluginManager.detectPlugins( moduleDirectory );
  
-@@ -260,7 +261,6 @@ public class BungeeCord extends ProxyServer
+@@ -256,7 +257,6 @@ public class BungeeCord extends ProxyServer
          pluginManager.detectPlugins( pluginsFolder );
  
          pluginManager.loadPlugins();

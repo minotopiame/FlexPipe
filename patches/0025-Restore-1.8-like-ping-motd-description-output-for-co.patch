@@ -1,4 +1,4 @@
-From e307e53dd6310a06dd4eaecf13dbaef2f5da1103 Mon Sep 17 00:00:00 2001
+From bf736520cdd08ef51349600bf56dbee0b1c82db1 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 7 Mar 2016 13:33:26 +0100
 Subject: Restore 1.8-like ping motd description output for compability to
@@ -75,7 +75,7 @@ index 0000000..3f0c64e
 +    }
 +}
 diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/ProtocolConstants.java b/protocol/src/main/java/net/md_5/bungee/protocol/ProtocolConstants.java
-index 4b6d9fa..1b3f473 100644
+index 8a99ff9..bb93f30 100644
 --- a/protocol/src/main/java/net/md_5/bungee/protocol/ProtocolConstants.java
 +++ b/protocol/src/main/java/net/md_5/bungee/protocol/ProtocolConstants.java
 @@ -6,6 +6,7 @@ import java.util.List;
@@ -87,7 +87,7 @@ index 4b6d9fa..1b3f473 100644
      public static final int MINECRAFT_1_9 = 107;
      public static final int MINECRAFT_1_9_1 = 108;
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index 4b00877..5688efd 100644
+index 3de1dc2..4691434 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 @@ -19,6 +19,7 @@ import net.md_5.bungee.api.Favicon;
@@ -98,7 +98,7 @@ index 4b00877..5688efd 100644
  import net.md_5.bungee.chat.TextComponentSerializer;
  import net.md_5.bungee.chat.TranslatableComponentSerializer;
  import net.md_5.bungee.module.ModuleManager;
-@@ -149,12 +150,40 @@ public class BungeeCord extends ProxyServer
+@@ -145,12 +146,40 @@ public class BungeeCord extends ProxyServer
      private final ConsoleReader consoleReader;
      @Getter
      private final Logger logger;
@@ -188,7 +188,7 @@ index dc49bb6..5dc78a8 100644
      }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
-index 0cb2ba1..0212bcd 100644
+index ac569a0..9c3883c 100644
 --- a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
 +++ b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
 @@ -94,7 +94,7 @@ public class ServerConnector extends PacketHandler
@@ -201,10 +201,10 @@ index 0cb2ba1..0212bcd 100644
              copiedHandshake.setHost( newHost );
          } else if ( !user.getExtraDataInHandshake().isEmpty() )
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index a94f05f..2a69524 100644
+index 7ed4d3a..3643bb9 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-@@ -228,7 +228,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -225,7 +225,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              }
  
              Callback<ProxyPingEvent> callback = (pingResult, error1) -> {
@@ -214,7 +214,7 @@ index a94f05f..2a69524 100644
                  unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
              };
  
-@@ -423,7 +424,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -427,7 +428,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          Callback<String> handler = (result, error) -> {
              if ( error == null )
              {

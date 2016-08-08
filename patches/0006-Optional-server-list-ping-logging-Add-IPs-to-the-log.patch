@@ -1,4 +1,4 @@
-From 18fe5040ba58e400bb415a268c4bfb8b36ffc7f4 Mon Sep 17 00:00:00 2001
+From df13809521438804d2f4dd594acd5fb5fc751be9 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sat, 12 Dec 2015 23:43:30 +0100
 Subject: Optional server list ping logging; Add IPs to the log where user
@@ -34,7 +34,7 @@ index 3d4cfc1..46f5050 100644
       */
      int getPlayerLimit();
 diff --git a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
-index dd00192..bc6849c 100644
+index 977b3de..7ad5480 100644
 --- a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
 +++ b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
 @@ -344,6 +344,6 @@ public class ServerConnector extends PacketHandler
@@ -69,7 +69,7 @@ index 0445dfa..bff0ccf 100644
          throttle = adapter.getInt( "connection_throttle", throttle );
          tabCompleteThrottle = adapter.getInt( "tab_complete_throttle", tabCompleteThrottle );
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
-index cb9dbaf..6369d2e 100644
+index 3daab36..0a9abfa 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
 @@ -503,6 +503,6 @@ public class DownstreamBridge extends PacketHandler
@@ -125,10 +125,10 @@ index e9e2422..2077e31 100644
  
      @Override
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
-index 9780a0c..5c66ab8 100644
+index 3365497..17b8eb9 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
-@@ -204,6 +204,6 @@ public class UpstreamBridge extends PacketHandler
+@@ -207,6 +207,6 @@ public class UpstreamBridge extends PacketHandler
      @Override
      public String toString()
      {

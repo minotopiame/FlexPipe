@@ -1,4 +1,4 @@
-From 07b1d46124d632ddaa147e31140e4265dd3676dc Mon Sep 17 00:00:00 2001
+From 3a13cc299c40ed9f0efe77ecccf4c63851c3b6f8 Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Wed, 17 Feb 2016 00:29:46 +0100
 Subject: Avoid regex in getLocale()
@@ -9,10 +9,10 @@ Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/UserConnection.java b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-index fa8ffa9..5c307ce 100644
+index 00d9719..f2c361d 100644
 --- a/proxy/src/main/java/net/md_5/bungee/UserConnection.java
 +++ b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-@@ -535,7 +535,7 @@ public final class UserConnection implements ProxiedPlayer
+@@ -549,7 +549,7 @@ public final class UserConnection implements ProxiedPlayer
      @Override
      public Locale getLocale()
      {

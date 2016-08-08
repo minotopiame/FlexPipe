@@ -1,4 +1,4 @@
-From 0667e8d2297f3a89cbfa7165301bc0489e10cee8 Mon Sep 17 00:00:00 2001
+From c9c4bcb072a42fdc58b1ab7e4c4ab2171d4c7968 Mon Sep 17 00:00:00 2001
 From: Iceee <andrew@optic.tv>
 Date: Sat, 27 Feb 2016 12:07:18 +0100
 Subject: Don't allow channel buffers to grow beyond a reasonable limit, thanks
@@ -12,7 +12,7 @@ Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
  1 file changed, 3 insertions(+)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index 45d0354..8dcf159 100644
+index eb5a3d8..c32562d 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 @@ -351,6 +351,9 @@ public class BungeeCord extends ProxyServer

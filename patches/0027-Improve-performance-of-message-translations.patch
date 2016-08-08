@@ -1,4 +1,4 @@
-From 669a63d7fb09e38e6a40c8110fed4271c642b542 Mon Sep 17 00:00:00 2001
+From a3c7723076e0471f306d5646303e4413c69c463a Mon Sep 17 00:00:00 2001
 From: Mystiflow <Mystiflow@users.noreply.github.com>
 Date: Sat, 19 Mar 2016 16:44:10 +0100
 Subject: Improve performance of message translations
@@ -14,7 +14,7 @@ Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
  1 file changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index d9958dc..f737bd1 100644
+index 4691434..08f9614 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 @@ -561,14 +561,15 @@ public class BungeeCord extends ProxyServer

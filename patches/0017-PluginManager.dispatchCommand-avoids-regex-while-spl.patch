@@ -1,4 +1,4 @@
-From f8da2633b679a75a0f6bc327d0931d7c89539fb8 Mon Sep 17 00:00:00 2001
+From 254c274d9b1125951773c13ea943013c8d98f19e Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Wed, 17 Feb 2016 00:37:40 +0100
 Subject: PluginManager.dispatchCommand() avoids regex while splitting
@@ -12,7 +12,7 @@ Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
  1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/api/src/main/java/net/md_5/bungee/api/plugin/PluginManager.java b/api/src/main/java/net/md_5/bungee/api/plugin/PluginManager.java
-index 2426bdb..d1ad8b2 100644
+index 71a5a15..04a61b1 100644
 --- a/api/src/main/java/net/md_5/bungee/api/plugin/PluginManager.java
 +++ b/api/src/main/java/net/md_5/bungee/api/plugin/PluginManager.java
 @@ -42,7 +42,6 @@ import org.yaml.snakeyaml.introspector.PropertyUtils;

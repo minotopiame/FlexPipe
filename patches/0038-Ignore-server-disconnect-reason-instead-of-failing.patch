@@ -1,4 +1,4 @@
-From e1179e0f6da625bce7466d805190e5842f8afa4f Mon Sep 17 00:00:00 2001
+From f15af063944c3599f68d95e9a5f3d4df8dd5ae1c Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 27 Apr 2016 16:46:09 +0200
 Subject: Ignore server disconnect reason instead of failing

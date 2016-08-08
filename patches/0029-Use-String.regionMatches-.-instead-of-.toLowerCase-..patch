@@ -1,4 +1,4 @@
-From de5b8b9c79d46fb4a447250985bb5c9d330b5b1c Mon Sep 17 00:00:00 2001
+From 2b0c57b2585f84f9829ab467df039352f914bc30 Mon Sep 17 00:00:00 2001
 From: Tux <write@imaginarycode.com>
 Date: Mon, 21 Mar 2016 22:29:05 +0100
 Subject: Use String.regionMatches(...) instead of
@@ -51,7 +51,7 @@ index f93ae19..9d5c938 100644
                  .collect( Collectors.toList() );
      }
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index 2eba2b8..bd0a8aa 100644
+index 08f9614..a135964 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 @@ -63,6 +63,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;

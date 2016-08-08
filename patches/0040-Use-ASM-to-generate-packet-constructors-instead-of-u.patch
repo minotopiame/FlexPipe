@@ -1,4 +1,4 @@
-From ee454f0906b583a84590ca2c22c354a5469c865c Mon Sep 17 00:00:00 2001
+From 9ba1b6175bf8e0d49ae7b5991419477fb3d77174 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Fri, 10 Jun 2016 16:52:09 +0200
 Subject: Use ASM to generate packet constructors instead of using reflection

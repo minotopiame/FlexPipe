@@ -1,4 +1,4 @@
-From a75313f49f462b1b182066638bc3c5ebdefd3ae1 Mon Sep 17 00:00:00 2001
+From 59a3ff7c2394d52414796e054d07a363c0bbfc4a Mon Sep 17 00:00:00 2001
 From: Minecrell <dev@minecrell.net>
 Date: Mon, 28 Mar 2016 23:47:10 +0200
 Subject: Edit messages without modifying the JAR file more easily.
@@ -32,7 +32,7 @@ index 11c5b68..28ca52f 100644
       *
       * @return the in use reconnect handler
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index a4430aa..84e548b 100644
+index 2f9a8c7..8dec98f 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 @@ -8,6 +8,12 @@ import com.google.common.collect.Iterables;
@@ -48,7 +48,7 @@ index a4430aa..84e548b 100644
  import net.md_5.bungee.api.Favicon;
  import net.md_5.bungee.api.ServerPing;
  import net.md_5.bungee.api.Title;
-@@ -34,7 +40,6 @@ import io.netty.channel.EventLoopGroup;
+@@ -33,7 +39,6 @@ import io.netty.channel.EventLoopGroup;
  import io.netty.util.ResourceLeakDetector;
  import net.md_5.bungee.conf.Configuration;
  import java.io.File;
@@ -56,7 +56,7 @@ index a4430aa..84e548b 100644
  import java.io.IOException;
  import java.io.PrintStream;
  import java.net.InetSocketAddress;
-@@ -47,7 +52,6 @@ import java.util.HashSet;
+@@ -46,7 +51,6 @@ import java.util.HashSet;
  import java.util.Locale;
  import java.util.Map;
  import java.util.MissingResourceException;
@@ -64,7 +64,7 @@ index a4430aa..84e548b 100644
  import java.util.ResourceBundle;
  import java.util.Timer;
  import java.util.TimerTask;
-@@ -106,8 +110,7 @@ public class BungeeCord extends ProxyServer
+@@ -102,8 +106,7 @@ public class BungeeCord extends ProxyServer
      /**
       * Localization bundle.
       */
@@ -74,7 +74,7 @@ index a4430aa..84e548b 100644
      public EventLoopGroup eventLoops;
      /**
       * locations.yml save thread.
-@@ -155,7 +158,8 @@ public class BungeeCord extends ProxyServer
+@@ -151,7 +154,8 @@ public class BungeeCord extends ProxyServer
      private ConnectionThrottle connectionThrottle;
      private final ModuleManager moduleManager = new ModuleManager();
  
@@ -84,7 +84,7 @@ index a4430aa..84e548b 100644
      {
          // TODO: Proper fallback when we interface the manager
          getPluginManager().registerCommand( null, new CommandReload() );
-@@ -182,18 +186,10 @@ public class BungeeCord extends ProxyServer
+@@ -178,18 +182,10 @@ public class BungeeCord extends ProxyServer
  
          try
          {
@@ -105,7 +105,7 @@ index a4430aa..84e548b 100644
          }
  
          // This is a workaround for quite possibly the weirdest bug I have ever encountered in my life!
-@@ -231,6 +227,57 @@ public class BungeeCord extends ProxyServer
+@@ -227,6 +223,57 @@ public class BungeeCord extends ProxyServer
                  logger.info( "Using standard Java compressor. To enable zero copy compression, run on 64 bit Linux" );
              }
          }
@@ -163,7 +163,7 @@ index a4430aa..84e548b 100644
      }
  
      /**
-@@ -473,7 +520,7 @@ public class BungeeCord extends ProxyServer
+@@ -472,7 +519,7 @@ public class BungeeCord extends ProxyServer
          String translation = "<translation '" + name + "' missing>";
          try
          {
@@ -172,7 +172,7 @@ index a4430aa..84e548b 100644
          } catch ( MissingResourceException ex )
          {
          }
-@@ -593,7 +640,7 @@ public class BungeeCord extends ProxyServer
+@@ -592,7 +639,7 @@ public class BungeeCord extends ProxyServer
      @Override
      public String getGameVersion()
      {

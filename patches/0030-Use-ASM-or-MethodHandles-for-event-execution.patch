@@ -1,4 +1,4 @@
-From b847a6fe345cfebcaf11b09df51ec760b3e8ab65 Mon Sep 17 00:00:00 2001
+From 6486bf462ee2e0d79c3976a0313608a47c741586 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Tue, 22 Mar 2016 00:11:46 +0100
 Subject: Use ASM or MethodHandles for event execution
@@ -23,7 +23,7 @@ Nearly the same as if you applied https://github.com/WaterfallMC/Waterfall/commi
  create mode 100644 event/src/main/java/net/md_5/bungee/event/asm/SafeClassDefiner.java
 
 diff --git a/event/pom.xml b/event/pom.xml
-index 8f76679..84ccd4f 100644
+index c0be4ac..fa9c5ed 100644
 --- a/event/pom.xml
 +++ b/event/pom.xml
 @@ -15,4 +15,12 @@

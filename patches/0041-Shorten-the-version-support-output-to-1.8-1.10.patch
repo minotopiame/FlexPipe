@@ -1,4 +1,4 @@
-From ab944984eab887e7cec8944be777cb9a8b3c9e89 Mon Sep 17 00:00:00 2001
+From 84f4b03e4e3f983254aba48869530b6f7064483c Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sat, 11 Jun 2016 15:59:47 +0200
 Subject: Shorten the version support output to '1.8 - 1.10'
@@ -8,7 +8,7 @@ Subject: Shorten the version support output to '1.8 - 1.10'
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index a7d4e7f..bfabe8f 100644
+index 1ca4b2c..ee7c4a8 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -243,7 +243,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection

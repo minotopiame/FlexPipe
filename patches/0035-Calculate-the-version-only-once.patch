@@ -1,4 +1,4 @@
-From 9cda7df4e8086f478c4f6b26bc0ae861d325d7a3 Mon Sep 17 00:00:00 2001
+From 6701f9c552071cbda85320514b1a6bb507251b5f Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 24 Apr 2016 14:16:18 +0200
 Subject: Calculate the version only once.
@@ -8,10 +8,10 @@ Subject: Calculate the version only once.
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index 13d2759..a18148a 100644
+index a135964..02a52c0 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-@@ -102,6 +102,7 @@ import org.fusesource.jansi.AnsiConsole;
+@@ -98,6 +98,7 @@ import org.fusesource.jansi.AnsiConsole;
  public class BungeeCord extends ProxyServer
  {
  
@@ -19,7 +19,7 @@ index 13d2759..a18148a 100644
      /**
       * Current operation state.
       */
-@@ -558,7 +559,7 @@ public class BungeeCord extends ProxyServer
+@@ -557,7 +558,7 @@ public class BungeeCord extends ProxyServer
      @Override
      public String getVersion()
      {

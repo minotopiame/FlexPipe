@@ -1,4 +1,4 @@
-From d73f8313b80392824a57df911d4a1e31b865ac29 Mon Sep 17 00:00:00 2001
+From ba35569bc2f909d23758efa89f3de0e1a7dc851e Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Sun, 17 Jan 2016 17:22:05 +0100
 Subject: Add origin and patcher git hash instead of patched git hash to
@@ -10,10 +10,10 @@ Remove scriptus maven plugin, as its no longer needed.
  1 file changed, 3 insertions(+), 16 deletions(-)
 
 diff --git a/pom.xml b/pom.xml
-index a5fa94c..68aeff7 100644
+index f334496..babc3bf 100644
 --- a/pom.xml
 +++ b/pom.xml
-@@ -75,6 +75,9 @@
+@@ -76,6 +76,9 @@
          <maven.compiler.source>1.7</maven.compiler.source>
          <maven.compiler.target>1.7</maven.compiler.target>
          <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,7 +23,7 @@ index a5fa94c..68aeff7 100644
      </properties>
  
      <dependencies>
-@@ -107,22 +110,6 @@
+@@ -108,22 +111,6 @@
      <build>
          <plugins>
              <plugin>
