@@ -1,4 +1,4 @@
-From 5432daa2e053722226ea96aeb9b98a294b591023 Mon Sep 17 00:00:00 2001
+From 6e08819abe8e45218f59aa461ce7d9622f4fe0c7 Mon Sep 17 00:00:00 2001
 From: DoctorDark <doctordark11@gmail.com>
 Date: Fri, 10 Jun 2016 00:27:17 +0200
 Subject: Allow the console to tab complete commands
@@ -11,7 +11,7 @@ Signed-off-by: Janmm14 <computerjanimaus@yahoo.de>
  create mode 100644 proxy/src/main/java/net/md_5/bungee/command/ConsoleCommandCompleter.java
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index 72ba46c..5ff2daa 100644
+index 02a52c0..c5ed99c 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 @@ -234,6 +234,7 @@ public class BungeeCord extends ProxyServer
@@ -20,7 +20,7 @@ index 72ba46c..5ff2daa 100644
          consoleReader.setExpandEvents( false );
 +        consoleReader.addCompleter( new ConsoleCommandCompleter( this ) );
  
-         logger = new BungeeLogger( this );
+         logger = new BungeeLogger( "FlexPipe", "proxy.log", consoleReader );
          System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
 diff --git a/proxy/src/main/java/net/md_5/bungee/command/ConsoleCommandCompleter.java b/proxy/src/main/java/net/md_5/bungee/command/ConsoleCommandCompleter.java
 new file mode 100644

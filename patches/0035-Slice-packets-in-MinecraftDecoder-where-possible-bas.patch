@@ -1,4 +1,4 @@
-From ca271e9af2d956255e08411ea6ac614217c3dd75 Mon Sep 17 00:00:00 2001
+From 814e56a4222d5cae772ef6e4eb71cb3ebab565a0 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Fri, 8 Apr 2016 00:04:13 +0200
 Subject: Slice packets in MinecraftDecoder where possible, based on packet Id
@@ -169,7 +169,7 @@ index 1f41298..2655a9a 100644
                  ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target ) );
              }
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
-index dcd51fa..b1d971e 100644
+index 77faa1d..01e6417 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
 @@ -1,5 +1,7 @@
@@ -249,7 +249,7 @@ index 0000000..2b6a5c7
 +    }
 +}
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
-index f883cd0..f68c327 100644
+index ab28e0e..557ec3d 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 @@ -1,5 +1,6 @@
@@ -259,7 +259,7 @@ index f883cd0..f68c327 100644
  import me.minotopia.flexpipe.api.event.SuspiciousPlayerBehaviourEvent;
  
  import com.google.common.base.Preconditions;
-@@ -90,7 +91,11 @@ public class UpstreamBridge extends PacketHandler
+@@ -91,7 +92,11 @@ public class UpstreamBridge extends PacketHandler
      @Override
      public void handle(PacketWrapper packet) throws Exception
      {
@@ -269,10 +269,10 @@ index f883cd0..f68c327 100644
 +        {
 +            con.getEntityRewrite().rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
 +        }
-         if ( con.getServer() != null )
-         {
-             con.getServer().getCh().write( packet );
-@@ -98,6 +103,12 @@ public class UpstreamBridge extends PacketHandler
+ 
+         ServerConnection serverConnection = con.getServer();
+         if (serverConnection != null) {
+@@ -100,6 +105,12 @@ public class UpstreamBridge extends PacketHandler
      }
  
      @Override
@@ -318,10 +318,10 @@ index 7eb48e0..c5fd5ca 100644
 +    }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_10.java b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_10.java
-index 8ee3992..ef7472b 100644
+index a89ea2e..9e1adf7 100644
 --- a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_10.java
 +++ b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_10.java
-@@ -171,4 +171,16 @@ class EntityMap_1_10 extends EntityMap
+@@ -175,4 +175,16 @@ class EntityMap_1_10 extends EntityMap
          }
          packet.readerIndex( readerIndex );
      }
@@ -360,10 +360,10 @@ index 4229fef..3e1fdfa 100644
 +    }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9.java b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9.java
-index f6eb972..5af4d39 100644
+index 19d9677..cb56f0f 100644
 --- a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9.java
 +++ b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9.java
-@@ -171,4 +171,16 @@ class EntityMap_1_9 extends EntityMap
+@@ -175,4 +175,16 @@ class EntityMap_1_9 extends EntityMap
          }
          packet.readerIndex( readerIndex );
      }
@@ -381,10 +381,10 @@ index f6eb972..5af4d39 100644
 +    }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9_4.java b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9_4.java
-index c7442be..c8841ae 100644
+index 412ab4e..a54f2bb 100644
 --- a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9_4.java
 +++ b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap_1_9_4.java
-@@ -171,4 +171,16 @@ class EntityMap_1_9_4 extends EntityMap
+@@ -175,4 +175,16 @@ class EntityMap_1_9_4 extends EntityMap
          }
          packet.readerIndex( readerIndex );
      }

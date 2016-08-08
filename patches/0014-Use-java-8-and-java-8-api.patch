@@ -1,4 +1,4 @@
-From 68b57809c5b9103b7047e9f2a09698aecfef1647 Mon Sep 17 00:00:00 2001
+From 90f61655469936bf19cd2406c5d059928ffd0684 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Wed, 17 Feb 2016 22:29:54 +0100
 Subject: Use java 8 and java 8 api.
@@ -128,13 +128,13 @@ index 36da83e..f93ae19 100644
      }
  }
 diff --git a/pom.xml b/pom.xml
-index 5820977..c6b43dd 100644
+index babc3bf..e9e359a 100644
 --- a/pom.xml
 +++ b/pom.xml
-@@ -72,8 +72,8 @@
+@@ -73,8 +73,8 @@
      <properties>
          <build.number>unknown</build.number>
-         <netty.version>4.0.33.Final</netty.version>
+         <netty.version>4.0.40.Final</netty.version>
 -        <maven.compiler.source>1.7</maven.compiler.source>
 -        <maven.compiler.target>1.7</maven.compiler.target>
 +        <maven.compiler.source>1.8</maven.compiler.source>
@@ -142,7 +142,7 @@ index 5820977..c6b43dd 100644
          <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
          <origin_commit>unknown</origin_commit>
          <patcher_commit>unknown</patcher_commit>
-@@ -110,31 +110,6 @@
+@@ -111,31 +111,6 @@
      <build>
          <plugins>
              <plugin>
@@ -175,7 +175,7 @@ index 5820977..c6b43dd 100644
                  <artifactId>maven-javadoc-plugin</artifactId>
                  <!-- 2.10+ claimed to be broken says FlexPipe -->
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index 5461405..ca80bf1 100644
+index 8dec98f..eb5a3d8 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 @@ -14,6 +14,7 @@ import java.io.InputStream;

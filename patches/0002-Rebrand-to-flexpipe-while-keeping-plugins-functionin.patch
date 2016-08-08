@@ -1,8 +1,8 @@
-From 637c96f4c4b97ec0bbeadc60e6a8b64da6b45866 Mon Sep 17 00:00:00 2001
+From 05221f2bdb5707721f1f30cf1371658e634406a4 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 15 Feb 2016 21:19:03 +0100
-Subject: Rebrand to me.minotopia.flexpipe while keeping plugins' functioning;
- add /flexpipe command
+Subject: Rebrand to flexpipe while keeping plugins functioning; add /flexpipe
+ command
 
 ---
  api/pom.xml                                        | 27 ++++++-------
@@ -12,6 +12,8 @@ Subject: Rebrand to me.minotopia.flexpipe while keeping plugins' functioning;
  chat/pom.xml                                       | 12 +++---
  config/pom.xml                                     | 12 +++---
  event/pom.xml                                      | 12 +++---
+ log/pom.xml                                        | 14 +++----
+ .../java/net/md_5/bungee/log/LogDispatcher.java    |  2 +-
  module/cmd-alert/pom.xml                           |  8 ++--
  module/cmd-find/pom.xml                            |  8 ++--
  module/cmd-list/pom.xml                            |  8 ++--
@@ -22,14 +24,12 @@ Subject: Rebrand to me.minotopia.flexpipe while keeping plugins' functioning;
  native/pom.xml                                     | 12 +++---
  pom.xml                                            | 44 ++++++++++++----------
  protocol/pom.xml                                   | 16 ++++----
- proxy/pom.xml                                      | 26 ++++++-------
+ proxy/pom.xml                                      | 30 +++++++--------
  proxy/src/main/java/Test.java                      |  2 +-
- .../src/main/java/net/md_5/bungee/BungeeCord.java  |  8 ++--
+ .../src/main/java/net/md_5/bungee/BungeeCord.java  | 10 ++---
  .../net/md_5/bungee/command/CommandBungee.java     |  4 +-
- .../java/net/md_5/bungee/log/BungeeLogger.java     |  2 +-
- .../java/net/md_5/bungee/log/LogDispatcher.java    |  2 +-
  query/pom.xml                                      | 16 ++++----
- 24 files changed, 128 insertions(+), 155 deletions(-)
+ 24 files changed, 136 insertions(+), 165 deletions(-)
 
 diff --git a/api/pom.xml b/api/pom.xml
 index bd89a6b..26170fa 100644
@@ -262,6 +262,57 @@ index 6688153..c0be4ac 100644
 +    <name>FlexPipe-Event</name>
 +    <description>Generic java event dispatching API intended for use with FlexPipe</description>
  </project>
+diff --git a/log/pom.xml b/log/pom.xml
+index b970df0..0d580f8 100644
+--- a/log/pom.xml
++++ b/log/pom.xml
+@@ -4,18 +4,16 @@
+     <modelVersion>4.0.0</modelVersion>
+ 
+     <parent>
+-        <groupId>net.md-5</groupId>
+-        <artifactId>bungeecord-parent</artifactId>
++        <groupId>me.minotopia.flexpipe</groupId>
++        <artifactId>flexpipe-parent</artifactId>
+         <version>1.10-SNAPSHOT</version>
+         <relativePath>../pom.xml</relativePath>
+     </parent>
+ 
+-    <groupId>net.md-5</groupId>
+-    <artifactId>bungeecord-log</artifactId>
+-    <version>1.10-SNAPSHOT</version>
++    <artifactId>flexpipe-log</artifactId>
+     <packaging>jar</packaging>
+ 
+-    <name>BungeeCord-Log</name>
++    <name>FlexPipe-Log</name>
+     <description>Simplistic and performant java.util.Logger based logger and console API designed for use with BungeeCord and Minecraft related applications.</description>
+ 
+     <dependencies>
+@@ -26,8 +24,8 @@
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+-            <groupId>net.md-5</groupId>
+-            <artifactId>bungeecord-chat</artifactId>
++            <groupId>me.minotopia.flexpipe</groupId>
++            <artifactId>flexpipe-chat</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+         </dependency>
+diff --git a/log/src/main/java/net/md_5/bungee/log/LogDispatcher.java b/log/src/main/java/net/md_5/bungee/log/LogDispatcher.java
+index f1ccd4f..385a352 100644
+--- a/log/src/main/java/net/md_5/bungee/log/LogDispatcher.java
++++ b/log/src/main/java/net/md_5/bungee/log/LogDispatcher.java
+@@ -12,7 +12,7 @@ public class LogDispatcher extends Thread
+ 
+     public LogDispatcher(BungeeLogger logger)
+     {
+-        super( "BungeeCord Logger Thread" );
++        super( "FlexPipe Logger Thread" );
+         this.logger = logger;
+     }
+ 
 diff --git a/module/cmd-alert/pom.xml b/module/cmd-alert/pom.xml
 index 3156334..6e4782f 100644
 --- a/module/cmd-alert/pom.xml
@@ -470,7 +521,7 @@ index a3bd632..83b3714 100644
      <dependencies>
          <dependency>
 diff --git a/pom.xml b/pom.xml
-index 299f6fa..6b7f896 100644
+index de51d88..f334496 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -3,24 +3,18 @@
@@ -505,7 +556,7 @@ index 299f6fa..6b7f896 100644
      </organization>
      <licenses>
          <license>
-@@ -50,19 +44,31 @@
+@@ -51,19 +45,31 @@
      </modules>
  
      <scm>
@@ -541,8 +592,8 @@ index 299f6fa..6b7f896 100644
 +
      <properties>
          <build.number>unknown</build.number>
-         <netty.version>4.0.33.Final</netty.version>
-@@ -141,10 +147,10 @@
+         <netty.version>4.0.40.Final</netty.version>
+@@ -142,10 +148,10 @@
                      </signature>
                  </configuration>
              </plugin>
@@ -591,7 +642,7 @@ index bac4690..627b6db 100644
              <scope>compile</scope>
          </dependency>
 diff --git a/proxy/pom.xml b/proxy/pom.xml
-index 700e327..035eaee 100644
+index 55bba90..10de89b 100644
 --- a/proxy/pom.xml
 +++ b/proxy/pom.xml
 @@ -4,18 +4,16 @@
@@ -617,7 +668,7 @@ index 700e327..035eaee 100644
      <description>Proxy component of the Elastic Portal Suite</description>
  
      <dependencies>
-@@ -39,26 +37,26 @@
+@@ -33,32 +31,32 @@
              <scope>compile</scope>
          </dependency>
          <dependency>
@@ -625,6 +676,14 @@ index 700e327..035eaee 100644
 -            <artifactId>bungeecord-api</artifactId>
 +            <groupId>me.minotopia.flexpipe</groupId>
 +            <artifactId>flexpipe-api</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+-            <groupId>net.md-5</groupId>
+-            <artifactId>bungeecord-log</artifactId>
++            <groupId>me.minotopia.flexpipe</groupId>
++            <artifactId>flexpipe-log</artifactId>
              <version>${project.version}</version>
              <scope>compile</scope>
          </dependency>
@@ -666,7 +725,7 @@ index 9d51608..da98f0a 100644
  
          while ( bungee.isRunning )
 diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
-index ac08d8e..66dcf08 100644
+index 9825b99..562196c 100644
 --- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 +++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
 @@ -172,7 +172,7 @@ public class BungeeCord extends ProxyServer
@@ -678,7 +737,7 @@ index ac08d8e..66dcf08 100644
  
          System.setSecurityManager( new BungeeSecurityManager() );
  
-@@ -199,8 +199,8 @@ public class BungeeCord extends ProxyServer
+@@ -199,14 +199,14 @@ public class BungeeCord extends ProxyServer
          // Furthermore this behaviour only occurs in specific combinations due to the parsing done by jansi.
          // For example test-test works fine, but test-test-test does not! In order to avoid this all together but
          // still keep our versions the same as they were, we set the override property to the essentially garbage version
@@ -689,6 +748,13 @@ index ac08d8e..66dcf08 100644
  
          AnsiConsole.systemInstall();
          consoleReader = new ConsoleReader();
+         consoleReader.setExpandEvents( false );
+ 
+-        logger = new BungeeLogger( "BungeeCord", "proxy.log", consoleReader );
++        logger = new BungeeLogger( "FlexPipe", "proxy.log", consoleReader );
+         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
+         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
+ 
 @@ -457,7 +457,7 @@ public class BungeeCord extends ProxyServer
      @Override
      public String getName()
@@ -717,32 +783,6 @@ index b079879..566b6d3 100644
 +        sender.sendMessage( ChatColor.BLUE + "This server is running version " + ProxyServer.getInstance().getVersion() + " based on md_5's work" );
      }
  }
-diff --git a/proxy/src/main/java/net/md_5/bungee/log/BungeeLogger.java b/proxy/src/main/java/net/md_5/bungee/log/BungeeLogger.java
-index 94e924b..6cc6625 100644
---- a/proxy/src/main/java/net/md_5/bungee/log/BungeeLogger.java
-+++ b/proxy/src/main/java/net/md_5/bungee/log/BungeeLogger.java
-@@ -22,7 +22,7 @@ public class BungeeLogger extends Logger
-     @SuppressFBWarnings("SC_START_IN_CTOR")
-     public BungeeLogger(BungeeCord bungee)
-     {
--        super( "BungeeCord", null );
-+        super( "FlexPipe", null );
-         setLevel( Level.ALL );
- 
-         try
-diff --git a/proxy/src/main/java/net/md_5/bungee/log/LogDispatcher.java b/proxy/src/main/java/net/md_5/bungee/log/LogDispatcher.java
-index f1ccd4f..385a352 100644
---- a/proxy/src/main/java/net/md_5/bungee/log/LogDispatcher.java
-+++ b/proxy/src/main/java/net/md_5/bungee/log/LogDispatcher.java
-@@ -12,7 +12,7 @@ public class LogDispatcher extends Thread
- 
-     public LogDispatcher(BungeeLogger logger)
-     {
--        super( "BungeeCord Logger Thread" );
-+        super( "FlexPipe Logger Thread" );
-         this.logger = logger;
-     }
- 
 diff --git a/query/pom.xml b/query/pom.xml
 index 8df9b12..7b42f33 100644
 --- a/query/pom.xml

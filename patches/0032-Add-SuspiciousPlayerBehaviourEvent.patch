@@ -1,4 +1,4 @@
-From a3a89f3513154513f60d0a5310ca3010d466f2c8 Mon Sep 17 00:00:00 2001
+From b39aabc1a20ceb5f582ef4a0320e29301879b772 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Thu, 24 Mar 2016 14:29:14 +0100
 Subject: Add SuspiciousPlayerBehaviourEvent
@@ -54,7 +54,7 @@ index 0000000..39dfb24
 +    }
 +}
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index 533491a..c2848f6 100644
+index 1c8689b..4e5553d 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -1,5 +1,7 @@
@@ -73,7 +73,7 @@ index 533491a..c2848f6 100644
  import net.md_5.bungee.api.chat.TextComponent;
  import net.md_5.bungee.api.config.ListenerInfo;
  import net.md_5.bungee.api.config.ServerInfo;
-@@ -280,6 +281,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -279,6 +280,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
              // setting protocol to login so we can send the kick message which is actually supported by the minecraft client after it sent the handshake
              ch.setProtocol( Protocol.LOGIN );
              disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( BungeeCord.getInstance().getConfig().getThrottle() ) ) );
@@ -81,7 +81,7 @@ index 533491a..c2848f6 100644
              return;
          }
  
-@@ -622,12 +624,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
+@@ -627,12 +629,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
          return !ch.isClosed();
      }
  
@@ -97,7 +97,7 @@ index 533491a..c2848f6 100644
      }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
-index d4f5509..f883cd0 100644
+index 4b0b820..ab28e0e 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 @@ -1,5 +1,7 @@
@@ -107,8 +107,8 @@ index d4f5509..f883cd0 100644
 +
  import com.google.common.base.Preconditions;
  import net.md_5.bungee.BungeeCord;
- import net.md_5.bungee.UserConnection;
-@@ -8,6 +10,7 @@ import net.md_5.bungee.api.ChatColor;
+ import net.md_5.bungee.ServerConnection;
+@@ -9,6 +11,7 @@ import net.md_5.bungee.api.ChatColor;
  import net.md_5.bungee.api.ProxyServer;
  import net.md_5.bungee.api.chat.BaseComponent;
  import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -116,7 +116,7 @@ index d4f5509..f883cd0 100644
  import net.md_5.bungee.api.connection.ProxiedPlayer;
  import net.md_5.bungee.api.event.ChatEvent;
  import net.md_5.bungee.api.event.PlayerDisconnectEvent;
-@@ -105,19 +108,30 @@ public class UpstreamBridge extends PacketHandler
+@@ -107,19 +110,30 @@ public class UpstreamBridge extends PacketHandler
          }
      }
  
