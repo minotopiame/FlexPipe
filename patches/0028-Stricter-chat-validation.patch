@@ -1,4 +1,4 @@
-From e4e096b37f6a88a19e029aa0726e447376425536 Mon Sep 17 00:00:00 2001
+From 6a378babfe4be92c056f3d40b16677966eaaaea2 Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 21 Mar 2016 03:25:13 +0100
 Subject: Stricter chat validation.
@@ -7,9 +7,9 @@ Allow chatting only after user has actually joined a server. Forbid empty or whi
 
 This prevents some joinbot attacks where bots start chatting before they actually joined the target server (real minecraft client would be at some login screen). As the vanilla minecraft client does not send empty or whitespace chat messages, but some bot tools do, this further prevents attacks from badly configured bots.
 ---
- .../net/md_5/bungee/connection/InitialHandler.java | 11 +++++++++
- .../net/md_5/bungee/connection/UpstreamBridge.java | 27 ++++++++++++++++------
- 2 files changed, 31 insertions(+), 7 deletions(-)
+ .../net/md_5/bungee/connection/InitialHandler.java  | 11 +++++++++++
+ .../net/md_5/bungee/connection/UpstreamBridge.java  | 21 +++++++++++++++------
+ 2 files changed, 26 insertions(+), 6 deletions(-)
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 index 3643bb9..1c8689b 100644
@@ -46,7 +46,7 @@ index 3643bb9..1c8689b 100644
 +    }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
-index 25143e1..4b0b820 100644
+index 9ece928..9bbb4cc 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 @@ -2,9 +2,13 @@ package net.md_5.bungee.connection;
@@ -63,29 +63,20 @@ index 25143e1..4b0b820 100644
  import net.md_5.bungee.api.connection.ProxiedPlayer;
  import net.md_5.bungee.api.event.ChatEvent;
  import net.md_5.bungee.api.event.PlayerDisconnectEvent;
-@@ -82,16 +86,14 @@ public class UpstreamBridge extends PacketHandler
+@@ -82,12 +86,6 @@ public class UpstreamBridge extends PacketHandler
      }
  
      @Override
 -    public boolean shouldHandle(PacketWrapper packet) throws Exception
 -    {
--        return con.getServer() != null;
+-        return con.getServer() != null || packet.packet instanceof PluginMessage;
 -    }
 -
 -    @Override
      public void handle(PacketWrapper packet) throws Exception
      {
-         con.getEntityRewrite().rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
--        con.getServer().getCh().write( packet );
-+
-+        ServerConnection serverConnection = con.getServer();
-+        if (serverConnection != null) {
-+            serverConnection.getCh().write( packet );
-+        }
-     }
- 
-     @Override
-@@ -105,11 +107,22 @@ public class UpstreamBridge extends PacketHandler
+         if ( con.getServer() != null )
+@@ -108,11 +106,22 @@ public class UpstreamBridge extends PacketHandler
          }
      }
  

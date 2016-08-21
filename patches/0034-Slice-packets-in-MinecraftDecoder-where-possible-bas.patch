@@ -1,4 +1,4 @@
-From e5ee9de0fb0bcb8e0ad9143f6a150dbec3240321 Mon Sep 17 00:00:00 2001
+From 727b6b4d6903581dcc2c8540325d8b873324ec3d Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Fri, 8 Apr 2016 00:04:13 +0200
 Subject: Slice packets in MinecraftDecoder where possible, based on packet Id
@@ -14,7 +14,7 @@ Additionally it removes some overhead by the MessageToMessageEncoder from Minecr
  .../net/md_5/bungee/connection/PingHandler.java    |  4 +-
  .../md_5/bungee/connection/SliceDeciderImpl.java   | 18 ++++++
  .../net/md_5/bungee/connection/UpstreamBridge.java | 13 ++++-
- .../java/net/md_5/bungee/entitymap/EntityMap.java  | 16 +++++-
+ .../java/net/md_5/bungee/entitymap/EntityMap.java  | 26 ++++++++-
  .../net/md_5/bungee/entitymap/EntityMap_1_10.java  | 12 ++++
  .../net/md_5/bungee/entitymap/EntityMap_1_8.java   | 12 ++++
  .../net/md_5/bungee/entitymap/EntityMap_1_9.java   | 12 ++++
@@ -22,7 +22,7 @@ Additionally it removes some overhead by the MessageToMessageEncoder from Minecr
  .../java/net/md_5/bungee/netty/HandlerBoss.java    |  3 +
  .../java/net/md_5/bungee/netty/PacketHandler.java  |  5 ++
  .../java/net/md_5/bungee/netty/PipelineUtils.java  |  4 +-
- 15 files changed, 188 insertions(+), 14 deletions(-)
+ 15 files changed, 196 insertions(+), 16 deletions(-)
  create mode 100644 protocol/src/main/java/net/md_5/bungee/protocol/util/SliceDecider.java
  create mode 100644 proxy/src/main/java/net/md_5/bungee/connection/SliceDeciderImpl.java
 
@@ -169,7 +169,7 @@ index 1f41298..2655a9a 100644
                  ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target ) );
              }
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
-index 77faa1d..01e6417 100644
+index 7ab1b94..460d14b 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
 @@ -1,5 +1,7 @@
@@ -178,9 +178,9 @@ index 77faa1d..01e6417 100644
 +import io.netty.buffer.SlicedByteBuf;
 +
  import com.google.common.base.Objects;
+ import com.google.common.base.Preconditions;
  import com.google.common.io.ByteArrayDataOutput;
- import com.google.common.io.ByteStreams;
-@@ -98,11 +100,21 @@ public class DownstreamBridge extends PacketHandler
+@@ -99,11 +101,21 @@ public class DownstreamBridge extends PacketHandler
      @Override
      public void handle(PacketWrapper packet) throws Exception
      {
@@ -249,7 +249,7 @@ index 0000000..2b6a5c7
 +    }
 +}
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
-index ab28e0e..557ec3d 100644
+index 638483d..faefa38 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 @@ -1,5 +1,6 @@
@@ -259,20 +259,20 @@ index ab28e0e..557ec3d 100644
  import me.minotopia.flexpipe.api.event.SuspiciousPlayerBehaviourEvent;
  
  import com.google.common.base.Preconditions;
-@@ -91,7 +92,11 @@ public class UpstreamBridge extends PacketHandler
+@@ -91,14 +92,24 @@ public class UpstreamBridge extends PacketHandler
      @Override
      public void handle(PacketWrapper packet) throws Exception
      {
--        con.getEntityRewrite().rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
+-        if ( con.getServer() != null )
 +        // if we get a SlicedByteBuf we know that entity rewrite is not needed - see MinecraftDecoder
 +        if ( !( packet.buf instanceof SlicedByteBuf ) )
-+        {
-+            con.getEntityRewrite().rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
+         {
+             con.getEntityRewrite().rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
 +        }
- 
-         ServerConnection serverConnection = con.getServer();
-         if (serverConnection != null) {
-@@ -100,6 +105,12 @@ public class UpstreamBridge extends PacketHandler
++
++        if ( con.getServer() != null) {
+             con.getServer().getCh().write( packet );
+         }
      }
  
      @Override
@@ -286,10 +286,31 @@ index ab28e0e..557ec3d 100644
      {
          if ( alive.getRandomId() == con.getSentPingId() )
 diff --git a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap.java b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap.java
-index 7eb48e0..c5fd5ca 100644
+index 7eb48e0..e51c452 100644
 --- a/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap.java
 +++ b/proxy/src/main/java/net/md_5/bungee/entitymap/EntityMap.java
-@@ -86,7 +86,7 @@ public abstract class EntityMap
+@@ -61,12 +61,18 @@ public abstract class EntityMap
+ 
+     public void rewriteServerbound(ByteBuf packet, int oldId, int newId)
+     {
+-        rewrite( packet, oldId, newId, serverboundInts, serverboundVarInts );
++        if ( oldId != newId )
++        {
++            rewrite( packet, oldId, newId, serverboundInts, serverboundVarInts );
++        }
+     }
+ 
+     public void rewriteClientbound(ByteBuf packet, int oldId, int newId)
+     {
+-        rewrite( packet, oldId, newId, clientboundInts, clientboundVarInts );
++        if ( oldId != newId )
++        {
++            rewrite( packet, oldId, newId, clientboundInts, clientboundVarInts );
++        }
+     }
+ 
+     protected static void rewriteInt(ByteBuf packet, int oldId, int newId, int offset)
+@@ -86,7 +92,7 @@ public abstract class EntityMap
      {
          // Need to rewrite the packet because VarInts are variable length
          int readId = DefinedPacket.readVarInt( packet );
@@ -298,7 +319,7 @@ index 7eb48e0..c5fd5ca 100644
          if ( readId == oldId || readId == newId )
          {
              ByteBuf data = packet.copy();
-@@ -114,4 +114,18 @@ public abstract class EntityMap
+@@ -114,4 +120,18 @@ public abstract class EntityMap
          }
          packet.readerIndex( readerIndex );
      }
@@ -402,7 +423,7 @@ index 412ab4e..a54f2bb 100644
 +    }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/netty/HandlerBoss.java b/proxy/src/main/java/net/md_5/bungee/netty/HandlerBoss.java
-index 94a164e..90f666b 100644
+index 7a49d21..8c81442 100644
 --- a/proxy/src/main/java/net/md_5/bungee/netty/HandlerBoss.java
 +++ b/proxy/src/main/java/net/md_5/bungee/netty/HandlerBoss.java
 @@ -1,5 +1,7 @@
