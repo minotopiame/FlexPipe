@@ -1,4 +1,4 @@
-From 9832d35b029501a2fc4c1cbd453539726ebe4996 Mon Sep 17 00:00:00 2001
+From e27b910cb81f84d6baa74fae8c487998418323ce Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Thu, 24 Mar 2016 14:29:14 +0100
 Subject: Add SuspiciousPlayerBehaviourEvent
@@ -97,7 +97,7 @@ index 1c8689b..4e5553d 100644
      }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
-index 4b0b820..ab28e0e 100644
+index 9bbb4cc..638483d 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
 @@ -1,5 +1,7 @@
@@ -116,7 +116,7 @@ index 4b0b820..ab28e0e 100644
  import net.md_5.bungee.api.connection.ProxiedPlayer;
  import net.md_5.bungee.api.event.ChatEvent;
  import net.md_5.bungee.api.event.PlayerDisconnectEvent;
-@@ -107,19 +110,30 @@ public class UpstreamBridge extends PacketHandler
+@@ -106,19 +109,30 @@ public class UpstreamBridge extends PacketHandler
          }
      }
  

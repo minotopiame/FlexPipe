@@ -1,4 +1,4 @@
-From bf736520cdd08ef51349600bf56dbee0b1c82db1 Mon Sep 17 00:00:00 2001
+From 1b9364c4728046cf78e458d75b71b25ded4660db Mon Sep 17 00:00:00 2001
 From: Janmm14 <computerjanimaus@yahoo.de>
 Date: Mon, 7 Mar 2016 13:33:26 +0100
 Subject: Restore 1.8-like ping motd description output for compability to
@@ -188,7 +188,7 @@ index dc49bb6..5dc78a8 100644
      }
  }
 diff --git a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
-index ac569a0..9c3883c 100644
+index 9263e90..4dfffd1 100644
 --- a/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
 +++ b/proxy/src/main/java/net/md_5/bungee/ServerConnector.java
 @@ -94,7 +94,7 @@ public class ServerConnector extends PacketHandler
