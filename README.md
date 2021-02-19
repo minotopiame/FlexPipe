@@ -1,8 +1,10 @@
-# FlexPipe [![Build Status](https://ci.janmm14.de/buildStatus/icon?job=public~server~FlexPipe)](https://ci.janmm14.de/job/public~server~FlexPipe)
+This project is no longer maintained. Use https://github.com/PaperMC/Waterfall instead.
+
+# FlexPipe
 **The flexible pipe to coordinate masses of players to the right spigot.**
 
 Build upon [BungeeCord](https://github.com/SpigotMC/BungeeCord), FlexPipe is created to provide optimizations, more
-stability and security. Originally built for [minotopia.me](https://www.minotopia.me), FlexPipe's changes to BungeeCord
+stability and security. Originally built for minotopia.me (no longer operating), FlexPipe's changes to BungeeCord
 are well tested and properly documented. Due to the patch system, updates of BungeeCord are automatically reflected in
 the newest builds.
 
@@ -38,8 +40,7 @@ Here is a list of notable changes done in FlexPipe, see individual patches for p
 * Allow the console to tab-complete
 
 ## Download
-You can download the newest builds from my [Jenkins](https://ci.janmm14.de/job/public~server~FlexPipe). The latest build
-is always the recommended build, except otherwise stated.
+Not available, project is no longer maintained.
 
 ## Usage
 Simply download your FlexPipe.jar and start it with java once. Then you can find additional configuration options in
